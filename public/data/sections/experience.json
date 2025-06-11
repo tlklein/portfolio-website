@@ -1,0 +1,53 @@
+{
+    "articles": [
+        {
+            "id": 1,
+            "component": "ArticleTimeline",
+            "locales": {},
+            "settings": {
+                "order_items_by": "id",
+                "order_items_sort": "desc"
+            },
+            "items": [
+                {
+                    "id": 1,
+                    "dateStart": {"year": 2021, "month": 10},
+                    "dateEnd": {"year": 2024, "month": 4},
+                    "img": "images/places/logo-gb.png",
+                    "fallbackFaIcon": "fa-solid fa-building",
+                    "fallbackFaIconColor": "#2F487A",
+
+                    "locales": {
+                        "en": {
+                            "title": "Ambassador",
+                            "description": "Conducted demographic analysis on an estimated 1,500 event attendees in Excel, enabling clearer segmentation by gender and informing targeted marketing strategies. Collaborated with an estimated 25 local businesses to improve event coordination, driving attendance to an estimated 3,000 attendees and fostering strong business partnerships. Designed and executed social media campaigns for an estimated 25 businesses using Adobe Creative Cloud, attracting 1,500 total attendees and showcasing expertise in digital marketing.",
+                            "province": "Houston",
+                            "country": "US",
+                            "institution": "Greater Business of Pearland",
+                            "tags": ["Adobe Creative Suite", "Microsoft Excel", "Data Cleaning", "Data Segmentation", "Data Management"]
+                        }
+                    }
+                },
+                {
+                    "id": 2,
+                    "dateStart": {"year": 2020, "month": 2},
+                    "dateEnd": {"year": 2024, "month": 11},
+                    "img": "images/places/logo-sehypno.png",
+                    "fallbackFaIcon":  "fa-solid fa-building",
+                    "fallbackFaIconColor": "#2F487A",
+
+                    "locales": {
+                        "en": {
+                            "title": "Intern", 
+                            "description": "Spearheaded the implementation of a client booking app, reducing administrative workload and no-shows/cancellations despite a zero-marketing budget. Migrated website to WordPress, improving performance and boosting daily views and weekly views. Digitized paper records into a client booking app, achieving centralized data access and improved accuracy. Developed an AI chatbot, increasing client screening bookings and leads. Built and deployed an automated reminder funnel, decreasing cancellations and no-shows.",
+                            "province": "Houston",
+                            "country": "US",
+                            "institution": "Southeast Hypnosis",
+                            "tags": ["CRM Systems", "Process Automation", "Website Optimization", "Data Digitization", "SaaS Solutions"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

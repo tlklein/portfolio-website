@@ -1,0 +1,44 @@
+{
+    "articles": [
+        {
+            "id": 1,
+            "component": "ArticleProfile",
+            "locales": {},
+            "settings": {
+                "order_items_by": "id",
+                "order_items_sort": "asc",
+                "contact_list_ids": ["state", "email", "phone"],
+                "contact_circles_ids": ["dev.to", "github", "linkedin", "email"]
+            },
+            "items": [
+
+                {
+                    "id": 1,
+                    "locales": {
+                        "en": {
+                            "description": "Graduating in May 2025 with a B.S. in Computer Information Systems from the University of Houston’s Cullen College of Engineering, I graduated cum laude. I hold the AWS Certified Cloud Practitioner certification. I combine technical expertise with creativity to design scalable, secure, and impactful solutions that solve real-world problems."
+                        }
+                    }
+                },
+
+                {
+                    "id": 2,
+                    "locales": {
+                        "en": {
+                            "description": "Over the last 4 years, I’ve built projects across web development, cloud architecture, database management, and application development. I’ve optimized appointment systems for a local business, automated marketing funnels, and digitized paper records."
+                        }
+                    }
+                },
+
+                {
+                    "id": 3,
+                    "locales": {
+                        "en": {
+                            "description": "If you’re looking for someone who can confidently debug both code—and clearly communicate with stakeholders—I’d love to connect. Feel free to reach out at trinitylklein@outlook.com."
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+/** ------------ BODY ----------------- **/
+html {
+    scroll-padding-top: 0;
+}
+
+body {
+    background-color: $loader-background;
+}
+
+body.body-default {
+    background-color: $default-section-background;
+}
+
+body.body-nav-contrast {
+    background-color: darken($nav-background, 3%)!important;
+}
+
+body.body-no-scroll {
+    overflow-y: hidden!important;
+    @include media-breakpoint-down(lg) {
+        position: fixed!important;
+    }
+}
+
+/** ----------- SELECTION ------------- **/
+::-moz-selection {
+    color: $dark;
+    background: lighten($primary, 15%);
+}
+
+::selection {
+    color: $dark;
+    background: lighten($primary, 15%);
+}
+
+/** ----------- SHADOWS ---------------- **/
+.trace-shadow {
+    box-shadow: rgba(0, 0, 0, 0.1) 5px 5px, rgba(10, 10, 10, 0.15) 10px 10px;
+}

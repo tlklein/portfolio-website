@@ -1,0 +1,15 @@
+@import "variables";
+@import "mixins";
+
+// importing bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// importing core styling file
+@import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
+// our project needs Solid + Brands
+@import "@fortawesome/fontawesome-free/scss/solid.scss";
+@import "@fortawesome/fontawesome-free/scss/regular.scss";
+@import "@fortawesome/fontawesome-free/scss/brands.scss";
+
+@import "layout";
+@import "typography";

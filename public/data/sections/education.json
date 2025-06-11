@@ -1,0 +1,34 @@
+{
+    "articles": [
+        {
+            "id": 1,
+            "component": "ArticleTimeline",
+            "locales": {},
+            "settings": {
+                "order_items_by": "id",
+                "order_items_sort": "desc"
+            },
+            "items": [
+                {
+                    "id": 1,
+                    "dateStart": {"year": 2020, "month": 7},
+                    "dateEnd": {"year": 2025, "month": 4},
+                    "img": "images/places/logo-uh.png",
+                    "fallbackFaIcon": "fa-solid fa-school",
+                    "fallbackFaIconColor": "#2F487A",
+
+                    "locales": {
+                        "en": {
+                            "title": "Bachelor's in Computer Information Systems",
+                            "description": "Accredited by the Computing Accreditation Commission of ABET, the Computer Information Systems program at the University of Houston gave me a strong foundation in both theory and real-world application. Through hands-on projects and coursework, I developed the skills to build software, work with cloud systems, manage data, and support network infrastructure. The program taught me how to use technology to solve business problems and improve organizational operations—preparing me for a career where I can make a real impact through IT.",
+                            "province": "Houston",
+                            "country": "US",
+                            "institution": "University of Houston",
+                            "tags": []
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

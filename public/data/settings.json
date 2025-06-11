@@ -1,0 +1,13 @@
+{
+    "preloaderEnabled": true,
+    "navToggleEnabled": true,
+
+    "supportedLanguages": [
+        {
+            "name": "English",
+            "id": "en",
+            "flagUrl": "images/flags/en-us.png",
+            "default": true
+        }
+    ]
+}

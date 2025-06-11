@@ -1,0 +1,7 @@
+// This file can be imported into a Vue component in order to access bootstrap/custom styling variables/resources.
+@import "./_variables";
+@import "./mixins";
+
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
