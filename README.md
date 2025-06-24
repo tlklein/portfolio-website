@@ -1,7 +1,7 @@
 
 <!--FIXME: ADD ARCH DIAGRAM & BANNER-->
 
-## A RECENT GRAD'S GUIDE TO THE CLOUD RESUME CHALLENGE
+# A RECENT GRAD'S GUIDE TO THE CLOUD RESUME CHALLENGE
 
 ## CHUNK 0 - Access, Credentials, and Certification Prep
 The goal of this section is to get the AWS Certified Cloud Practitioner certification. I achieved it. Follow the this link, https://www.credly.com/badges/9ab1424b-f346-4461-a1b7-829dc8591cd9. 
@@ -16,13 +16,16 @@ Another key achievement of this chunk is putting the code into an s3 bucket, and
 ## CHUNK 2 - Building the API
 The goal of this section is to get a visitor counter, or more accurately a hit counter on my portfolio website using a database that is not DynamoDB, and is applicable to the AWS Free-Tier requirements. 
 
-## CHUNK 3 - Building the Front-end and Back-end Integration
+## CHUNK 3 - Building the Front-end/Back-end Integration
 
 ## CHUNK 4 - Building the CI/CD Automation Pipelines
 
 ## CHUNK 5 - Building the Blog Post, and Architectures Diagrams
 
-### References  
+# References  
 1. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
 2. Hugo Extended - https://gohugo.io/installation/
 3. AWS Static Website Whitepapers - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html 
+4. Zhen Li - https://zhen404.com/posts/host-hugo-web-on-aws/ 
+5. Serverless MySQL Module - https://github.com/jeremydaly/serverless-mysql 
+6. AWS Visitor Counter using DynamoDB - https://github.com/kuzeyardabulut/aws-visitor-counter
