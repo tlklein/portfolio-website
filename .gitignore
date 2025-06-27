@@ -4,3 +4,5 @@ public
 *.lock
 *.toml
 *.yaml
+*.env
+**/visitor-counter/node_modules/

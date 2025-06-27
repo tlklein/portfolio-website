@@ -1,6 +1,5 @@
 {{ define "main" }}
 
-
 <h1>About</h1>
 
 <p>
@@ -45,7 +44,7 @@ Programming: Python, HTML/CSS, JavaScript, JSON, and SQL.
 </p>
 
 <!-- 
-<h2><a href=""> The Cloud Resume Challenge with Developer Mod</a></h2>
+<h2><a href="https://github.com/tlklein/portfolio-website"> The Cloud Resume Challenge with Developer Mod</a></h2>
 <p>
 </p>
 -->
@@ -73,7 +72,17 @@ Conducted demographic analysis on an estimated 1,500 event attendees in Excel, e
 </p>
 
 <!--
-<h1> Blog</h1> -->
+<h1> Blog</h1> 
+<div class="posts-list">
+        <div class="post">
+            <p>
+                <div class="date">July. 17, 2025</div>
+                <h2><a href="https://mrmierzejewski.com/hugo-theme-console/posts/what-is-hugo/" title="Cloud Resume Challenge">A Recent Grad's Guide to the Cloud Resume Challenge</a></h2>
+                <p></p>
+            </p>
+        </div>    
+</div>
+-->
 
 <div class="posts-list">
 {{ with .Site.GetPage "/posts" }}
