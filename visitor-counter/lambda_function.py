@@ -1,3 +1,5 @@
+# Lambda function for a simple hit counter using dynamodb
+
 import json
 import boto3
 import os
@@ -57,3 +59,5 @@ def lambda_handler(event, context):
     # Return api response object
 
     return apiResponse
+
+# Value: databaseName, Table: VisitorCount

@@ -1,29 +1,36 @@
 <div class="footer">
     <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Trinity Klein. All Rights Reserved. Powered by <a href="https://gohugo.io/">Hugo</a> with <a href="https://github.com/mrmierzejewski/hugo-theme-console/">Console Theme</a>.
-    <br/>
-    You are visitor number: <span id="visitors">Loading...</span>
+      <br/>
+      Unique Visitors: <span id="unique_visitors">Loading...</span>
+      Total Visits: <span id="total_visits">Loading...</span>
     </p>
 </div>
 <script id = "visitors">
-  document.addEventListener("DOMContentLoaded", async function () {
-    const visitorElement = document.getElementById("visitors");
-    if (!visitorElement) {
-      console.warn("No element with id='visitors' found.");
+document.addEventListener("DOMContentLoaded", async function () {
+    const uniqueElement = document.getElementById("unique_visitors");
+    const totalElement = document.getElementById("total_visits");
+
+    if (!uniqueElement || !totalElement) {
+      console.warn("Missing visitor counter elements.");
       return;
     }
 
     try {
       const response = await fetch("https://mrbt64lmbb.execute-api.us-east-2.amazonaws.com/default/VisitorCounter");
+
       if (!response.ok) throw new Error("Failed to fetch visitor count");
-        const data = await response.json();
-        visitorElement.textContent = data["count"];
-        visitorElement.classList.add("loaded");
-        console.log("Visitor count fetched:", data);
+
+      const data = await response.json();
+
+      uniqueElement.textContent = data.unique_visitors ?? "N/A";
+      totalElement.textContent = data.total_visits ?? "N/A";
+
+      console.log("Visitor count fetched:", data);
+
     } catch (err) {
-        console.error("Visitor count fetch failed:", err);
-        visitorElement.textContent = "N/A";
-        visitorElement.classList.add("loaded");
+      console.error("Visitor count fetch failed:", err);
+      uniqueElement.textContent = "N/A";
+      totalElement.textContent = "N/A";
     }
   });
-
 </script>
