@@ -29,7 +29,7 @@ The goal of this section is to write a blog post, create a architecture diagram,
 
 <!--FIXME: ADD ARCH DIAGRAM -->
 
-# References - Helpful Links
+## References - Helpful Links
 1. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
 2. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
 3. Hugo Extended - https://gohugo.io/installation/
