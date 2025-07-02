@@ -1,7 +1,9 @@
 ![image](/resources/_gen/images/The%20Cloud%20Resume%20Challenge%20Graphics-2.png)
 
 # A Recent Grad's Guide to the Cloud Resume Challenge
-<!-- FIXME: ADD OVERVIEW -->
+Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
+
+It has a detailed challenge walkthrough featuring loads of handpicked learning resources to help people level up on the cloud, programming, and DevOps skills you need. With a total of three 'megamods' (DevOps, Security, and Developer), that help build on the core challenge project with MORE hands-on practice to help people polish their skills. 
 
 ## Chunk 0 - Access, Credentials, and Certification Prep
 The goal of this section is to get the AWS Certified Cloud Practitioner certification. I achieved it, you can follow the this link, https://www.credly.com/badges/9ab1424b-f346-4461-a1b7-829dc8591cd9. I am currently studying for the AWS Solution Architect exam.
