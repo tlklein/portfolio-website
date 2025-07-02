@@ -1,6 +1,7 @@
 ![image](/resources/_gen/images/The%20Cloud%20Resume%20Challenge%20Graphics-2.png)
 
 # A Recent Grad's Guide to the Cloud Resume Challenge
+<!-- FIXME: ADD OVERVIEW -->
 
 ## Chunk 0 - Access, Credentials, and Certification Prep
 The goal of this section is to get the AWS Certified Cloud Practitioner certification. I achieved it, you can follow the this link, https://www.credly.com/badges/9ab1424b-f346-4461-a1b7-829dc8591cd9. I am currently studying for the AWS Solution Architect exam.
@@ -28,10 +29,13 @@ The goal of this section is to write a blog post, create a architecture diagram,
 
 <!--FIXME: ADD ARCH DIAGRAM -->
 
-# References  
-1. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
-2. Hugo Extended - https://gohugo.io/installation/
-3. AWS Static Website Whitepapers - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html 
-4. Enrico Portolan - https://www.youtube.com/@EnricoPortolan
-4. Zhen Li - https://zhen404.com/posts/host-hugo-web-on-aws/ 
-5. AWS Visitor Counter using DynamoDB - https://blog.estebanmoreno.link/cloud-resume-challenge-part-2-website-visitors-counter-backed-with-api-gateway-lambda-and-dynamodb
+# References - Helpful Links
+1. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
+2. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
+3. Hugo Extended - https://gohugo.io/installation/
+4. AWS Static Website Whitepapers - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html 
+5. Enrico Portolan - https://www.youtube.com/@EnricoPortolan
+6. Zhen Li - https://zhen404.com/posts/host-hugo-web-on-aws/ 
+7. AWS Visitor Counter using DynamoDB - https://blog.estebanmoreno.link/cloud-resume-challenge-part-2-website-visitors-counter-backed-with-api-gateway-lambda-and-dynamodb
+8. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
+9. 
