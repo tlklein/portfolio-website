@@ -41,4 +41,3 @@ The goal of this section is to write a blog post, create a architecture diagram,
 7. AWS Visitor Counter using DynamoDB - https://blog.estebanmoreno.link/cloud-resume-challenge-part-2-website-visitors-counter-backed-with-api-gateway-lambda-and-dynamodb
 8. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
 9. Playwright - https://playwright.dev/docs/debug 
-10. 
