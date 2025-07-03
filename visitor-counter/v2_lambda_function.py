@@ -1,58 +1,69 @@
 import json
 import boto3
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+import hashlib
 
 # Initialize DynamoDB client
 dynamodb = boto3.client('dynamodb')
-
 TABLE_NAME = os.environ.get('TABLE_NAME', 'VisitorCounter')
+
+UNIQUE_VISITOR_WINDOW_HOURS = 24  # 24-hour uniqueness window
 
 def lambda_handler(event, context):
     print("Incoming event:", json.dumps(event, indent=2))
 
-    # Extract IP
+    # Extract and hash IP address
     ip_address = get_ip_address(event)
-    print(f"IP address detected: {ip_address}")
+    if ip_address == "0.0.0.0":
+        return error_response("Unable to determine IP address")
+    
+    hashed_ip = hash_ip(ip_address)
+    now = datetime.utcnow()
+    now_str = now.isoformat()
 
     try:
-        # Check if IP already exists
         response = dynamodb.get_item(
             TableName=TABLE_NAME,
-            Key={
-                'ip_address': {'S': ip_address}
-            }
+            Key={'ip_address': {'S': hashed_ip}}
         )
-        
+
+        is_new_visitor = False
+
         if 'Item' in response:
-            # IP exists → update visit_count
-            dynamodb.update_item(
-                TableName=TABLE_NAME,
-                Key={
-                    'ip_address': {'S': ip_address}
-                },
-                UpdateExpression="SET visit_count = visit_count + :inc, last_visit = :now",
-                ExpressionAttributeValues={
-                    ":inc": {"N": "1"},
-                    ":now": {"S": datetime.utcnow().isoformat()}
-                }
-            )
-            is_new_visitor = False
+            last_visit = response['Item'].get('last_visit', {}).get('S')
+            last_visit_time = datetime.fromisoformat(last_visit)
+
+            # Check if it's a unique visit (more than 24h since last)
+            if now - last_visit_time >= timedelta(hours=UNIQUE_VISITOR_WINDOW_HOURS):
+                is_new_visitor = True
+                dynamodb.update_item(
+                    TableName=TABLE_NAME,
+                    Key={'ip_address': {'S': hashed_ip}},
+                    UpdateExpression="SET visit_count = visit_count + :inc, last_visit = :now",
+                    ExpressionAttributeValues={
+                        ":inc": {"N": "1"},
+                        ":now": {"S": now_str}
+                    }
+                )
         else:
-            # IP is new → insert record
+            # First time seeing this IP
+            is_new_visitor = True
             dynamodb.put_item(
                 TableName=TABLE_NAME,
                 Item={
-                    "ip_address": {"S": ip_address},
+                    "ip_address": {"S": hashed_ip},
                     "visit_count": {"N": "1"},
-                    "first_visit": {"S": datetime.utcnow().isoformat()},
-                    "last_visit": {"S": datetime.utcnow().isoformat()}
+                    "first_visit": {"S": now_str},
+                    "last_visit": {"S": now_str}
                 }
             )
-            is_new_visitor = True
 
-        # Scan to get total stats
-        scan = dynamodb.scan(TableName=TABLE_NAME, AttributesToGet=["visit_count"])
+        # Scan to get all visits
+        scan = dynamodb.scan(
+            TableName=TABLE_NAME,
+            AttributesToGet=["visit_count"]
+        )
         total_visits = sum(int(item["visit_count"]["N"]) for item in scan["Items"])
         unique_visitors = len(scan["Items"])
 
@@ -63,7 +74,6 @@ def lambda_handler(event, context):
                 "Content-Type": "application/json"
             },
             "body": json.dumps({
-                "ip": ip_address,
                 "unique_visitors": unique_visitors,
                 "total_visits": total_visits,
                 "is_new_visitor": is_new_visitor
@@ -72,10 +82,8 @@ def lambda_handler(event, context):
 
     except Exception as e:
         print("Error:", str(e))
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": "Internal Server Error"})
-        }
+        return error_response("Internal server error")
+
 
 def get_ip_address(event):
     headers = event.get("headers", {})
@@ -90,8 +98,18 @@ def get_ip_address(event):
         headers.get("CF-Connecting-IP"),
     ]
     for ip in ip_sources:
-        if ip and ip != "":
+        if ip:
             return ip
     return "0.0.0.0"
 
-# Value: table_name, table: visitor_ips
+
+def hash_ip(ip):
+    """One-way SHA256 hash to anonymize IP"""
+    return hashlib.sha256(ip.encode()).hexdigest()
+
+
+def error_response(message):
+    return {
+        "statusCode": 500,
+        "body": json.dumps({"error": message})
+    }

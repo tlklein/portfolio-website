@@ -21,7 +21,7 @@ The goal of this section is to get a visitor counter, or more accurately a hit c
 Another key achievement of this chunk is to enable bucket versioning, and lifecycle policies for the S3 bucket. Also, the hit counter was refactored to become better visitor counter, that notes total visits, and unique visits. This needed a new table and values, complete with dummy data to test for production. The overall same services were used only the lambda function was overhauled, this can be seen in the visitor-counter folder. 
 
 ## Chunk 3 - Building the Front-end/Back-end Integration
-The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. 
+The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. The tests were completed using playwright. The tests scripts can be seen in the tests folder. 
 
 ## Chunk 4 - Building the CI/CD Automation Pipelines
 The goal of this section is to deploy the website's code using terraform. 
@@ -40,4 +40,5 @@ The goal of this section is to write a blog post, create a architecture diagram,
 6. Zhen Li - https://zhen404.com/posts/host-hugo-web-on-aws/ 
 7. AWS Visitor Counter using DynamoDB - https://blog.estebanmoreno.link/cloud-resume-challenge-part-2-website-visitors-counter-backed-with-api-gateway-lambda-and-dynamodb
 8. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
-9. 
+9. Playwright - https://playwright.dev/docs/debug 
+10. 
