@@ -1,5 +1,4 @@
 ![image](/resources/_gen/images/The%20Cloud%20Resume%20Challenge%20Graphics-2.png)
-<!--FIXME: ADD MOCKUPS -->
 
 # A Recent Grad's Guide to the Cloud Resume Challenge
 Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
