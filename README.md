@@ -1,4 +1,4 @@
-![image](/resources/_gen/images/The%20Cloud%20Resume%20Challenge%20Graphics-2.png)
+![image](/static/images/The-Cloud-Resume-Challenge-Graphics-2.png)
 
 <!--FIXME: ADD ARCH DIAGRAMS -->
 
