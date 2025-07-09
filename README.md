@@ -1,6 +1,4 @@
-![image](/static/images/The-Cloud-Resume-Challenge-Graphics-2.png)
-
-<!--FIXME: ADD ARCH DIAGRAMS -->
+![banner](/static/images/The-Cloud-Resume-Challenge-Graphics-2.png)
 
 # A Recent Grad's Guide to the Cloud Resume Challenge
 Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
@@ -32,7 +30,6 @@ The goal of this section is to deploy the website's code using only terraform.
 
 ## Chunk 5 - Building the Blog Post, and Diagrams
 The goal of this section is to write a blog post, create a architecture diagram, post it online, and get a offer! As you can see, I made the banner already!
-
 <!--FIXME: ADD ARCH DIAGRAMS -->
 
 ## Feel Free to Connect with Me!
