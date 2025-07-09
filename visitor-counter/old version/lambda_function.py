@@ -1,4 +1,4 @@
-# Lambda function for a simple hit counter using dynamodb
+# Lambda function for a simple hit counter using dynamodb, logs IP address into database, and doesn't count unique visitors
 
 import json
 import boto3
@@ -57,7 +57,6 @@ def lambda_handler(event, context):
 
 
     # Return api response object
-
     return apiResponse
 
 # Value: databaseName, Table: VisitorCount

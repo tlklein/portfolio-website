@@ -1,5 +1,7 @@
 ![image](/resources/_gen/images/The%20Cloud%20Resume%20Challenge%20Graphics-2.png)
 
+<!--FIXME: ADD ARCH DIAGRAMS -->
+
 # A Recent Grad's Guide to the Cloud Resume Challenge
 Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
 
@@ -16,20 +18,28 @@ The goal of this section is to get my resume into HTML, style it with CSS, anima
 Another key achievement of this chunk is putting the code into an s3 bucket, and configuring a CloudFront distribution. The code is currently viewable here. You will also be able to see some of the multiple previous themes that were considered. My static website is configured to only be accessed through the CloudFront distribution link, with public access to the S3 bucket disabled, static hosting disabled, and an appropriate bucket policy to follow. 
 
 ## Chunk 2 - Building the API
-The goal of this section is to get a visitor counter, or more accurately a hit counter on my portfolio website using DynamoDB. It has a table set, filled with the values, a lambda function, and an API gateway. The IAM roles are set up to give access to the appropriate users as needed. The api gateway interacts with the function to fetch the data from the table, and populate every time a hit is known. The API gateway to set up to show data in the footer of the website, including function that show if the data, for any reason, is not able to fetch (it will show N/A, or just be blank depending on the problem). 
+The goal of this section is to get a visitor counter, or more accurately a hit counter on my portfolio website using DynamoDB. It has a table set, filled with the values, a lambda function, and an API gateway. The IAM roles are set up to give access to the appropriate users as needed. The api gateway interacts with the function to fetch the data from the table, and populate every time a hit is known. The API gateway to set up to show data in the footer of the website, including function that show if the data, for any reason, is not able to fetch (it will show 'Loading...' if no count can be sent). 
 
 Another key achievement of this chunk is to enable bucket versioning, and lifecycle policies for the S3 bucket. Also, the hit counter was refactored to become better visitor counter, that notes total visits, and unique visits. This needed a new table and values, complete with dummy data to test for production. The overall same services were used only the lambda function was overhauled, this can be seen in the visitor-counter folder. 
 
+One thing I want to note is that I did consider a real-time visitor counter using a Web Socket gateway and DynamoDB Streams instead of a REST Api.  Doing this would not only be more expensive to scale, but significantly more complicated to set-up/optimize, and ultimately having the same effect to the end customer, therefore, I went with the REST Api instead.
+
 ## Chunk 3 - Building the Front-end/Back-end Integration
-The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. The tests were completed using playwright. The tests scripts can be seen in the tests folder. 
+The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. The tests were completed using playwright. The tests scripts can be seen in the tests folder.  I ran the scripts multiple times as needed. According to the original challenge, refactoring the Api to count hits was supposed to done in this section, but I did it all in Chunk 3. 
 
 ## Chunk 4 - Building the CI/CD Automation Pipelines
-The goal of this section is to deploy the website's code using terraform. 
+The goal of this section is to deploy the website's code using only terraform. 
 
 ## Chunk 5 - Building the Blog Post, and Diagrams
-The goal of this section is to write a blog post, create a architecture diagram, post it online, and get a offer! As you can see, I made the banner.
+The goal of this section is to write a blog post, create a architecture diagram, post it online, and get a offer! As you can see, I made the banner already!
 
-<!--FIXME: ADD ARCH DIAGRAM -->
+<!--FIXME: ADD ARCH DIAGRAMS -->
+
+## Feel Free to Connect with Me!
+If you are following this challenge or just passing by, feel free to connect with me for explore my socials. I am happy to help you if you need anything. 
+1. Linkedin - https://www.linkedin.com/in/trinity-klein/ 
+2. Dev.to - https://dev.to/tlklein 
+3. GitHub - https://github.com/tlklein/
 
 ## References - Helpful Links
 1. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
@@ -42,3 +52,7 @@ The goal of this section is to write a blog post, create a architecture diagram,
 8. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
 9. Playwright - https://playwright.dev/docs/debug 
 10. How to sign your git commits - https://endjin.com/blog/2022/12/how-to-sign-your-git-commits 
+11. Realtime communication using API Gateway (Websockets), DynamoDB, and AWS Lambda - https://mychewcents.medium.com/realtime-communication-using-api-gateway-websockets-dynamodb-and-aws-lambda-c912349474f9
+12. WSCAT -https://www.npmjs.com/package/wscat
+13. Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
+14. Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/

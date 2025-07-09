@@ -1,3 +1,5 @@
+# Version 2 of lambda function, stores IP addresses in a one-way hash, and only allows visits on a per-day basis
+
 import json
 import boto3
 import os
@@ -10,7 +12,7 @@ TABLE_NAME = os.environ.get('TABLE_NAME', 'VisitorCounter')
 
 UNIQUE_VISITOR_WINDOW_HOURS = 24  # 24-hour uniqueness window
 
-def lambda_handler(event, context):
+def handler(event, context):
     print("Incoming event:", json.dumps(event, indent=2))
 
     # Extract and hash IP address

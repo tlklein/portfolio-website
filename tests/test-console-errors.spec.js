@@ -1,11 +1,10 @@
-const { test, expect } = require('@playwright/test');
+const { test, expect, devices } = require('@playwright/test');
 
-test('No major JavaScript errors in the console', async ({ page }) => {
-  const errors = [];
+test.use({ ...devices['iPhone 13'] });
 
-  page.on('pageerror', error => errors.push(error.message));
+test('Mobile layout loads correctly', async ({ page }) => {
+  await page.goto('http://localhost:1313/');
 
-  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/');
-
-  expect(errors).toEqual([]);
+  await expect(page.locator('nav')).toBeVisible(); // or hamburger menu
+  await expect(page.locator('#unique_visitors')).toBeVisible();
 });
