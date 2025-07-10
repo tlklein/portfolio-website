@@ -6,6 +6,14 @@
     "test": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.1"
-  }
+    "@playwright/test": "^1.44.1",
+    "playwright": "^1.54.0"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
