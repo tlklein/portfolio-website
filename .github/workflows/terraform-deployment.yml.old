@@ -1,0 +1,42 @@
+name: "Terraform Deployment" # Name of the workflow
+
+on:
+  push: # Trigger the workflow on push events
+    branches:
+      - main # Run the workflow when pushing to the main branch
+
+jobs:
+  terraform-plan-and-apply:
+    name: "Terraform Init, plan and apply" # Name of the job
+    runs-on: ubuntu-latest # Run the job on an Ubuntu environment
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Set the AWS access key ID from secrets
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Set the AWS secret access key from secrets
+    defaults:
+      run:
+        working-directory: infra # Set the working directory for all steps in the job to "infra"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 # Check out the repository code
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3 # Set up Terraform CLI
+
+      - name: Terraform Init
+        id: init
+        run: terraform init # Initialize the Terraform working directory
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color # Validate the Terraform configuration files
+
+      - name: Terraform Format
+        run: terraform fmt -check # Check the formatting of Terraform files
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color # Generate and show the execution plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve # Apply the changes in the Terraform plan without prompting for confirmation
