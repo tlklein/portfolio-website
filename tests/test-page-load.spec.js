@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ page }) => {
   /* Check that resume.html contents load as expected */
-  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/resume.html');
+  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/resume.html', { waitUntil: 'networkidle' });
 
   const title = await page.title();
   console.log('Trinity Klein/', title);
@@ -14,7 +14,7 @@ test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ pa
   await expect(page.getByRole('heading', { name: /Technical Skills & Projects/i })).toBeVisible();
 
   /* Check that index.html contents, mostly visitor api, load as expected */
-  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/');
+  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/', { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: /About/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Feel Free to Reach Out To Me!/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Latest Blogs/i })).toBeVisible();
@@ -30,5 +30,5 @@ test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ pa
 
   console.log('Unique visitors:', unique);
   console.log('Total visitors:', total);
-  
+
 });

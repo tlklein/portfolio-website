@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 test('Visitor counter API returns valid data and displays it', async ({ page }) => {
-  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/');
+  await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/', { waitUntil: 'networkidle' });
 
   // Wait for API call and DOM update
   const unique = await page.locator('#unique_visitors');
