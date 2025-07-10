@@ -17,7 +17,7 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: '0.127.0'  # adjust version as needed
+          hugo-version: '0.127.0' 
 
       - name: Build Hugo site
         run: hugo
@@ -33,7 +33,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  # Job 2 - Create a CloudFront invalidation on all past file versions
+  # Job 2 - Create a CloudFront invalidation to index.html
   invalidate-cloudfront-distribution:
     needs: copy-website-to-s3-and-invalidate-cloudfront
     runs-on: ubuntu-latest
@@ -42,7 +42,31 @@ jobs:
         uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
-          PATHS: "/*"
+          PATHS: "/index.html" # /* makes an invalidation to all files (just in case)
           AWS_REGION: "us-east-2"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  
+  # Job 3 - Run playwright smoke tests
+  run-playwright-tests:
+    name: Run Playwright Tests
+    needs: invalidate-cloudfront-distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright Tests
+        run: npx playwright test tests/ 
