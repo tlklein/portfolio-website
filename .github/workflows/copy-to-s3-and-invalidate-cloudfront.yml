@@ -1,0 +1,51 @@
+name: Copy website to S3 and invalidate CloudFront Distribution
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  copy-website-to-s3-and-invalidate-cloudfront:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Minify HTML, CSS, and JS
+      - name: Minify HTML, CSS, and JS files
+        run: |
+          npm install html-minifier-terser clean-css-cli terser --no-save
+          # Minify HTML
+          find . -name "*.html" -exec npx html-minifier-terser --collapse-whitespace --remove-comments --minify-css true --minify-js true -o {} {} \;
+          # Minify CSS
+          find assets/css -name "*.css" -exec sh -c 'npx cleancss -o "$0" "$0"' {} \;
+          # Minify JS
+          find assets/js -name "*.js" -exec sh -c 'npx terser "$0" -o "$0"' {} \;
+
+      # Sync to S3
+      - name: Sync files to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete --exclude '.git/*' --size-only
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-2'
+          SOURCE_DIR: './'
+
+  invalidate-cloudfront-distribution:
+    needs: copy-website-to-s3-and-invalidate-cloudfront
+    runs-on: ubuntu-latest
+    steps:
+      # Invalidate CloudFront Distribution
+      - name: Invalidate CloudFront Cache
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
+          PATHS: "/*"
+          AWS_REGION: "us-east-2"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

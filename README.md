@@ -53,3 +53,4 @@ If you are following this challenge or just passing by, feel free to connect wit
 12. WSCAT -https://www.npmjs.com/package/wscat
 13. Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
 14. Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
+15. How to Find Your AWS Access Key ID and Secret Access Key - https://www.msp360.com/resources/blog/how-to-find-your-aws-access-key-id-and-secret-access-key/#:~:text=1%20Go%20to%20Amazon%20Web,and%20Secret%20Access%20Key)%20option. 
