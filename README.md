@@ -20,10 +20,12 @@ The goal of this section is to get a visitor counter, or more accurately a hit c
 
 Another key achievement of this chunk is to enable bucket versioning, and lifecycle policies for the S3 bucket. Also, the hit counter was refactored to become better visitor counter, that notes total visits, and unique visits. This needed a new table and values, complete with dummy data to test for production. The overall same services were used only the lambda function was overhauled, this can be seen in the visitor-counter folder. 
 
-One thing I want to note is that I did consider a real-time visitor counter using a Web Socket gateway and DynamoDB Streams instead of a REST Api.  Doing this would not only be more expensive to scale, but significantly more complicated to set-up/optimize, and ultimately having the same effect to the end customer, therefore, I went with the REST Api instead.
+One thing I want to note is that I did consider a real-time visitor counter using a Web Socket gateway and DynamoDB Streams instead of a REST Api.  Doing this would not only be more expensive to scale, but significantly more complicated to set-up and optimize, while ultimately having the same effect to the end customer, therefore, I went with the REST Api instead.
 
 ## Chunk 3 - Building the Front-end/Back-end Integration
 The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. The tests were completed using playwright. The tests scripts can be seen in the tests folder.  I ran the scripts multiple times as needed. According to the original challenge, refactoring the Api to count hits was supposed to done in this section, but I did it all in Chunk 3. 
+
+Another achievement of this chunk is the completion of a github actions pipeline that copies the contents of the /public folder, create a cloudfront invalidation, and runs playwright test after. There is a specific user in my environment that only has the privileges to run these actions. The workflow also runs all of the dependencies needed to run the website, and updates the Playwright executables as well.  
 
 ## Chunk 4 - Building the CI/CD Automation Pipelines
 The goal of this section is to deploy the website's code using only terraform. 
@@ -43,14 +45,12 @@ If you are following this challenge or just passing by, feel free to connect wit
 2. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
 3. Hugo Extended - https://gohugo.io/installation/
 4. AWS Static Website Whitepapers - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html 
-5. Enrico Portolan - https://www.youtube.com/@EnricoPortolan
-6. Zhen Li - https://zhen404.com/posts/host-hugo-web-on-aws/ 
-7. AWS Visitor Counter using DynamoDB - https://blog.estebanmoreno.link/cloud-resume-challenge-part-2-website-visitors-counter-backed-with-api-gateway-lambda-and-dynamodb
-8. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
-9. Playwright - https://playwright.dev/docs/debug 
-10. How to sign your git commits - https://endjin.com/blog/2022/12/how-to-sign-your-git-commits 
-11. Realtime communication using API Gateway (Websockets), DynamoDB, and AWS Lambda - https://mychewcents.medium.com/realtime-communication-using-api-gateway-websockets-dynamodb-and-aws-lambda-c912349474f9
-12. WSCAT -https://www.npmjs.com/package/wscat
-13. Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
-14. Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
-15. How to Find Your AWS Access Key ID and Secret Access Key - https://www.msp360.com/resources/blog/how-to-find-your-aws-access-key-id-and-secret-access-key/#:~:text=1%20Go%20to%20Amazon%20Web,and%20Secret%20Access%20Key)%20option. 
+5. Enrico Portolan's YouTube - https://www.youtube.com/@EnricoPortolan
+6. Zhen Li's Portfolio - https://zhen404.com/posts/host-hugo-web-on-aws/ 
+7. Esteban Moreno's Portfolio and Blog - https://github.com/estebanmorenoit/estebanmoreno-portfolio/ || https://blog.estebanmoreno.link/
+8. Playwright - https://playwright.dev/docs/debug 
+9. How to sign your git commits - https://endjin.com/blog/2022/12/how-to-sign-your-git-commits 
+10. WSCAT -https://www.npmjs.com/package/wscat
+11. Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
+12. Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
+13. How to Find Your AWS Access Key ID and Secret Access Key - https://www.msp360.com/resources/blog/how-to-find-your-aws-access-key-id-and-secret-access-key/#:~:text=1%20Go%20to%20Amazon%20Web,and%20Secret%20Access%20Key 
