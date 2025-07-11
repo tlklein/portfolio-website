@@ -27,6 +27,8 @@ The goal of this section is to smoke test the code for errors, and to integrate 
 
 Another achievement of this chunk is the completion of a github actions pipeline that copies the contents of the /public folder, create a cloudfront invalidation, and runs playwright test after. There is a specific user in my environment that only has the privileges to run these actions. The workflow also runs all of the dependencies needed to run the website, and updates the Playwright executables as well.  
 
+One thing I want to note is that the Hugo Console Theme depends on the theme.toml file existing, otherwise it will not load the header as expected. This means that the nav, and by extension by resume, will not appear. 
+
 ## Chunk 4 - Building the CI/CD Automation Pipelines
 The goal of this section is to deploy the website's code using only terraform. 
 
