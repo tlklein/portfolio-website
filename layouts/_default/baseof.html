@@ -41,7 +41,7 @@
             <ul vocab="https://schema.org/" typeof="BreadcrumbList">
                 {{ range $index, $element := .Site.Params.navlinks }}
                 <li property="itemListElement" typeof="ListItem">
-                    <a property="item" typeof="WebPage" href="{{ absURL .url }}" target="_blank">
+                    <a property="item" typeof="WebPage" href="{{ absURL .url }}">
                     <span property="name">{{ .name }}</span></a>
                     <meta property="position" content="{{ add $index 1}}" />
                 </li>

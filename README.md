@@ -27,7 +27,7 @@ The goal of this section is to smoke test the code for errors, and to integrate 
 
 Another achievement of this chunk is the completion of a github actions pipeline that copies the contents of the /public folder, create a cloudfront invalidation, and runs playwright test after. There is a specific user in my environment that only has the privileges to run these actions. The workflow also runs all of the dependencies needed to run the website, and updates the Playwright executables as well.  
 
-One thing I want to note is that the Hugo Console Theme depends on the theme.toml file existing, otherwise it will not load the header as expected. This means that the nav, and by extension by resume, will not appear. 
+One thing I want to note is that the old version of the GitHub actions workflow kept use the localhost url as the baseurl, while running it. So this led me to set it in the terminal command. You can view this in the /.github folder in the build-and-deploy-static-site file. The copy-to-s3-and-invalidate-cloudfront is the previous version of it, where there were multiple problems. These problems include the previous one, executable permissions, not installing the correct applications, and not working as expected in general. The file, build-and-deploy-static-site, is set to work well regardless of the base url being set properly,. 
 
 ## Chunk 4 - Building the CI/CD Automation Pipelines
 The goal of this section is to deploy the website's code using only terraform. 
