@@ -7,3 +7,4 @@ public
 *.env
 node_modules
 infra
+commands.md
