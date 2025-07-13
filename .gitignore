@@ -7,4 +7,8 @@ public
 *.env
 node_modules
 infra
+<<<<<<< HEAD
 tests/commands.md
+=======
+commands.md
+>>>>>>> 3ebd05dc5d40907b7940b9b1ade7455fb667900b
