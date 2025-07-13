@@ -7,4 +7,4 @@ public
 *.env
 node_modules
 infra
-tests/commands.md
+commands.md
