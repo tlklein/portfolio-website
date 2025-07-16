@@ -1,4 +1,4 @@
-![banner](/static/images/The-Cloud-Resume-Challenge-Graphics-2.png)
+![banner](/static/images/all-devices-white.png)
 
 # A Recent Grad's Guide to the Cloud Resume Challenge
 Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
@@ -27,7 +27,7 @@ The goal of this section is to smoke test the code for errors, and to integrate 
 
 Another achievement of this chunk is the completion of a github actions pipeline that copies the contents of the /public folder, create a cloudfront invalidation, and runs playwright test after. There is a specific user in my environment that only has the privileges to run these actions. The workflow also runs all of the dependencies needed to run the website, and updates the Playwright executables as well.  
 
-One thing I want to note is that the old version of the GitHub actions workflow kept use the localhost url as the baseurl, while running it. So this led me to set it in the terminal command. You can view this in the /.github folder in the build-and-deploy-static-site file. The copy-to-s3-and-invalidate-cloudfront is the previous version of it, where there were multiple problems. These problems include the previous one, executable permissions, not installing the correct applications, and not working as expected in general. The file, build-and-deploy-static-site, is set to work well regardless of the base url being set properly,. 
+One thing I want to note is the current version of the GitHub Actions workflow has been updated and removed the need for AWS access keys and secret keys. It uses a role and an identity provider that it assumes instead, of having a specific IAM user to carry it out. Thus, it has no long-term credentials it needs, in order to lower the security risk as much as possible. The old version has various issues beside that, one being executable permissions, not working as expected and not running the smoke tests.
 
 ## Chunk 4 - Building the CI/CD Automation Pipelines
 The goal of this section is to deploy the website's code using only terraform. 
@@ -59,3 +59,4 @@ If you are following this challenge or just passing by, feel free to connect wit
 14. Minimal AWS SSO setup for personal AWS development - https://dev.to/aws-builders/minimal-aws-sso-setup-for-personal-aws-development-220k
 15. Configuring IAM Identity Center authentication with the AWS CLI - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html
 16. Terraform CLI Documentation - https://developer.hashicorp.com/terraform/cli/commands 
+17. Website Mockup Generator - https://websitemockupgenerator.com/ 
