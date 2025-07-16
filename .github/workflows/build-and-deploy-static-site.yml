@@ -21,8 +21,6 @@ jobs:
   build-site:
     runs-on: ubuntu-latest
     steps:
-      - name: List files in repo (debug)
-        run: ls -la
 
       - name: Checkout repository
         uses: actions/checkout@v4

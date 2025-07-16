@@ -1,0 +1,28 @@
+baseURL = "https://d2d06xlq6t9xmp.cloudfront.net/"
+theme = "github.com/mrmierzejewski/hugo-theme-console"
+title = "Trinity Klein"
+languageCode = "en-us"
+relativeURLs = false 
+canonifyURLs = true 
+
+[params]
+  # Cutting off the page title to two chars for mobile (console-demo -> co)
+  titleCutting = true
+
+  # Set the animation style -- https://animate.style/
+  # To disable animations, please remove or comment animationStyle parameter
+  animateStyle = "animated zoomIn fast" 
+
+  [[params.navlinks]]
+  name = "resume/"
+  url = "/resume.html"
+
+[deployment]
+  [[deployment.targets]]
+    name = "aws"
+    URL = "s3://tlklein-portfolio-v2?region=us-east-2"
+    cloudFrontDistributionID = "E3CEI4S8QN6ZBW"
+
+  [[deployment.matchers]]
+    pattern = "^.+\\.(js|css|svg|png|jpg|jpeg|gif|woff2?)$"
+    cacheControl = "max-age=31536000, no-transform, public"

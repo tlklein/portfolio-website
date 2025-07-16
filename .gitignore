@@ -2,7 +2,6 @@
 
 public
 *.lock
-*.toml
 *.yaml
 *.env
 node_modules
