@@ -13,6 +13,8 @@ env:
   AWS_REGION: us-east-2
   SOURCE_DIR: ./public
   DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
+  BASE_URL: "https://d2d06xlq6t9xmp.cloudfront.net/"
+  SITE_TITLE: "Trinity Klein"
 
 jobs:
   # JOB 1 - BUILD JOB
@@ -25,10 +27,18 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: '0.125.4'  
+          hugo-version: '0.125.4'
+      
+      - name: Override config.toml values
+        run: |
+          echo "Setting config.toml values..."
+          sed -i 's|^baseURL = .*|baseURL = "${{ env.BASE_URL }}"|' config.toml
+          sed -i 's|^title = .*|title = "${{ env.SITE_TITLE }}"|' config.toml
+          sed -i 's|url = "/resume.html"|url = "/resume.html"|' config.toml
+          cat config.toml
 
       - name: Build Hugo site
-        run: hugo --minify --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/"
+        run: hugo --minify
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
