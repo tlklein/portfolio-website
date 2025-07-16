@@ -66,9 +66,7 @@ jobs:
         env:
           DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
           PATHS: "/*"
-          AWS_REGION: "us-east-2"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
 
   # JOB 3️ - SMOKETEST JOB
   smoketests:
