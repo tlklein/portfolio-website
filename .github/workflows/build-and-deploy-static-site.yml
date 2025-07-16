@@ -21,6 +21,9 @@ jobs:
   build-site:
     runs-on: ubuntu-latest
     steps:
+      - name: List files in repo (debug)
+        run: ls -la
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -31,8 +34,8 @@ jobs:
       
       - name: Override config.toml values
         run: |
-          sed -i 's|^baseURL = .*|baseURL = "${{ env.BASE_URL }}"|' config.toml
-          sed -i 's|^title = .*|title = "${{ env.SITE_TITLE }}"|' config.toml
+          sed -i 's|^baseURL = .*|baseURL = "https://d2d06xlq6t9xmp.cloudfront.net/"|' config.toml
+          sed -i 's|^title = .*|title = "Trinity Klein"|' config.toml
 
       - name: Build Hugo site
         run: hugo --minify
