@@ -52,7 +52,10 @@ If you are following this challenge or just passing by, feel free to connect wit
 7. Esteban Moreno's Portfolio and Blog - https://github.com/estebanmorenoit/estebanmoreno-portfolio/ || https://blog.estebanmoreno.link/
 8. Playwright - https://playwright.dev/docs/debug 
 9. How to sign your git commits - https://endjin.com/blog/2022/12/how-to-sign-your-git-commits 
-10. WSCAT -https://www.npmjs.com/package/wscat
+10. WSCAT - https://www.npmjs.com/package/wscat
 11. Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
 12. Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
 13. How to Find Your AWS Access Key ID and Secret Access Key - https://www.msp360.com/resources/blog/how-to-find-your-aws-access-key-id-and-secret-access-key/#:~:text=1%20Go%20to%20Amazon%20Web,and%20Secret%20Access%20Key 
+14. Minimal AWS SSO setup for personal AWS development - https://dev.to/aws-builders/minimal-aws-sso-setup-for-personal-aws-development-220k
+15. Configuring IAM Identity Center authentication with the AWS CLI - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html
+16. 
