@@ -58,4 +58,4 @@ If you are following this challenge or just passing by, feel free to connect wit
 13. How to Find Your AWS Access Key ID and Secret Access Key - https://www.msp360.com/resources/blog/how-to-find-your-aws-access-key-id-and-secret-access-key/#:~:text=1%20Go%20to%20Amazon%20Web,and%20Secret%20Access%20Key 
 14. Minimal AWS SSO setup for personal AWS development - https://dev.to/aws-builders/minimal-aws-sso-setup-for-personal-aws-development-220k
 15. Configuring IAM Identity Center authentication with the AWS CLI - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html
-16. 
+16. Terraform CLI Documentation - https://developer.hashicorp.com/terraform/cli/commands 
