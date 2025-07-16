@@ -1,6 +1,6 @@
 baseURL = "https://d2d06xlq6t9xmp.cloudfront.net/"
 theme = "github.com/mrmierzejewski/hugo-theme-console"
-title = "Trinity Klein"
+title = "trinity-klein"
 languageCode = "en-us"
 relativeURLs = false 
 canonifyURLs = true 
