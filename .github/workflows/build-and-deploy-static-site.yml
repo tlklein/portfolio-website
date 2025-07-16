@@ -31,11 +31,8 @@ jobs:
       
       - name: Override config.toml values
         run: |
-          echo "Setting config.toml values..."
           sed -i 's|^baseURL = .*|baseURL = "${{ env.BASE_URL }}"|' config.toml
           sed -i 's|^title = .*|title = "${{ env.SITE_TITLE }}"|' config.toml
-          sed -i 's|url = "/resume.html"|url = "/resume.html"|' config.toml
-          cat config.toml
 
       - name: Build Hugo site
         run: hugo --minify
