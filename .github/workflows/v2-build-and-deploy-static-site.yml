@@ -27,7 +27,7 @@ jobs:
           hugo-version: '0.125.4'
 
       - name: Build Hugo site
-        run: hugo --config config.toml --minify
+        run: hugo --minify
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
