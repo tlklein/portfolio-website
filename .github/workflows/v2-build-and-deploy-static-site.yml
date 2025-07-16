@@ -27,7 +27,7 @@ jobs:
           hugo-version: '0.125.4'
 
       - name: Build Hugo site
-        run: hugo build --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/"
+        run: hugo
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
