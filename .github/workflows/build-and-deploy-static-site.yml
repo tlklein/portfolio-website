@@ -24,7 +24,7 @@ jobs:
           hugo-version: '0.125.4'  
 
       - name: Build Hugo site
-        run: hugo build --minify --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/"
+        run: hugo build --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -43,12 +43,11 @@ jobs:
           name: site
           path: ./public
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-2"
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Delete old index.html
         run: |
