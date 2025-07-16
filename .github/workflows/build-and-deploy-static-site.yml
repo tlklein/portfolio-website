@@ -28,7 +28,7 @@ jobs:
           hugo-version: '0.125.4'  
 
       - name: Build Hugo site
-        run: hugo --minify  --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/"
+        run: hugo --minify --baseURL "https://d2d06xlq6t9xmp.cloudfront.net/" --title "Trinity Klein" --languageCode "en-us" --title "github.com/mrmierzejewski/hugo-theme-console" --name "resume/" --url "/resume.html"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
