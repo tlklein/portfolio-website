@@ -1,6 +1,7 @@
 baseURL = "https://d2d06xlq6t9xmp.cloudfront.net/"
 theme = "github.com/mrmierzejewski/hugo-theme-console"
 title = "trinity-klein"
+description = "CIS Grad | Developer | Terminal Portfolio"
 languageCode = "en-us"
 relativeURLs = false 
 canonifyURLs = true 
@@ -13,9 +14,21 @@ canonifyURLs = true
   # To disable animations, please remove or comment animationStyle parameter
   animateStyle = "animated zoomIn fast" 
 
+   [[params.navlinks]]
+   name = "blogs/"
+   url = "/posts.html"
+
+  [[params.navlinks]]
+  name = "projects/"
+  url = "/projects.html"
+
   [[params.navlinks]]
   name = "resume/"
   url = "/resume.html"
+  
+  [[params.navlinks]]
+  name = "contact/"
+  url = "/ping.html"
 
 [deployment]
   [[deployment.targets]]

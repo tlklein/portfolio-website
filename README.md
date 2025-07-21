@@ -1,48 +1,165 @@
 ![banner](/static/images/all-devices-black.png)
 
-# Trinity Klein's Resume and Portfolio Website
+# Trinity Klein's Cloud Resume Challenge
+
+## Overview
 Since April 2020, the Cloud Resume Challenge is designed to help people skill-up on the cloud, improve their career prospects, and land cloud jobs from non-tech fields. It has three cloud-specific editions, AWS, Azure, and Google Cloud. 
 
 It has a detailed challenge walkthrough featuring loads of handpicked learning resources to help people level up on the cloud, programming, and DevOps skills you need. With a total of three 'megamods' (DevOps, Security, and Developer), that help build on the core challenge project with MORE hands-on practice to help people polish their skills. 
 
-## Chunk 0 - Access, Credentials, and Certification Prep
-The goal of this section is to get the AWS Certified Cloud Practitioner certification. I achieved it, you can follow the this link, https://www.credly.com/badges/9ab1424b-f346-4461-a1b7-829dc8591cd9. I am currently studying for the AWS Solution Architect exam.
+This repository contains Trinity Klein's resume and portfolio website as a part of this challenge. To view more blog posts about how to achieve these skills, or more information on her journey, please go to https://dev.to/tlklein. 
 
-Another, key achievement of this section was the proper configuration of the AWS Organizations structure. My account has 1 organization, 2 ou(one production and one testing), each ou has one user in it, along with one root user. MFA is enables on all accounts where is it necessary. More may be added in the future for development, or any other phase.
+## Features
+- Terminal-style using the Hugo Console Theme
+- Fast, lightweight, and terminal-inspired layout and nav
+- GitHub Actions CI/CD pipeline 
+- Hosted on AWS using S3 and CloudFront
+- Visitor counter using Lambda, API Gateway, and DynamoDB
+- IaC using Terraform
 
-## Chunk 1 - Building the Front-End
-The goal of this section is to get my resume into HTML, style it with CSS, animate it using JavaScript, and finally place into a S3 bucket and secure it using CloudFront. I used a Hugo theme called console. It is simple, minimalistic and models the look of a Linux console. It is made with website performance in mind having a load time around 55ms.
+<!--
+## Architecture Diagrams
+FIXME: ADD ARCH DIAGRAMS -->
 
-Another key achievement of this chunk is putting the code into an s3 bucket, and configuring a CloudFront distribution. The code is currently viewable here. You will also be able to see some of the multiple previous themes that were considered. My static website is configured to only be accessed through the CloudFront distribution link, with public access to the S3 bucket disabled, static hosting disabled, and an appropriate bucket policy to follow. 
+## Prerequisites
+These are assumed to be installed or exist already on your computer. It not an exhaustive list. 
+1. GitHub Account
+2. Git
+3. Hugo
+4. Node.js (for optional testing)
+5. AWS CLI (if deploying to S3)
+6. Terraform (if using IaC)
+7. A public directory with your content
 
-## Chunk 2 - Building the API
-The goal of this section is to get a visitor counter, or more accurately a hit counter on my portfolio website using DynamoDB. It has a table set, filled with the values, a lambda function, and an API gateway. The IAM roles are set up to give access to the appropriate users as needed. The api gateway interacts with the function to fetch the data from the table, and populate every time a hit is known. The API gateway to set up to show data in the footer of the website, including function that show if the data, for any reason, is not able to fetch (it will show 'Loading...' if no count can be sent). 
+## Installation
+1. Clone this repository:
+```
+gh repo clone tlklein/portfolio-website
+```
+2. Initialize the Hugo Console Theme
+```
+hugo mod init github.com/<your-username>/portfolio-website
+hugo mod get github.com/mrmierzejewski/hugo-theme-console
+```
+3. Configure config.toml. 
+```
+baseURL = "https://your-cloudfront-url.cloudfront.net/"
+title = "your-name"
+theme = "github.com/mrmierzejewski/hugo-theme-console"
+languageCode = "en-us"
+relativeURLs = false
+canonifyURLs = true
 
-Another key achievement of this chunk is to enable bucket versioning, and lifecycle policies for the S3 bucket. Also, the hit counter was refactored to become better visitor counter, that notes total visits, and unique visits. This needed a new table and values, complete with dummy data to test for production. The overall same services were used only the lambda function was overhauled, this can be seen in the visitor-counter folder. 
+[params]
+  titleCutting = true
+  animateStyle = "animated zoomIn fast"
 
-One thing I want to note is that I did consider a real-time visitor counter using a Web Socket gateway and DynamoDB Streams instead of a REST Api.  Doing this would not only be more expensive to scale, but significantly more complicated to set-up and optimize, while ultimately having the same effect to the end customer, therefore, I went with the REST Api instead.
+   [[params.navlinks]]
+   name = "blogs/"
+   url = "/posts.html"
 
-## Chunk 3 - Building the Front-end/Back-end Integration
-The goal of this section is to smoke test the code for errors, and to integrate all of the previous code. The tests will be automated to make sure every function is working as expected. The tests were completed using playwright. The tests scripts can be seen in the tests folder.  I ran the scripts multiple times as needed. According to the original challenge, refactoring the Api to count hits was supposed to done in this section, but I did it all in Chunk 3. 
+  [[params.navlinks]]
+  name = "projects/"
+  url = "/projects.html"
 
-Another achievement of this chunk is the completion of a github actions pipeline that copies the contents of the /public folder, create a cloudfront invalidation, and runs playwright test after. There is a specific user in my environment that only has the privileges to run these actions. The workflow also runs all of the dependencies needed to run the website, and updates the Playwright executables as well.  
+  [[params.navlinks]]
+  name = "resume/"
+  url = "/resume.html"
+  
+  [[params.navlinks]]
+  name = "contact/"
+  url = "/ping.html"
 
-One thing I want to note is the current version of the GitHub Actions workflow has been updated and removed the need for AWS access keys and secret keys. It uses a role and an identity provider that it assumes instead, of having a specific IAM user to carry it out. Thus, it has no long-term credentials it needs, in order to lower the security risk as much as possible. The old version has various issues beside that, one being executable permissions, not working as expected and not running the smoke tests.
+[deployment]
+  [[deployment.targets]]
+    name = "aws"
+    URL = "s3://your-s3-bucket-name?region=your-region-num"
+    cloudFrontDistributionID = "your-distribution-id"
 
-## Chunk 4 - Building the CI/CD Automation Pipelines
-The goal of this section is to deploy the website's code using only terraform. 
+  [[deployment.matchers]]
+    pattern = "^.+\\.(js|css|svg|png|jpg|jpeg|gif|woff2?)$"
+    cacheControl = "max-age=31536000, no-transform, public"
+```
+4. After that, you will need to configure any AWS CLI, GitHub Actions secrets and any other files need. 
 
-## Chunk 5 - Building the Blog Post, and Diagrams
-The goal of this section is to write a blog post, create a architecture diagram, post it online, and get a offer! As you can see, I made the banner already!
-<!--FIXME: ADD ARCH DIAGRAMS -->
+## How to Run
+1. To prepare my website for viewing, either in the localhost or else where, run hugo to generate a public folder.
+```
+hugo 
+```
 
-## Feel Free to Connect with Me!
-If you are following this challenge or just passing by, feel free to connect with me for explore my socials. I am happy to help you if you need anything. 
-1. Linkedin - https://www.linkedin.com/in/trinity-klein/ 
-2. Dev.to - https://dev.to/tlklein 
-3. GitHub - https://github.com/tlklein/
+2. To run my website, the command hugo build with run it in the [localhost](http://localhost:1313/)
+```
+hugo serve
+```
+3. If you want to remove the whitespace, you would run hugo --minify. Please be aware that it may mess up some of the formatting though. 
+```
+hugo --minify
+```
 
-## References - Helpful Links
+## File Structure
+After installing, this is a guide on the files in the repository.
+```
+├── .github/
+│   └── workflows/
+│       └── build-and-deploy-static-site.yml
+├── layouts/
+│   └── _default/
+│       └── baseof.html
+│       └── list.html
+│       └── single.html
+│   └── partials/
+│       └── favicon.html
+│       └── footer.html
+│       └── header.html
+│   └── 404.html
+│   └── index.html
+│   └── sitemap.xml
+├── static/
+│   └── hugo-theme-console/
+│       └── css/
+│       └── font/
+│   └── images/
+│   └── resume.html
+│   └── ping.html
+│   └── posts.html
+│   └── projects.html
+├── test-results/
+│   └── .last-run.json
+├── tests/
+│   └── test-console-errors.spec.js
+│   └── test-page-load.spec.js
+│   └── test-responsive.spec.js
+│   └── test-visitor-counter.spec.js
+├── visitor-counter/
+│   └── tv2_lambda_function.py
+├── package.json
+├── package-lock.json
+├── go.mod
+├── go.sum
+├── makefile
+├── .gitignore
+├── config.toml
+├── README.md
+```
+
+## General Troubleshooting Notes
+- Ensure that your config.toml is correctly configured for your deployment needs, and is not hidden in .gitignore. 
+- Ensure that you clear your CloudFront cache when you make changes
+- Ensure that you configure the roles and the secrets correctly
+
+## Future Improvements
+- [ ] Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
+- [ ] Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
+
+## Author
+If you are following this challenge or just passing by, feel free to connect with me for explore my socials. I am happy to help you if you need anything!  
+1. Email - trinitylklein@outlook.com
+2. Linkedin - https://www.linkedin.com/in/trinity-klein/ 
+3. Dev.to - https://dev.to/tlklein 
+4. GitHub - https://github.com/tlklein/
+
+## References and Helpful Links
 1. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/
 2. Hugo Console Theme - https://github.com/mrmierzejewski/hugo-theme-console/
 3. Hugo Extended - https://gohugo.io/installation/

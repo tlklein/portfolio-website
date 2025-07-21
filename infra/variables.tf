@@ -1,16 +1,21 @@
-variable "bucket_name" {
-  description = "tlklein-porfolio-v2-terraform"
-  type        = string
+variable "mime_types" {
+  description = "Map of file extensions to MIME types"
+  type = map(string)
+  default = {
+    ".html" = "text/html"
+    ".css"  = "text/css"
+    ".js"   = "application/javascript"
+    ".png"  = "image/png"
+    ".jpg"  = "image/jpeg"
+    ".jpeg" = "image/jpeg"
+    ".svg"  = "image/svg+xml"
+    ".woff" = "font/woff"
+    ".woff2" = "font/woff2"
+  }
 }
 
-variable "aws_region" {
-  description = "AWS region"
+variable "cloudfront_distribution_comment" {
+  description = "Comment for the CloudFront distribution"
   type        = string
-  default     = "us-east-2"
-}
-
-variable "environment" {
-  description = "Deployment environment"
-  type        = string
-  default     = "prod"
+  default     = "Cloud Resume Site Distribution"
 }

@@ -1,0 +1,28 @@
+provider "aws" {
+  alias  = "us-east-2"
+  region = "us-east-2"
+}
+
+resource "aws_acm_certificate" "resume_cert" {
+  provider          = aws.us-east-2
+  domain_name       = "yourdomain.com"
+  validation_method = "DNS"
+
+  tags = {
+    Name = "resume-site-cert"
+  }
+}
+
+resource "aws_route53_record" "resume_cert_validation" {
+  name    = aws_acm_certificate.resume_cert.domain_validation_options[0].resource_record_name
+  type    = aws_acm_certificate.resume_cert.domain_validation_options[0].resource_record_type
+  zone_id = aws_route53_zone.primary.zone_id
+  records = [aws_acm_certificate.resume_cert.domain_validation_options[0].resource_record_value]
+  ttl     = 60
+}
+
+resource "aws_acm_certificate_validation" "resume_cert_validation" {
+  provider                = aws.us-east-2
+  certificate_arn         = aws_acm_certificate.resume_cert.arn
+  validation_record_fqdns = [aws_route53_record.resume_cert_validation.fqdn]
+}
