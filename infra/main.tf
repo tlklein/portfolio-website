@@ -9,7 +9,7 @@ terraform {
     required_version = ">= 1.2"
 
     backend "s3" {
-    bucket = var.bucket_name
+    bucket = "TlkleinPortfolio"
     key    = "infra/terraform.tfstate"
     region = "us-east-2"
   }
