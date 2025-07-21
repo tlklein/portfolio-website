@@ -85,7 +85,7 @@ canonifyURLs = true
 ## How to Run
 1. To prepare my website for viewing, either in the localhost or else where, run hugo to generate a public folder.
 ```
-hugo 
+hugo build
 ```
 
 2. To run my website, the command hugo build with run it in the [localhost](http://localhost:1313/)

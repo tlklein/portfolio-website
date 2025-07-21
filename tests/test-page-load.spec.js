@@ -11,11 +11,6 @@ test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ pa
   console.log('trinity-klein/', title);
   expect(title.length).toBeLessThanOrEqual(14);
 
-  await expect(page.getByRole('heading', { name: /About/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Education/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Relevant Experience/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Technical Skills & Projects/i })).toBeVisible();
-
   /* Check that index.html contents, mostly visitor api, load as expected */
   await page.goto('https://d2d06xlq6t9xmp.cloudfront.net/', { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: /About/i })).toBeVisible();
