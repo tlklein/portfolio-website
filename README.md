@@ -90,6 +90,8 @@ canonifyURLs = true
   name = "contact/"
   url = "/ping.html"
 
+  favicon = "favicon.ico"
+
 [deployment]
   [[deployment.targets]]
     name = "aws"
