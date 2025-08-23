@@ -1,11 +1,7 @@
+
 output "bucket_name" {
   value = aws_s3_bucket.resume_bucket.bucket
   description = "The name of the S3 bucket hosting the resume site"
-}
-
-output "dynamodb_table" {
-  value       = aws_dynamodb_table.visitor_counter.name
-  description = "DynamoDB table name used for visitor counter"
 }
 
 output "static_website_url" {
@@ -18,18 +14,7 @@ output "cloudfront_url" {
   description = "CloudFront distribution domain name"
 }
 
-output "lambda_function_name" {
-  value       = aws_lambda_function.visitor_counter.function_name
-  description = "Lambda function name for the visitor counter"
+output "visitor_api_url" {
+  value       = module.visitor_counter.api_endpoint
+  description = "Visitor counter API Gateway URL"
 }
-
-output "api_gateway_url" {
-  value       = aws_apigatewayv2_api.visitor_api.api_endpoint
-  description = "API Gateway URL for visitor counter"
-}
-
-# NO DOMAIN YET
-# output "route53_zone_id" {
-#  value       = aws_route53_zone.main.zone_id
-#  description = "Route 53 zone ID"
-# }

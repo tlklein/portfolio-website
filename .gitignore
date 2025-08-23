@@ -6,9 +6,10 @@ public
 *.env
 node_modules
 
+infra
 tests/commands.md
 infra/commands.md
-
+infra/variables.tf
 
 ials.auto.tfvars
 infra/terraform.tfstate.backup

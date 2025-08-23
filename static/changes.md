@@ -1,1 +1,0 @@
-http://localhost:1313/ -> https://d2d06xlq6t9xmp.cloudfront.net/

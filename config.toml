@@ -1,7 +1,7 @@
-baseURL = "https://d2d06xlq6t9xmp.cloudfront.net/"
+baseURL = "https://www.trinityklein.dev/"
 theme = "github.com/mrmierzejewski/hugo-theme-console"
 title = "trinity-klein"
-description = "CIS Grad | Developer | Terminal Portfolio"
+# description = "Portfolio of Trinity Klein, showcasing projects, resume, and cloud architecture. Built with Hugo, deployed on AWS, and styled like a terminal interface."
 languageCode = "en-us"
 relativeURLs = false 
 canonifyURLs = true 
@@ -30,6 +30,8 @@ canonifyURLs = true
   name = "contact/"
   url = "/ping.html"
 
+  favicon = "favicon.ico"
+
 [deployment]
   [[deployment.targets]]
     name = "aws"
@@ -39,3 +41,5 @@ canonifyURLs = true
   [[deployment.matchers]]
     pattern = "^.+\\.(js|css|svg|png|jpg|jpeg|gif|woff2?)$"
     cacheControl = "max-age=31536000, no-transform, public"
+
+[taxonomies]
