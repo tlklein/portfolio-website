@@ -33,10 +33,10 @@ Here is a look at the architecture:
 ![banner](/documentation/high-level-diagram.png)
 
 ### Front-end 
-![banner](/documentation/front-end-diagram.png)
+![banner](/documentation/frontend-diagram.png)
 
 ### Back-end
-![banner](/documentation/back-end-diagram.png)
+![banner](/documentation/backend-diagram.png)
 
 ### S3 Lifecycle Management
 ![banner](/documentation/lifecycle-diagram.png)
@@ -199,7 +199,7 @@ If you’re following this challenge, or just passing by, feel free to connect w
     <a href="https://dev.to/tlklein" target="_blank">
         <img src="https://img.shields.io/badge/Dev.to-Articles-black?style=for-the-badge&logo=dev.to" alt="Dev.to">
     </a>
-    <a href="mailto:trinitylklein@outlook.com">
+    <a href="mailto:tlklein05@gmail.com">
         <img src="https://img.shields.io/badge/Email-Contact-red?style=for-the-badge&logo=gmail" alt="Email">
     </a>
     <a href="https://www.trinityklein.dev/" target="_blank">
