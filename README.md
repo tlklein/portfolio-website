@@ -188,7 +188,7 @@ After installing, this is a guide on the files in the repository.
 ## Future Improvements
 - [ ] Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
 - [ ] Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
-- [ ] Architecture Diagrams, and Blog Post
+- [x] Architecture Diagrams, and Blog Post
 
 ## Let’s Connect
 If you’re following this challenge, or just passing by, feel free to connect with me and explore my socials. I’m always happy to help if you need anything! I’m also open to new opportunities, If you have inquiries for me, let me know!
