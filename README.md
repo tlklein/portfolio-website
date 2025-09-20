@@ -1,7 +1,6 @@
 ![banner](/documentation/all-devices-black.png)
 
 # Cloud Resume Challenge
-
 Welcome! This repo documents my Cloud Resume Challenge, a hands-on project where I combined **AWS services, Infrastructure-as-Code, CI/CD, and DevOps practices** into a single portfolio project. For more information about the final architecture, achievements, and lessons learned, head over to my [Dev.to blog series](#blog-series)
 
 ## Final Product
@@ -9,8 +8,9 @@ Welcome! This repo documents my Cloud Resume Challenge, a hands-on project where
 
 ## Blog Series
 I documented every chunk on my blog:  
-1. [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/trinity-kleins-resume-and-portfolio-website-chunk-0-access-credentials-and-certification-prep-278a-temp-slug-4455053?preview=22dc752b359e4820188dec4395ac88a69d383a79d8d93411278c1ee0d181457fcd182ac8eff2bfff57b5632bf47f0a90bf27ccf0a275f902acbd1e67)  
-2. [Chunk 1 - Building the Front-End](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-1-building-the-front-end-3cke-temp-slug-3131993?preview=b99be7490f68576d10525b8ef6cba506f7a8ef8f00860c8d9ed2be30ccaf24c3716995561e6ad56e18f9cd3bd0647feb39a96b75f900c51678ff68b4)  
+1. [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)  
+2. [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)  
+
 3. [Chunk 2 - Building the API](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-2-building-the-api-1mol-temp-slug-9727809?preview=6dc285524eb1627f199cd394906c3e309ec95c819ebdd4d658249efa932483137195c34f397c8027379944f6f93c15063d68bf19d7ef2dac649cf32c)  
 4. [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-3-building-the-front-endback-end-integration-836-temp-slug-5343347?preview=e9c876765ae87045b44f6b64619036c37e0673936f3ed1fed6c93ff9326129beadc5e982ebf51ddd720d395787d01bb10721eea8d938ee1d1b833f24)  
 5. [Chunk 4 - Building the Automation and CI](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-4-building-the-automation-and-ci-5hnh-temp-slug-9132662?preview=4593fb03a3c30834b7824215528008f0f9aa94d133ebdef3a93a8a77d5b41448100bea1029537bc4f87e1ca0647c9fbe40ec5abb6227e919fb06c731)
@@ -188,7 +188,7 @@ After installing, this is a guide on the files in the repository.
 ## Future Improvements
 - [ ] Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
 - [ ] Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
-- [x] Architecture Diagrams, and Blog Post
+- [x] Architecture Diagrams, and Blog Posts
 
 ## Let’s Connect
 If you’re following this challenge, or just passing by, feel free to connect with me and explore my socials. I’m always happy to help if you need anything! I’m also open to new opportunities, If you have inquiries for me, let me know!
