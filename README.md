@@ -8,13 +8,12 @@ Welcome! This repo documents my Cloud Resume Challenge, a hands-on project where
 
 ## Blog Series
 I documented every chunk on my blog:  
-1. [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)  
-2. [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)  
-
-3. [Chunk 2 - Building the API](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-2-building-the-api-1mol-temp-slug-9727809?preview=6dc285524eb1627f199cd394906c3e309ec95c819ebdd4d658249efa932483137195c34f397c8027379944f6f93c15063d68bf19d7ef2dac649cf32c)  
-4. [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-3-building-the-front-endback-end-integration-836-temp-slug-5343347?preview=e9c876765ae87045b44f6b64619036c37e0673936f3ed1fed6c93ff9326129beadc5e982ebf51ddd720d395787d01bb10721eea8d938ee1d1b833f24)  
-5. [Chunk 4 - Building the Automation and CI](https://dev.to/tlklein/trinity-kleins-resume-website-chunk-4-building-the-automation-and-ci-5hnh-temp-slug-9132662?preview=4593fb03a3c30834b7824215528008f0f9aa94d133ebdef3a93a8a77d5b41448100bea1029537bc4f87e1ca0647c9fbe40ec5abb6227e919fb06c731)
-6. [Chunk 5 - The Final Write-Up](https://dev.to/tlklein/cloud-resume-challenge-chunk-5-the-final-write-up-3l1h-temp-slug-4630003?preview=2dabdc152703275ec9806b98601f82f35620cded543758b4954a41cfd03009bced245d89485e14baa7727f48b8c0afd87120fa0b91ef2ddd2baf425c)
+1. Chunk 5 - The Final Write-Up
+2. Chunk 4 - Building the Automation and CI
+3. [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/cloud-resume-challenge-chunk-3-front-end-back-end-integration-11e5)  
+4. [Chunk 2 - Building the API](https://dev.to/tlklein/cloud-resume-challenge-chunk-2-building-the-api-4dgn)  
+5. [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi) 
+6. [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)  
 
 ## Features & Achievements
 - Terminal-style using the Hugo Console Theme

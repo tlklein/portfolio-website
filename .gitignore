@@ -8,6 +8,7 @@ node_modules
 
 infra/
 terraform/
+terraform simple/
 infra/variables.tf
 *.tfstate
 *.tfstate.*
