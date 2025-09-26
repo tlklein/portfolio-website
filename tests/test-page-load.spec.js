@@ -14,7 +14,7 @@ test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ pa
   /* Check that index.html contents load as expected */
   await page.goto('https://www.trinityklein.dev/', { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: /About Me/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /What I’ve Been Writing/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /What I've Been Writing/i })).toBeVisible();
 
   /* Check that visitor counter loads as expected*/
   await expect(page.locator('#unique_visitors')).not.toHaveText('Loading...', { timeout: 10000 });
