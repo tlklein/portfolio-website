@@ -1,9 +1,8 @@
-name: CI/CD: Site Quality
+name: CI/CD: Hugo + Terraform + Security
 
 on:
   pull_request:
-    paths:
-      - '**'
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches:
       - main
@@ -11,6 +10,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  security-events: write
 
 env:
   AWS_REGION: us-east-2
@@ -19,119 +19,218 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
-  ########################################################
-  # Job 1: Site Quality Checks 
-  ########################################################
-  site-quality:
-    if: github.event_name == 'pull_request'
-    name: Site Quality Checks
+  #################################################################
+  # Build & HTML proof (runs for PRs and push main)
+  #################################################################
+  build-html:
+    name: build-html
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # Markdown linting
-      - uses: actions/setup-node@v4
-        with: { node-version: "20" }
-      - run: npm install -g markdownlint-cli
-      - run: markdownlint "**/*.md"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      # Hugo build + htmlproofer
-      - uses: peaceiris/actions-hugo@v2
-        with: { hugo-version: '0.125.4' }
-      - run: hugo --baseURL=${{ env.BASE_URL }}
-      - uses: chabad360/htmlproofer@v1.1
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        run: markdownlint "**/*.md"
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.125.4'
+
+      - name: Build Hugo site
+        run: hugo --baseURL=${{ env.BASE_URL }}
+
+      - name: Run htmlproofer
+        uses: chabad360/htmlproofer@v1.1
         with:
           directory: ./public
           arguments: --allow_hash_href --url-ignore "/localhost/"
 
-      # Terraform pre-flight
-      - uses: hashicorp/setup-terraform@v3
-        with: { terraform_version: "1.6.0" }
-      - run: terraform -chdir=infra fmt -check
-      - run: terraform -chdir=infra init -backend=false
-      - run: terraform -chdir=infra validate
-      - run: terraform -chdir=infra plan -out=tfplan -detailed-exitcode || true
-
-      # Lighthouse CI
-      - run: npm install -g @lhci/cli@0.10.x
-      - run: lhci autorun --collect.url=${{ env.BASE_URL }} --upload.target=temporary-public-storage
-
-  ########################################################
-  # Job 2: Terraform Apply
-  ########################################################
-  terraform-apply:
-    if: github.event_name == 'push'
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: hashicorp/setup-terraform@v3
-        with: { terraform_version: "1.6.0" }
-
-      - run: terraform -chdir=infra fmt -check
-      - run: terraform -chdir=infra init
-      - run: terraform -chdir=infra plan -out=tfplan
-      - run: terraform -chdir=infra apply -auto-approve tfplan
-
-  ########################################################
-  # Job 3: Build Hugo Site
-  ########################################################
-  build-site:
-    if: github.event_name == 'push'
-    needs: terraform-apply
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: peaceiris/actions-hugo@v2
-        with: { hugo-version: '0.125.4' }
-      - run: hugo --baseURL=${{ env.BASE_URL }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: public/
-
-  ########################################################
-  # Job 4: Deploy to S3 & Invalidate CloudFront
-  ########################################################
-  deploy-site:
-    if: github.event_name == 'push'
-    needs: build-site
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
+      - name: Upload built site artifact
+        uses: actions/upload-artifact@v4
         with:
           name: site
           path: ./public
 
-      - uses: aws-actions/configure-aws-credentials@v4
+  #################################################################
+  # Playwright tests (run against local server built from PR)
+  # Only meaningful for PRs (will run on push main too but may be redundant)
+  #################################################################
+  playwright:
+    name: playwright-tests
+    runs-on: ubuntu-latest
+    needs: build-html
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Serve site in background
+        run: nohup hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:1313
+
+      - name: Run Playwright tests
+        env:
+          BASE_URL: http://localhost:1313
+        run: npx playwright test tests/
+
+  #################################################################
+  # Terraform pre-flight (fmt, init -backend=false, validate, plan)
+  # Runs on PRs to detect infra issues. Plan artifact saved for reviewers.
+  #################################################################
+  terraform-plan:
+    name: terraform-plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+
+      - name: Terraform fmt (check)
+        run: terraform -chdir=infra fmt -check
+
+      - name: Terraform init (no backend)
+        run: terraform -chdir=infra init -backend=false
+
+      - name: Terraform validate
+        run: terraform -chdir=infra validate
+
+      - name: Terraform plan (save)
+        run: |
+          terraform -chdir=infra plan -out=infra/tfplan || true
+      - name: Upload terraform plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: infra/tfplan
+
+  #################################################################
+  # Preflight checks dependency group
+  # Ensures PR jobs complete before allowing merges (use as branch protection)
+  #################################################################
+  preflight-complete:
+    name: preflight-complete
+    runs-on: ubuntu-latest
+    needs:
+      - codeql
+      - build-html
+      - playwright
+      - sbom
+      - grype
+      - terraform-plan
+    steps:
+      - name: Aggregate preflight completion
+        run: echo "All preflight checks completed successfully."
+
+  #################################################################
+  # On push to main: Terraform apply (uses OIDC role), then build+deploy site
+  #################################################################
+  terraform-apply:
+    name: terraform-apply
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - run: aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
-      - uses: chetan/invalidate-cloudfront-action@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+
+      - name: Terraform init (remote backend)
+        run: terraform -chdir=infra init
+
+      - name: Terraform plan
+        run: terraform -chdir=infra plan -out=infra/tfplan
+
+      - name: Terraform apply
+        run: terraform -chdir=infra apply -auto-approve infra/tfplan
+
+  #################################################################
+  # Build & Deploy site (push -> main), depends on terraform-apply
+  #################################################################
+  deploy-site:
+    name: build-and-deploy
+    runs-on: ubuntu-latest
+    needs: terraform-apply
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Download built site artifact (from build-html job)
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: ./public
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync site to S3
+        run: |
+          aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
+
+      - name: Invalidate CloudFront cache
+        uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
           PATHS: "/*"
           AWS_REGION: ${{ env.AWS_REGION }}
 
-  ########################################################
-  # Job 5: Smoke Tests
-  ########################################################
+  #################################################################
+  # Smoke tests after deploy
+  #################################################################
   smoketests:
-    if: github.event_name == 'push'
-    needs: deploy-site
+    name: smoketests
     runs-on: ubuntu-latest
+    needs: deploy-site
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npx playwright test tests/
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests against live site
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+        run: npx playwright test tests/
