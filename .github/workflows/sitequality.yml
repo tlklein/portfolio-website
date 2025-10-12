@@ -1,4 +1,4 @@
-name: CI/CD: Hugo, Terraform, & AWS Setup
+name: CI/CD: Site Quality
 
 on:
   pull_request:
