@@ -1,4 +1,4 @@
-name: Hugo + Terraform
+name: "CI/CD: Hugo + Terraform"
 
 on:
   pull_request:
