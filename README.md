@@ -185,7 +185,7 @@ After installing, this is a guide on the files in the repository.
 ```
 
 ## Future Improvements
-- [ ] Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
+- [x] Terraform Your Cloud Resume Challenge - https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/
 - [ ] Securing your software supply chain - https://cloudresumechallenge.dev/docs/extensions/supply-chain/
 - [x] Architecture Diagrams, and Blog Posts
 
@@ -205,7 +205,6 @@ If you’re following this challenge, or just passing by, feel free to connect w
         <img src="https://img.shields.io/badge/Portfolio-Visit-black?style=for-the-badge&logo=github" alt="Portfolio">
     </a>
 </div>
-
 
 ## References / Helpful Links
 1. The Cloud Resume Challenge Official Website - https://cloudresumechallenge.dev/

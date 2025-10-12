@@ -1,0 +1,137 @@
+name: CI/CD: Hugo, Terraform, & AWS Setup
+
+on:
+  pull_request:
+    paths:
+      - '**'
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-2
+  SOURCE_DIR: ./public
+  DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
+  BASE_URL: https://www.trinityklein.dev/
+
+jobs:
+  ########################################################
+  # Job 1: Site Quality Checks 
+  ########################################################
+  site-quality:
+    if: github.event_name == 'pull_request'
+    name: Site Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Markdown linting
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm install -g markdownlint-cli
+      - run: markdownlint "**/*.md"
+
+      # Hugo build + htmlproofer
+      - uses: peaceiris/actions-hugo@v2
+        with: { hugo-version: '0.125.4' }
+      - run: hugo --baseURL=${{ env.BASE_URL }}
+      - uses: chabad360/htmlproofer@v1.1
+        with:
+          directory: ./public
+          arguments: --allow_hash_href --url-ignore "/localhost/"
+
+      # Terraform pre-flight
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.6.0" }
+      - run: terraform -chdir=infra fmt -check
+      - run: terraform -chdir=infra init -backend=false
+      - run: terraform -chdir=infra validate
+      - run: terraform -chdir=infra plan -out=tfplan -detailed-exitcode || true
+
+      # Lighthouse CI
+      - run: npm install -g @lhci/cli@0.10.x
+      - run: lhci autorun --collect.url=${{ env.BASE_URL }} --upload.target=temporary-public-storage
+
+  ########################################################
+  # Job 2: Terraform Apply
+  ########################################################
+  terraform-apply:
+    if: github.event_name == 'push'
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.6.0" }
+
+      - run: terraform -chdir=infra fmt -check
+      - run: terraform -chdir=infra init
+      - run: terraform -chdir=infra plan -out=tfplan
+      - run: terraform -chdir=infra apply -auto-approve tfplan
+
+  ########################################################
+  # Job 3: Build Hugo Site
+  ########################################################
+  build-site:
+    if: github.event_name == 'push'
+    needs: terraform-apply
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: peaceiris/actions-hugo@v2
+        with: { hugo-version: '0.125.4' }
+      - run: hugo --baseURL=${{ env.BASE_URL }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: public/
+
+  ########################################################
+  # Job 4: Deploy to S3 & Invalidate CloudFront
+  ########################################################
+  deploy-site:
+    if: github.event_name == 'push'
+    needs: build-site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: ./public
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - run: aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
+      - uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
+          PATHS: "/*"
+          AWS_REGION: ${{ env.AWS_REGION }}
+
+  ########################################################
+  # Job 5: Smoke Tests
+  ########################################################
+  smoketests:
+    if: github.event_name == 'push'
+    needs: deploy-site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npx playwright test tests/
