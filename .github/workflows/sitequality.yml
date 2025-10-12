@@ -1,4 +1,4 @@
-name: CI/CD: Hugo + Terraform
+name: Hugo + Terraform
 
 on:
   pull_request:
