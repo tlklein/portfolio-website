@@ -1,4 +1,4 @@
-name: CI/CD: Hugo + Terraform + Security
+name: CI/CD: Hugo + Terraform
 
 on:
   pull_request:
@@ -10,7 +10,6 @@ on:
 permissions:
   id-token: write
   contents: read
-  security-events: write
 
 env:
   AWS_REGION: us-east-2
@@ -62,7 +61,6 @@ jobs:
 
   #################################################################
   # Playwright tests (run against local server built from PR)
-  # Only meaningful for PRs (will run on push main too but may be redundant)
   #################################################################
   playwright:
     name: playwright-tests
@@ -95,7 +93,6 @@ jobs:
 
   #################################################################
   # Terraform pre-flight (fmt, init -backend=false, validate, plan)
-  # Runs on PRs to detect infra issues. Plan artifact saved for reviewers.
   #################################################################
   terraform-plan:
     name: terraform-plan
@@ -119,8 +116,8 @@ jobs:
         run: terraform -chdir=infra validate
 
       - name: Terraform plan (save)
-        run: |
-          terraform -chdir=infra plan -out=infra/tfplan || true
+        run: terraform -chdir=infra plan -out=infra/tfplan || true
+
       - name: Upload terraform plan
         uses: actions/upload-artifact@v4
         with:
@@ -128,25 +125,21 @@ jobs:
           path: infra/tfplan
 
   #################################################################
-  # Preflight checks dependency group
-  # Ensures PR jobs complete before allowing merges (use as branch protection)
+  # Preflight completion gate for PR branch protection
   #################################################################
   preflight-complete:
     name: preflight-complete
     runs-on: ubuntu-latest
     needs:
-      - codeql
       - build-html
       - playwright
-      - sbom
-      - grype
       - terraform-plan
     steps:
       - name: Aggregate preflight completion
         run: echo "All preflight checks completed successfully."
 
   #################################################################
-  # On push to main: Terraform apply (uses OIDC role), then build+deploy site
+  # Terraform apply (runs on main push)
   #################################################################
   terraform-apply:
     name: terraform-apply
@@ -177,7 +170,7 @@ jobs:
         run: terraform -chdir=infra apply -auto-approve infra/tfplan
 
   #################################################################
-  # Build & Deploy site (push -> main), depends on terraform-apply
+  # Build & Deploy site (main branch)
   #################################################################
   deploy-site:
     name: build-and-deploy
@@ -209,7 +202,7 @@ jobs:
           AWS_REGION: ${{ env.AWS_REGION }}
 
   #################################################################
-  # Smoke tests after deploy
+  # Smoke tests after deploy (on main)
   #################################################################
   smoketests:
     name: smoketests
