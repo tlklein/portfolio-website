@@ -3,7 +3,7 @@ theme = "github.com/mrmierzejewski/hugo-theme-console"
 title = "trinity-klein"
 # description = "Portfolio of Trinity Klein, showcasing projects, resume, and cloud architecture. Built with Hugo, deployed on AWS, and styled like a terminal interface."
 languageCode = "en-us"
-relativeURLs = false 
+relativeURLs = true 
 canonifyURLs = true 
 
 [params]

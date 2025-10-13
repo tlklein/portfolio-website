@@ -37,7 +37,7 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Run markdownlint
-        run: markdownlint "**/*.md"
+        run: markdownlint "README.md" # Will run through node modules if using the wildcard
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
@@ -47,11 +47,21 @@ jobs:
       - name: Build Hugo site
         run: hugo --baseURL=${{ env.BASE_URL }}
 
-      - name: Run htmlproofer
-        uses: chabad360/htmlproofer@v1.1
-        with:
-          directory: ./public
-          arguments: --allow_hash_href --url-ignore "/localhost/"
+      - name: Install HTML-Validate and Linkinator
+        run: |
+          npm install -g html-validate linkinator
+
+      - name: Run html-validate
+        run: html-validate ./public --config .htmlvalidate.json
+
+      - name: Run Linkinator (skip external blocked links)
+        run: |
+          npx linkinator ./public \
+            --recurse \
+            --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com" \
+            --quiet \
+            --retry 2 \
+            --timeout 5000
 
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
@@ -107,22 +117,22 @@ jobs:
           terraform_version: "1.6.0"
 
       - name: Terraform fmt (check)
-        run: terraform -chdir=infra fmt -check
+        run: terraform -chdir=terraform fmt -check
 
       - name: Terraform init (no backend)
-        run: terraform -chdir=infra init -backend=false
+        run: terraform -chdir=terraform init -backend=false
 
       - name: Terraform validate
-        run: terraform -chdir=infra validate
+        run: terraform -chdir=terraform validate
 
       - name: Terraform plan (save)
-        run: terraform -chdir=infra plan -out=infra/tfplan || true
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan || true
 
       - name: Upload terraform plan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: infra/tfplan
+          path: terraform/tfplan
 
   #################################################################
   # Preflight completion gate for PR branch protection
@@ -138,7 +148,7 @@ jobs:
       - name: Aggregate preflight completion
         run: echo "All preflight checks completed successfully."
 
-  #################################################################
+ #################################################################
   # Terraform apply (runs on main push)
   #################################################################
   terraform-apply:
@@ -161,13 +171,13 @@ jobs:
           terraform_version: "1.6.0"
 
       - name: Terraform init (remote backend)
-        run: terraform -chdir=infra init
+        run: terraform -chdir=terraform init
 
       - name: Terraform plan
-        run: terraform -chdir=infra plan -out=infra/tfplan
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan
 
       - name: Terraform apply
-        run: terraform -chdir=infra apply -auto-approve infra/tfplan
+        run: terraform -chdir=terraform apply -auto-approve tfplan
 
   #################################################################
   # Build & Deploy site (main branch)
@@ -227,3 +237,4 @@ jobs:
         env:
           BASE_URL: ${{ env.BASE_URL }}
         run: npx playwright test tests/
+  
