@@ -52,16 +52,11 @@ jobs:
           npm install -g html-validate@10.1.2 linkinator@7.1.3
 
       - name: Run html-validate
-        run: html-validate ./public
+        run: npx html-validate "public/**/*.html"
 
       - name: Run Linkinator (skip external blocked links)
         run: |
-          npx linkinator ./public \
-            --recurse \
-            --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com" \
-            --quiet \
-            --retry 2 \
-            --timeout 5000
+          npx linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com" 
 
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
