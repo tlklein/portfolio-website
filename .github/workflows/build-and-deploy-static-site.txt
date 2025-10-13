@@ -15,7 +15,9 @@ env:
   DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
 
 jobs:
-  # JOB 1 - BUILD JOB
+  ########################################################
+  # JOB 1: BUILD JOB
+  ########################################################
   build-site:
     runs-on: ubuntu-latest
     steps:
@@ -36,8 +38,9 @@ jobs:
         with:
           name: site
           path: public/
-
-  # JOB 2️ - DEPLOY JOB
+  ########################################################
+  # JOB 2️: DEPLOY JOB
+  ########################################################
   deploy-site:
     needs: build-site
     runs-on: ubuntu-latest
@@ -68,8 +71,9 @@ jobs:
           DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
           PATHS: "/*"
           AWS_REGION: ${{ env.AWS_REGION }}
-
-  # JOB 3️ - SMOKETEST JOB
+  ########################################################
+  # JOB 3️: SMOKETEST JOB
+  ########################################################
   smoketests:
     needs: deploy-site
     runs-on: ubuntu-latest

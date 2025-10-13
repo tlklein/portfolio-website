@@ -1,24 +1,18 @@
+# General
 .DS_Store
-
 public
 *.lock
 *.yaml
 *.env
 node_modules
 
-infra/
-terraform/
-terraform simple/
-infra/variables.tf
+# Terraform / Local overrides
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
-env/terraform.tfvars
-
+crash.log
 ials.auto.tfvars
-infra/terraform.tfstate.backup
-infra/.terraform.lock.hcl
-infra/.terraform/providers/registry.terraform.io/hashicorp/aws/4.67.0/darwin_amd64/terraform-provider-aws_v4.67.0_x5
-infra/.terraform/providers/registry.terraform.io/hashicorp/archive/2.3.0/darwin_amd64/terraform-provider-archive_v2.3.0_x5
-infra/terraform.tfstate.backup
-infra/--role-arn
+terraform.tfvars
+*.backup
+.terraform/
+--role-arn
