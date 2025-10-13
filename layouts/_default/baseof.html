@@ -9,7 +9,7 @@
   <meta name="googlebot" content="index,follow,snippet,archive">
   <link rel="stylesheet" href="{{ "hugo-theme-console/css/terminal-0.7.4.min.css" | absURL }}">
   <link rel="stylesheet" href="{{ "hugo-theme-console/css/animate-4.1.1.min.css" | absURL }}">
-  <link rel="stylesheet" href="{{ "hugo-theme-console/css/console.css" | absURL }}">{{ partial "favicon.html" . }}{{ with .OutputFormats.Get "RSS" }}<link href="{{ .Permalink }}" rel="{{ .Rel }}" type="{{ .MediaType.Type }}" title="{{ $.Site.Title }}">{{ end }}{{ partial "opengraph.html" . }}{{ partial "twitter_cards.html" . }}{{ template "_internal/google_analytics.html" . }}{{ partial "header.html" . }}
+  <link rel="stylesheet" href="{{ "hugo-theme-console/css/console.css" | absURL }}">{{- partial "favicon.html" . -}}{{- with .OutputFormats.Get "RSS" -}}<link href="{{ .Permalink }}" rel="{{ .Rel }}" type="{{ .MediaType.Type }}" title="{{ $.Site.Title }}">{{- end -}}{{- partial "opengraph.html" . -}}{{- partial "twitter_cards.html" . -}}{{- template "_internal/google_analytics.html" . -}}{{- partial "header.html" . -}}
 </head>
 <body class="terminal">
   <div class="container">
