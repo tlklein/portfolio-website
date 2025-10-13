@@ -52,7 +52,7 @@ jobs:
           npm install -g html-validate linkinator
 
       - name: Run html-validate
-        run: html-validate ./public --config .htmlvalidate.json
+        run: html-validate ./public
 
       - name: Run Linkinator (skip external blocked links)
         run: |
