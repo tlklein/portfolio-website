@@ -4,7 +4,7 @@ terraform {
     key          = "state/terraform.tfstate"
     region       = "us-east-2"
     encrypt      = true
-    use_lockfile = true
+    dynamodb_table = "terraform-locks"
     profile      = "tlklein-test"
   }
 }
