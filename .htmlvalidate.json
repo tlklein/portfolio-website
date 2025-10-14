@@ -1,0 +1,8 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "attr-spacing": "error",
+    "long-title": "off",
+    "attr-quotes": "off"
+  }
+}

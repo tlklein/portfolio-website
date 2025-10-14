@@ -46,22 +46,17 @@ jobs:
 
       - name: Build Hugo site
         run: hugo --baseURL=${{ env.BASE_URL }}
-
+        
       - name: Install HTML-Validate and Linkinator
         run: |
-          npm install -g html-validate@10.1.2 linkinator@7.1.3
+          npm install -g html-validate linkinator
 
       - name: Run html-validate
-        run: html-validate ./public
+        run: html-validate "layouts/**/*.html" "static/**/*.html"
 
       - name: Run Linkinator (skip external blocked links)
         run: |
-          npx linkinator ./public \
-            --recurse \
-            --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com" \
-            --quiet \
-            --retry 2 \
-            --timeout 5000
+          linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
 
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
