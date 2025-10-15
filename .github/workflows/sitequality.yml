@@ -85,7 +85,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright
-        run: npx playwright install --with-deps --yes
+        run: npx playwright install --with-deps
 
       - name: Serve site in background
         run: nohup hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
@@ -233,7 +233,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright
-        run: npx playwright install --with-deps --yes
+        run: npx playwright install --with-deps
 
       - name: Run Playwright tests against live site
         env:
