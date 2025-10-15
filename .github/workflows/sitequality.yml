@@ -81,6 +81,11 @@ jobs:
         with:
           node-version: "20"
       
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.125.4'
+      
       - name: Install dependencies
         run: npm install --save-dev wait-on
 
