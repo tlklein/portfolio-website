@@ -80,15 +80,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-
+      
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.125.4'
+      
       - name: Install dependencies
-        run: npm ci
+        run: npm install --save-dev wait-on
 
       - name: Install Playwright
         run: npx playwright install --with-deps
 
       - name: Serve site in background
-        run: nohup hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
+        run:  hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
 
       - name: Wait for server
         run: npx wait-on http://localhost:1313
@@ -230,7 +235,7 @@ jobs:
           node-version: "20"
       
       - name: Install dependencies
-        run: npm ci
+        run: npm install --save-dev wait-on
 
       - name: Install Playwright
         run: npx playwright install --with-deps
