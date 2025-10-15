@@ -71,6 +71,7 @@ jobs:
     name: playwright-tests
     runs-on: ubuntu-latest
     needs: build-html
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -81,9 +82,10 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npx playwright install --with-deps
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps --yes
 
       - name: Serve site in background
         run: nohup hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
@@ -95,6 +97,10 @@ jobs:
         env:
           BASE_URL: http://localhost:1313
         run: npx playwright test tests/
+
+      - name: Stop server
+        run: pkill -f "hugo server"
+        if: always()
 
   #################################################################
   # Terraform pre-flight (fmt, init -backend=false, validate, plan)
@@ -222,11 +228,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+      
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Playwright
-        run: |
-          npm ci
-          npx playwright install --with-deps
+        run: npx playwright install --with-deps --yes
 
       - name: Run Playwright tests against live site
         env:
