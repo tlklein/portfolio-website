@@ -1,0 +1,52 @@
+project_prefix      = "v3-tlklein-portfolio"
+environment         = "prod"
+domain_name         = "trinityklein.dev"
+subdomain           = ["www"]
+bucket_name         = "v3-tlklein-portfolio-prod-site"
+region              = "us-east-2"
+root_profile        = "tlklein"
+test_profile        = "tlklein-test"
+root_role_arn       = "arn:aws:iam::230914977290:role/TerraformExecutionRole"
+test_role_arn       = "arn:aws:iam::070634855522:role/TerraformExecutionRole"
+test_sso_arn        = "arn:aws:sts::070634855522:assumed-role/AWSReservedSSO_AdminLimitedAccess_23f24c5e34779300/tlklein-test"
+dynamodb_arn        = "arn:aws:dynamodb:us-east-2:230914977290:table/TerraformLocks"
+s3_arn              = "arn:aws:s3:::tlklein-portfolio-v2"
+s3_arn_foles        = "arn:aws:s3:::tlklein-portfolio-v2/*"
+s3_state_arn        = "arn:aws:s3:::tlklein-portfolio-tf-state"
+s3_state_files      = "arn:aws:s3:::tlklein-portfolio-tf-state/*"
+tfstate_bucket_name = "tlklein-portfolio-tf-state"
+tfstate_bucket_key  = "state/terraform.tfstate"
+mime_types = {
+  html = "text/html"
+  css  = "text/css"
+  js   = "application/javascript"
+  png  = "image/png"
+  jpg  = "image/jpeg"
+  jpeg = "image/jpeg"
+  gif  = "image/gif"
+  svg  = "image/svg+xml"
+  ico  = "image/x-icon"
+  pdf  = "application/pdf"
+}
+lambda_s3_key       = "terraform/modules/lambda/visitor-counter"
+handler             = "index.handler" #v2_lambda_function.py
+runtime             = "python3.13"
+dynamodb_table_name = "VisitorCounter"
+cloudfront_zone_id  = "Z2FDTNDATAQYW2"
+tags = {
+  Project     = var.project_prefix
+  Environment = var.environment
+  Owner       = "Trinity Klein"
+  Purpose     = "Cloud Resume Challenge"
+}
+versioning       = true
+table_name       = "VisitorCounter"
+billing_mode     = "PAY_PER_REQUEST"
+origin_bucket    = "v3-tlklein-portfolio-prod-site"
+lambda_s3_bucket = "v3-tlklein-portfolio-prod-site"
+
+# External references
+cloudfront_domain   = module.cloudfront.domain_name
+cloudfront_arn      = module.cloudfront.distribution_arn
+acm_certificate_arn = module.certificate.acm_certificate_arn
+route53_zone_id     = data.aws_route53_zone.primary.zone_id
