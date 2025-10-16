@@ -114,6 +114,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -175,7 +181,7 @@ jobs:
           terraform_version: "1.6.0"
 
       - name: Terraform init (remote backend)
-        run: terraform -chdir=terraform init
+        run: terraform -chdir=terraform init --reconfigure
 
       - name: Terraform plan
         run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan
