@@ -12,9 +12,7 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-2
   SOURCE_DIR: ./public
-  DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
@@ -116,17 +114,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
       
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
 
       - name: Terraform fmt (check)
         run: terraform -chdir=terraform fmt -check
@@ -160,22 +158,13 @@ jobs:
       - name: Aggregate preflight completion
         run: echo "All preflight checks completed successfully."
 
-  #################################################################
-  # Terraform apply (runs on main push, safe remote backend setup)
+ #################################################################
+  # Terraform apply (runs on main push)
   #################################################################
   terraform-apply:
     name: terraform-apply
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      id-token: write
-      contents: read
-    env:
-      TF_IN_AUTOMATION: true
-      TF_CLI_ARGS_init: "-input=false"
-      TF_CLI_ARGS_apply: "-input=false"
-      AWS_REGION: ${{ env.AWS_REGION }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -184,37 +173,21 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Verify AWS identity (debug)
-        run: aws sts get-caller-identity
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.0"
 
-      - name: Terraform init (with remote backend)
-        run: |
-          terraform -chdir=terraform init \
-            -backend-config="bucket=tlklein-portfolio-tf-state" \
-            -backend-config="key=state/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="encrypt=true" \
-            -backend-config="dynamodb_table=TerraformLocks" \
-            -backend-config="role_arn=arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole"
-
-      - name: Terraform validate
-        run: terraform -chdir=terraform validate
+      - name: Terraform init (remote backend)
+        run: terraform -chdir=terraform init --reconfigure
 
       - name: Terraform plan
         run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan
 
       - name: Terraform apply
         run: terraform -chdir=terraform apply -auto-approve tfplan
-
-      - name: Show Terraform outputs
-        run: terraform -chdir=terraform output
 
   #################################################################
   # Build & Deploy site (main branch)
@@ -234,8 +207,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Sync site to S3
         run: |
@@ -244,9 +217,9 @@ jobs:
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
           PATHS: "/*"
-          AWS_REGION: ${{ env.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   #################################################################
   # Smoke tests after deploy (on main)
