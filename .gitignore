@@ -12,7 +12,6 @@ node_modules
 .terraform.lock.hcl
 crash.log
 ials.auto.tfvars
-terraform.tfvars
 *.backup
 .terraform/
 --role-arn
