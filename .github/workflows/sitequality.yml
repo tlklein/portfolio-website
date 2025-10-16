@@ -12,9 +12,7 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-2
   SOURCE_DIR: ./public
-  DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
@@ -125,8 +123,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Terraform fmt (check)
         run: terraform -chdir=terraform fmt -check
@@ -175,7 +173,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -209,8 +207,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Sync site to S3
         run: |
@@ -219,9 +217,9 @@ jobs:
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
           PATHS: "/*"
-          AWS_REGION: ${{ env.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
 
   #################################################################
   # Smoke tests after deploy (on main)
