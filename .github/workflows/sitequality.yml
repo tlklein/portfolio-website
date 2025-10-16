@@ -160,22 +160,13 @@ jobs:
       - name: Aggregate preflight completion
         run: echo "All preflight checks completed successfully."
 
-  #################################################################
-  # Terraform apply (runs on main push, safe remote backend setup)
+ #################################################################
+  # Terraform apply (runs on main push)
   #################################################################
   terraform-apply:
     name: terraform-apply
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      id-token: write
-      contents: read
-    env:
-      TF_IN_AUTOMATION: true
-      TF_CLI_ARGS_init: "-input=false"
-      TF_CLI_ARGS_apply: "-input=false"
-      AWS_REGION: ${{ env.AWS_REGION }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -186,35 +177,19 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Verify AWS identity (debug)
-        run: aws sts get-caller-identity
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.0"
 
-      - name: Terraform init (with remote backend)
-        run: |
-          terraform -chdir=terraform init \
-            -backend-config="bucket=tlklein-portfolio-tf-state" \
-            -backend-config="key=state/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="encrypt=true" \
-            -backend-config="dynamodb_table=TerraformLocks" \
-            -backend-config="role_arn=arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole"
-
-      - name: Terraform validate
-        run: terraform -chdir=terraform validate
+      - name: Terraform init (remote backend)
+        run: terraform -chdir=terraform init
 
       - name: Terraform plan
         run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan
 
       - name: Terraform apply
         run: terraform -chdir=terraform apply -auto-approve tfplan
-
-      - name: Show Terraform outputs
-        run: terraform -chdir=terraform output
 
   #################################################################
   # Build & Deploy site (main branch)
