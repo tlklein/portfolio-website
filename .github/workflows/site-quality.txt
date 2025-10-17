@@ -49,7 +49,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript,python,hcl, # adjust languages for your repo
+          languages: javascript,python,hcl, # adjust languages at a later date
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
