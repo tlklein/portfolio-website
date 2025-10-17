@@ -17,96 +17,7 @@ env:
 
 jobs:
   #################################################################
-  # Build & HTML proof (runs for PRs and push main)
-  #################################################################
-  build-html:
-    name: build-html
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-
-      - name: Run markdownlint
-        run: markdownlint "README.md" # Will run through node modules if using the wildcard
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.125.4'
-
-      - name: Build Hugo site
-        run: hugo --baseURL=${{ env.BASE_URL }}
-        
-      - name: Install HTML-Validate and Linkinator
-        run: |
-          npm install -g html-validate linkinator
-
-      - name: Run html-validate
-        run: html-validate "layouts/**/*.html" "static/**/*.html"
-
-      - name: Run Linkinator (skip external blocked links)
-        run: |
-          linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
-
-      - name: Upload built site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: ./public
-
-  #################################################################
-  # Playwright tests (run against local server built from PR)
-  #################################################################
-  playwright:
-    name: playwright-tests
-    runs-on: ubuntu-latest
-    needs: build-html
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.125.4'
-      
-      - name: Install dependencies
-        run: npm install --save-dev wait-on
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Serve site in background
-        run:  hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:1313
-
-      - name: Run Playwright tests
-        env:
-          BASE_URL: http://localhost:1313
-        run: npx playwright test tests/
-
-      - name: Stop server
-        run: pkill -f "hugo server"
-        if: always()
-
-  #################################################################
-  # Terraform plan & apply
+  # Terraform plan, then apply
   #################################################################
   terraform:
     name: terraform
@@ -118,16 +29,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+        
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
       
       - name: Terraform workspace
         id: workspace
