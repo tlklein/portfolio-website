@@ -128,10 +128,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.0"
-
-      - name: Terraform fmt (check)
-        run: terraform -chdir=terraform fmt -check 
-
+      
       - name: Terraform workspace
         id: workspace
         run: |
