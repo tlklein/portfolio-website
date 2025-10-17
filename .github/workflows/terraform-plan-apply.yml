@@ -119,7 +119,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -129,14 +129,14 @@ jobs:
       - name: Terraform fmt (check)
         run: terraform -chdir=terraform fmt -check
 
-      - name: Terraform init (no backend)
-        run: terraform -chdir=terraform init -backend=false
+      - name: Terraform init (remote backend)
+        run: terraform -chdir=terraform init --backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" --backend-config="dynamodb_table=${{ secrets.TF_LOCK_TABLE }}" --reconfigure
 
       - name: Terraform validate
         run: terraform -chdir=terraform validate
 
       - name: Terraform plan (save)
-        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan || true
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=10m
 
       - name: Upload terraform plan
         uses: actions/upload-artifact@v4
@@ -173,7 +173,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -183,11 +183,11 @@ jobs:
       - name: Terraform init (remote backend)
         run: terraform -chdir=terraform init --reconfigure
 
-      - name: Terraform plan
-        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan
+      - name: Terraform plan (with lock timeout)
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=10m
 
       - name: Terraform apply
-        run: terraform -chdir=terraform apply -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve -lock-timeout=10m tfplan
 
   #################################################################
   # Build & Deploy site (main branch)
