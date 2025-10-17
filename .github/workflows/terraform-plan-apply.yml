@@ -106,15 +106,18 @@ jobs:
         if: always()
 
   #################################################################
-  # Terraform pre-flight (fmt, init -backend=false, validate, plan)
+  # Terraform plan & apply
   #################################################################
-  terraform-plan:
-    name: terraform-plan
+  terraform:
+    name: terraform
     runs-on: ubuntu-latest
+    concurrency:
+      group: terraform
+      cancel-in-progress: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -126,86 +129,40 @@ jobs:
         with:
           terraform_version: "1.6.0"
 
-      - name: Terraform fmt
-        run: terraform -chdir=terraform fmt
+      - name: Terraform fmt (check)
+        run: terraform -chdir=terraform fmt -check
+
+      - name: Terraform workspace
+        id: workspace
+        run: |
+          # Use separate workspace for PRs to avoid lock conflicts
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "Using default workspace"
+          else
+            workspace="pr-${GITHUB_RUN_ID}"
+            terraform -chdir=terraform workspace new $workspace || terraform -chdir=terraform workspace select $workspace
+          fi
 
       - name: Terraform init
-        run: terraform -chdir=terraform init --backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" --backend-config="dynamodb_table=${{ secrets.TF_LOCK_TABLE }}" --reconfigure
+        run: terraform -chdir=terraform init -reconfigure -lock-timeout=5m
 
       - name: Terraform validate
         run: terraform -chdir=terraform validate
 
-      - name: Terraform plan (save)
-        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=10m -lock=false
+      - name: Terraform plan
+        id: plan
+        run: |
+          terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
 
-      - name: Upload terraform plan
+      - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: terraform/tfplan
 
- #################################################################
-  # Terraform apply (runs on main push)
-  #################################################################
-  terraform-apply:
-    name: terraform-apply
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
-
-      - name: Terraform init (remote backend)
-        run: terraform -chdir=terraform init --reconfigure
-
-      - name: Terraform plan (with lock timeout)
-        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=10m -lock
-
-      - name: Terraform apply
-        run: terraform -chdir=terraform apply -auto-approve -lock-timeout=10m tfplan
-
-  #################################################################
-  # Build & Deploy site (main branch)
-  #################################################################
-  deploy-site:
-    name: build-and-deploy
-    runs-on: ubuntu-latest
-    needs: terraform-apply
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Download built site artifact (from build-html job)
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: ./public
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Sync site to S3
-        run: |
-          aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
-
-      - name: Invalidate CloudFront cache
-        uses: chetan/invalidate-cloudfront-action@v2
-        env:
-          DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
-          PATHS: "/*"
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Terraform apply (main only)
+        if: github.ref == 'refs/heads/main'
+        run: terraform -chdir=terraform apply -auto-approve tfplan
 
   #################################################################
   # Smoke tests after deploy (on main)
