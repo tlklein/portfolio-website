@@ -1,4 +1,4 @@
-name: "CI/CD: Hugo + Terraform"
+name: "Terraform Plan & Apply"
 
 on:
   pull_request:
@@ -16,15 +16,13 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
-  #################################################################
-  # Terraform plan, then apply
-  #################################################################
   terraform:
     name: terraform
     runs-on: ubuntu-latest
     concurrency:
-      group: terraform
+      group: terraform-${{ github.ref }}
       cancel-in-progress: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,17 +31,16 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.0"
-        
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Terraform workspace
+
+      - name: Terraform workspace (per PR or main)
         id: workspace
         run: |
-          # Use separate workspace for PRs to avoid lock conflicts
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "Using default workspace"
           else
@@ -59,8 +56,7 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: |
-          terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
@@ -70,11 +66,12 @@ jobs:
 
       - name: Terraform apply (main only)
         if: github.ref == 'refs/heads/main'
-        run: terraform -chdir=terraform apply -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve -lock-timeout=5m tfplan
 
   #################################################################
   # Build & Deploy site (main branch)
   #################################################################
+  
   deploy-site:
     name: build-and-deploy
     runs-on: ubuntu-latest
