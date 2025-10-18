@@ -1,4 +1,4 @@
-name: "Security & SBOM CI/CD"
+name: "Site Quality Checks"
 
 on:
   push:
