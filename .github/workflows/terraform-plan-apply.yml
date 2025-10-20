@@ -38,9 +38,6 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Kill stale Terraform processes manually
-        run: terraform force-unlock -force ${{ secrets.TF_PID}}
     
       - name: Detect and kill stale Terraform processes
         shell: bash
@@ -100,7 +97,7 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
+        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m -lock=false
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
