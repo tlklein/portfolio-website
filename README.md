@@ -288,7 +288,8 @@ let me know!
 21. How to buy domain from Namecheap, connect to AWS Route 53 and attach
     AWS Certificate Manager -
     <https://celestina.hashnode.dev/how-to-buy-domain-from-namecheap-connect-to-aws-route-53-and-attach-aws-certificate-manager>
-22. Error acquiring the state lock: ConditionalCheckFailedException - <https://stackoverflow.com/questions/62189825/error-acquiring-the-state-lock-conditionalcheckfailedexception>
+22. How to fix-Terraform Error acquiring the state lock ConditionalCheckFiledException? - <https://jhooq.com/terraform-conidtional-check-failed/>
+23. Terraform State Lock Errors: Emergency Solutions & Prevention Guide - <https://scalr.com/learning-center/terraform-state-lock-errors-emergency-solutions-prevention-guide/>
 
 ---
 
