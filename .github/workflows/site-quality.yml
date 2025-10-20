@@ -28,7 +28,6 @@ jobs:
 
       - name: Verify signed commits
         run: |
-          # Fail if any commit in the PR or push is unsigned
           git log --pretty=format:'%h %G? %s' origin/main..HEAD | while read commit g status msg; do
             if [ "$g" != "G" ]; then
               echo "Commit $commit is not GPG-signed: $msg"
@@ -49,7 +48,7 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript,python,hcl, # adjust languages at a later date
+          languages: hcl,html,python,css,javascript,makefile
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
@@ -83,7 +82,6 @@ jobs:
 
       - name: Generate SBOM
         run: |
-          # Adjust path to your artifact if needed 
           syft ./ -o json > sbom.json
 
       - name: Upload SBOM artifact
