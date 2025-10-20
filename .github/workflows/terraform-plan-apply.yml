@@ -39,6 +39,9 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Kill stale Terraform processes manually
+        run: terraform force-unlock -force ${{ secrets.TF_PID}}
+    
       - name: Detect and kill stale Terraform processes
         shell: bash
         run: |
