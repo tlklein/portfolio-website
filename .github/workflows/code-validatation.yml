@@ -44,7 +44,7 @@ jobs:
           hugo-version: '0.125.4'
 
       - name: Build Hugo site
-        run: hugo build --baseURL=${{ env.BASE_URL }}
+        run: hugo --baseURL=${{ env.BASE_URL }}
         
       - name: Install HTML-Validate and Linkinator
         run: |
