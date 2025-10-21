@@ -6,9 +6,11 @@ public
 *.env
 node_modules
 
+
 # Terraform / Local overrides
 *.tfstate
 *.tfstate.*
+*tfvars
 .terraform.lock.hcl
 crash.log
 ials.auto.tfvars
