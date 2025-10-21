@@ -52,7 +52,13 @@ jobs:
           else
             echo "Using default workspace for main branch"
           fi
-    
+
+      - name: Terraform init
+        run: terraform -chdir=terraform init -reconfigure -lock-timeout=2m
+
+      - name: Terraform validate
+        run: terraform -chdir=terraform validate
+      
       - name: Detect and kill stale Terraform processes
         shell: bash
         run: |
@@ -79,12 +85,6 @@ jobs:
           else
             echo "No lock to force-unlock, or skipping main branch for safety."
           fi
-
-      - name: Terraform init
-        run: terraform -chdir=terraform init -reconfigure -lock-timeout=2m
-
-      - name: Terraform validate
-        run: terraform -chdir=terraform validate
 
       - name: Terraform plan
         id: plan
