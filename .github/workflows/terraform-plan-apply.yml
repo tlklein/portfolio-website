@@ -60,7 +60,7 @@ jobs:
         run: terraform -chdir=terraform validate
       
       - name: Terraform force unlock
-        run: terraform force-unlock -force ${{ secrets.TF_PID }}
+        run: terraform -chdir=terraform force-unlock -force ${{ secrets.TF_PID }}
       
       - name: Detect and kill stale Terraform processes
         shell: bash
