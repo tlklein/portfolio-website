@@ -40,6 +40,18 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Set Terraform workspace
+        id: workspace
+        run: |
+          cd terraform
+          if [[ "${GITHUB_REF}" != "refs/heads/main" ]]; then
+            WORKSPACE="pr-${GITHUB_RUN_ID}"
+            terraform workspace new $WORKSPACE || terraform workspace select $WORKSPACE
+            echo "Using workspace $WORKSPACE for PR"
+          else
+            echo "Using default workspace for main branch"
+          fi
     
       - name: Detect and kill stale Terraform processes
         shell: bash
@@ -55,51 +67,28 @@ jobs:
             echo "No stale Terraform processes found."
           fi
 
-      - name: Terraform workspace
-        id: workspace
-        run: |
-          # Use separate workspace for PRs to avoid lock conflicts
-          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            echo "Using default workspace"
-          else
-            workspace="pr-${GITHUB_RUN_ID}"
-            terraform -chdir=${{ env.TF_DIR }} workspace new $workspace || terraform -chdir=${{ env.TF_DIR }} workspace select $workspace
-          fi
-
-      - name: Terraform init
-        run: terraform -chdir=${{ env.TF_DIR }} init -reconfigure -lock-timeout=5m
-
-      - name: Terraform validate
-        run: terraform -chdir=${{ env.TF_DIR }} validate
-
-      - name: Optionally force-unlock Terraform state
+      - name: Force-unlock Terraform state (SAFETY)
         shell: bash
         continue-on-error: true
         run: |
-          cd ${{ env.TF_DIR }}
+          cd terraform
           LOCK_ID=$(terraform show -json 2>/dev/null | jq -r '.lock?.ID // empty')
-          if [ -n "$LOCK_ID" ]; then
-            echo "Terraform state is locked. Lock ID: $LOCK_ID"
-            if [[ "${GITHUB_REF##*/}" != "main" ]]; then
-              echo "Non-main branch; force-unlocking automatically."
-              terraform force-unlock -force "$LOCK_ID"
-            else
-              echo "Main branch detected; checking FORCE_UNLOCK secret."
-              if [ "${{ secrets.FORCE_UNLOCK }}" == "true" ]; then
-                echo "FORCE_UNLOCK secret set. Force-unlocking main branch state."
-                terraform force-unlock -force "$LOCK_ID"
-              else
-                echo "FORCE_UNLOCK secret NOT set. Skipping force-unlock for main branch!"
-                exit 1
-              fi
-            fi
+          if [[ -n "$LOCK_ID" && "${GITHUB_REF}" != "refs/heads/main" ]]; then
+            echo "PR workspace locked. Force-unlocking ID: $LOCK_ID..."
+            terraform force-unlock -force "$LOCK_ID"
           else
-            echo "No active Terraform state lock found."
+            echo "No lock to force-unlock, or skipping main branch for safety."
           fi
+
+      - name: Terraform init
+        run: terraform -chdir=terraform init -reconfigure -lock-timeout=2m
+
+      - name: Terraform validate
+        run: terraform -chdir=terraform validate
 
       - name: Terraform plan
         id: plan
-        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=2m
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
@@ -109,7 +98,7 @@ jobs:
 
       - name: Terraform apply (main only)
         if: github.ref == 'refs/heads/main'
-        run: terraform -chdir=${{ env.TF_DIR }} apply -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve tfplan
 
   #################################################################
   # Build & Deploy site (main branch)
