@@ -54,29 +54,15 @@ jobs:
           fi
 
       - name: Terraform init
-        run: terraform -chdir=terraform init -reconfigure -lock-timeout=2m
+        run: terraform -chdir=terraform init -reconfigure -lock-timeout=10m
 
       - name: Terraform validate
         run: terraform -chdir=terraform validate
       
       - name: Terraform force unlock
         run: terraform -chdir=terraform force-unlock -force ${{ secrets.TF_PID }}
-      
-      - name: Detect and kill stale Terraform processes
-        shell: bash
-        run: |
-          echo "Checking for any hung Terraform processes..."
-          TF_PROCS=$(ps aux | grep '[t]erraform' || true)
-          if [ -n "$TF_PROCS" ]; then
-            echo "Found the following Terraform processes:"
-            echo "$TF_PROCS"
-            ps aux | grep '[t]erraform' | awk '{print $2}' | xargs -r sudo kill -9
-            echo "All Terraform processes have been terminated."
-          else
-            echo "No stale Terraform processes found."
-          fi
 
-      - name: Force-unlock Terraform state (SAFETY)
+      - name: Force-unlock Terraform state
         shell: bash
         continue-on-error: true
         run: |
@@ -91,7 +77,7 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=2m
+        run: terraform -chdir=terraform plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=10m
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
@@ -102,6 +88,20 @@ jobs:
       - name: Terraform apply (main only)
         if: github.ref == 'refs/heads/main'
         run: terraform -chdir=terraform apply -auto-approve tfplan
+      
+      - name: Detect and kill Terraform processes
+        shell: bash
+        run: |
+          echo "Checking for any hung Terraform processes..."
+          TF_PROCS=$(ps aux | grep '[t]erraform' || true)
+          if [ -n "$TF_PROCS" ]; then
+            echo "Found the following Terraform processes:"
+            echo "$TF_PROCS"
+            ps aux | grep '[t]erraform' | awk '{print $2}' | xargs -r sudo kill -9
+            echo "All Terraform processes have been terminated."
+          else
+            echo "No stale Terraform processes found."
+          fi
 
   #################################################################
   # Build & Deploy site (main branch)
