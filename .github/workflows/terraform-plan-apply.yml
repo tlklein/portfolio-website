@@ -1,5 +1,5 @@
 name: "Terraform Plan & Apply"
-
+# Build website using Terraform, push to infra, then test with playwright
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -20,6 +20,8 @@ jobs:
   terraform:
     name: terraform
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' 
+      
     concurrency:
       group: terraform-${{ github.ref }}
       cancel-in-progress: true
@@ -97,7 +99,7 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m -lock=false
+        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
