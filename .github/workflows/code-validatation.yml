@@ -3,18 +3,17 @@ name: "Code Validation Checks"
 on:
   push:
     branches:
-      - main
+      - '**'
 
   pull_request:
     branches:
-      - main
+      - '**'
 
 permissions:
   id-token: write
   contents: read
 
 env:
-  SOURCE_DIR: ./public
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
@@ -45,7 +44,7 @@ jobs:
           hugo-version: '0.125.4'
 
       - name: Build Hugo site
-        run: hugo --baseURL=${{ env.BASE_URL }}
+        run: hugo build --baseURL=${{ env.BASE_URL }}
         
       - name: Install HTML-Validate and Linkinator
         run: |
