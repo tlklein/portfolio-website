@@ -294,9 +294,6 @@ let me know!
 23. Terraform State Lock Errors: Emergency Solutions &
     Prevention Guide -
     <https://scalr.com/learning-center/terraform-state-lock-errors-emergency-solutions-prevention-guide/>
-24. "no matching Route53Zone found": Terraform's 
-    Route53 data source is not recognizing the hosted zone name
-    <https://stackoverflow.com/questions/41631966/no-matching-route53zone-found-terraforms-route53-data-source-is-not-recogniz>
 
 ---
 
