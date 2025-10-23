@@ -14,7 +14,7 @@ locals {
 # Fetch Route53 zone
 #######################################################
 data "aws_route53_zone" "primary" {
-  name         = var.domain_name
+  name         = "trinityklein.dev."
   private_zone = false
 }
 
@@ -24,12 +24,12 @@ data "aws_route53_zone" "primary" {
 data "terraform_remote_state" "global" {
   backend = "s3"
   config = {
-    bucket         = "tlklein-portfolio-tf-state"
-    key            = "state/terraform.tfstate"
-    region         = "us-east-2"
-    encrypt        = true
-    dynamodb_table = "TerraformLocks"
-    profile        = "tlklein-test"
+    bucket       = "tlklein-portfolio-tf-state"
+    key          = "state/terraform.tfstate"
+    region       = "us-east-2"
+    encrypt      = true
+    use_lockfile = true
+    profile      = "tlklein-test"
   }
 }
 
@@ -40,7 +40,7 @@ module "s3_site" {
   source         = "./modules/s3_site"
   bucket_name    = var.bucket_name
   environment    = var.environment
-  versioning     = true
+  versioning     = var.versioning
   mime_types     = var.mime_types
   tags           = local.common_tags
   cloudfront_arn = module.cloudfront.distribution_arn
@@ -53,10 +53,10 @@ module "s3_site" {
 module "cloudfront" {
   source              = "./modules/cloudfront"
   origin_bucket       = module.s3_site.bucket_name
-  acm_certificate_arn = module.certificate.acm_certificate_arn
   project_prefix      = var.project_prefix
   environment         = var.environment
   cloudfront_zone_id  = var.cloudfront_zone_id
+  acm_certificate_arn = module.certificate.acm_certificate_arn
 }
 
 #######################################################
@@ -64,10 +64,24 @@ module "cloudfront" {
 #######################################################
 module "database" {
   source         = "./modules/database"
-  table_name     = "v3-tlklein-portfolio-prod-visitor"
+  table_name     = var.table_name
   environment    = var.environment
   project_prefix = var.project_prefix
   billing_mode   = var.billing_mode
+  visitors = {
+    visitor1 = {
+      ip_address  = "192.168.1.1"
+      first_visit = 1697890000
+      last_visit  = 1697893600
+      visit_count = 1
+    }
+    visitor2 = {
+      ip_address  = "192.168.1.2"
+      first_visit = 1697890200
+      last_visit  = 1697893800
+      visit_count = 3
+    }
+  }
 }
 
 #######################################################
@@ -82,31 +96,30 @@ module "visitor_counter" {
   lambda_s3_key       = var.lambda_s3_key
   handler             = var.handler
   runtime             = var.runtime
-  dynamodb_table_name = module.database.table_name
+  dynamodb_table_name = var.dynamodb_table_name
 }
 
 #######################################################
 # ACM Certificate
 #######################################################
 module "certificate" {
-  source         = "./modules/certificate"
-  domain_name    = var.domain_name
-  subdomain      = var.subdomain
-  tags           = local.common_tags
-  project_prefix = var.project_prefix
-  environment    = var.environment
+  source             = "./modules/certificate"
+  domain_name        = var.domain_name
+  subdomain          = var.subdomain
+  tags               = local.common_tags
+  project_prefix     = var.project_prefix
+  environment        = var.environment
+  cloudfront_zone_id = var.cloudfront_zone_id
 }
 
 #######################################################
 # DNS Module
 #######################################################
 module "dns" {
-  source              = "./modules/dns"
-  project_prefix      = var.project_prefix
-  environment         = var.environment
-  domain_name         = var.domain_name
-  subdomain           = var.subdomain
-  cloudfront_domain   = module.cloudfront.domain_name
-  acm_certificate_arn = module.certificate.acm_certificate_arn
-  cloudfront_zone_id  = var.cloudfront_zone_id
+  source             = "./modules/dns"
+  project_prefix     = var.project_prefix
+  environment        = var.environment
+  domain_name        = var.domain_name
+  subdomain          = var.subdomain
+  cloudfront_zone_id = var.cloudfront_zone_id
 }

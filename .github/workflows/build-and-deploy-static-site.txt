@@ -1,5 +1,5 @@
 name: Build and Deploy Static Site
-
+# Build website, push to infra, then test with playwright, without Terraform
 on:
   push:
     branches:

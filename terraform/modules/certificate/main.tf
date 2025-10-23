@@ -11,18 +11,19 @@ locals {
 }
 
 #######################################################
-# Provider
+# Provider - Test Account
 #######################################################
 provider "aws" {
-  alias  = "use1"
-  region = "us-east-1"
+  alias  = "test"
+  region = "us-east-2"
+  profile = "tlklein-test"
 }
 
 #######################################################
 # Route53 Data Source
 #######################################################
 data "aws_route53_zone" "primary" {
-  name         = var.domain_name
+  name         = "trinityklein.dev."
   private_zone = false
 }
 
@@ -31,7 +32,7 @@ data "aws_route53_zone" "primary" {
 # ACM Certificate
 #######################################################
 resource "aws_acm_certificate" "cloudfront_cert" {
-  provider                  = aws.use1
+  provider                  = aws.test
   domain_name               = var.domain_name
   subject_alternative_names = length(var.subdomain) > 0 ? [for sub in var.subdomain : "${sub}.${var.domain_name}"] : []
   validation_method         = "DNS"
@@ -50,7 +51,7 @@ resource "aws_route53_record" "cert_validation" {
     for dvo in aws_acm_certificate.cloudfront_cert.domain_validation_options : dvo.domain_name => dvo
   }
 
-  zone_id = data.aws_route53_zone.primary.zone_id
+  zone_id = var.cloudfront_zone_id
   name    = each.value.resource_record_name
   type    = each.value.resource_record_type
   records = [each.value.resource_record_value]
@@ -61,7 +62,7 @@ resource "aws_route53_record" "cert_validation" {
 # Certificate Validation
 #######################################################
 resource "aws_acm_certificate_validation" "cloudfront_validation" {
-  provider                = aws.use1
+  provider                = aws.test
   certificate_arn         = aws_acm_certificate.cloudfront_cert.arn
   validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
 

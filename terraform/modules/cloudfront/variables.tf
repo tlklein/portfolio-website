@@ -23,17 +23,17 @@ variable "origin_bucket" {
 }
 
 #######################################################
-# ACM certificate ARN for HTTPS support
-#######################################################
-variable "acm_certificate_arn" {
-  description = "The ARN of the ACM certificate to use with CloudFront"
-  type        = string
-}
-
-#######################################################
 # CloudFront Zone ID
 #######################################################
 variable "cloudfront_zone_id" {
   type        = string
   description = "Optional CloudFront Hosted Zone ID for DNS records"
+}
+
+#######################################################
+# ACM Certificate ARN
+#######################################################
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN to use for CloudFront"
+  type        = string
 }

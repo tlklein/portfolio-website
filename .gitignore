@@ -6,6 +6,7 @@ public
 *.env
 node_modules
 
+
 # Terraform / Local overrides
 *.tfstate
 *.tfstate.*
@@ -15,3 +16,6 @@ ials.auto.tfvars
 *.backup
 .terraform/
 --role-arn
+scripts.txt
+tfplan
+*.tf.vars

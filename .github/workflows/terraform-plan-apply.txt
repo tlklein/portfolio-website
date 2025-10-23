@@ -1,5 +1,5 @@
 name: "Terraform Plan & Apply"
-
+# Build website using Terraform, push to infra, then test with playwright
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
@@ -20,6 +20,8 @@ jobs:
   terraform:
     name: terraform
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' 
+      
     concurrency:
       group: terraform-${{ github.ref }}
       cancel-in-progress: true
@@ -38,8 +40,31 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ secrets.AWS_REGION }}
-    
-      - name: Detect and kill stale Terraform processes
+
+      - name: Terraform init
+        run: terraform -chdir=terraform init -reconfigure 
+
+      - name: Terraform validate
+        run: terraform -chdir=terraform validate
+      
+      - name: Terraform force unlock
+        run: terraform -chdir=terraform force-unlock -force ${{ secrets.TF_PID }}
+
+      - name: Terraform plan
+        id: plan
+        run: terraform -chdir=terraform plan -var-file="terraform.tfvars" -out=tfplan -lock-timeout=10m
+
+      - name: Upload terraform plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: terraform/tfplan
+
+      - name: Terraform apply (main only)
+        if: github.ref == 'refs/heads/main'
+        run: terraform -chdir=terraform apply -auto-approve tfplan
+      
+      - name: Detect and kill Terraform processes
         shell: bash
         run: |
           echo "Checking for any hung Terraform processes..."
@@ -52,62 +77,6 @@ jobs:
           else
             echo "No stale Terraform processes found."
           fi
-
-      - name: Terraform workspace
-        id: workspace
-        run: |
-          # Use separate workspace for PRs to avoid lock conflicts
-          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            echo "Using default workspace"
-          else
-            workspace="pr-${GITHUB_RUN_ID}"
-            terraform -chdir=${{ env.TF_DIR }} workspace new $workspace || terraform -chdir=${{ env.TF_DIR }} workspace select $workspace
-          fi
-
-      - name: Terraform init
-        run: terraform -chdir=${{ env.TF_DIR }} init -reconfigure -lock-timeout=5m
-
-      - name: Terraform validate
-        run: terraform -chdir=${{ env.TF_DIR }} validate
-
-      - name: Optionally force-unlock Terraform state
-        shell: bash
-        continue-on-error: true
-        run: |
-          cd ${{ env.TF_DIR }}
-          LOCK_ID=$(terraform show -json 2>/dev/null | jq -r '.lock?.ID // empty')
-          if [ -n "$LOCK_ID" ]; then
-            echo "Terraform state is locked. Lock ID: $LOCK_ID"
-            if [[ "${GITHUB_REF##*/}" != "main" ]]; then
-              echo "Non-main branch; force-unlocking automatically."
-              terraform force-unlock -force "$LOCK_ID"
-            else
-              echo "Main branch detected; checking FORCE_UNLOCK secret."
-              if [ "${{ secrets.FORCE_UNLOCK }}" == "true" ]; then
-                echo "FORCE_UNLOCK secret set. Force-unlocking main branch state."
-                terraform force-unlock -force "$LOCK_ID"
-              else
-                echo "FORCE_UNLOCK secret NOT set. Skipping force-unlock for main branch!"
-                exit 1
-              fi
-            fi
-          else
-            echo "No active Terraform state lock found."
-          fi
-
-      - name: Terraform plan
-        id: plan
-        run: terraform -chdir=${{ env.TF_DIR }} plan -var-file=terraform.tfvars -out=tfplan -lock-timeout=5m -lock=false
-
-      - name: Upload terraform plan artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: terraform/tfplan
-
-      - name: Terraform apply (main only)
-        if: github.ref == 'refs/heads/main'
-        run: terraform -chdir=${{ env.TF_DIR }} apply -auto-approve tfplan
 
   #################################################################
   # Build & Deploy site (main branch)

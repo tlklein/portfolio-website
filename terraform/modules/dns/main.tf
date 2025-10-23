@@ -14,15 +14,16 @@ locals {
 # Provider
 #######################################################
 provider "aws" {
-  alias  = "use1"
-  region = "us-east-1"
+  alias  = "test"
+  region = "us-east-2"
+  profile = "tlklein-test"
 }
 
 #######################################################
 # Route53 Zone Data Source
 #######################################################
 data "aws_route53_zone" "primary" {
-  name         = var.domain_name
+  name         = "trinityklein.dev."
   private_zone = false
 }
 
@@ -30,24 +31,24 @@ data "aws_route53_zone" "primary" {
 # Route53 Validation Records
 #######################################################
 resource "aws_route53_record" "www" {
-  zone_id = data.aws_route53_zone.primary.zone_id
-  name    = "www.${var.domain_name}"
+  zone_id = var.cloudfront_zone_id
+  name    = "www.${var.domain_name}."
   type    = "A"
 
   alias {
-    name                   = var.cloudfront_domain
+    name                   = "www.${var.domain_name}."
     zone_id                = var.cloudfront_zone_id
     evaluate_target_health = false
   }
 }
 
 resource "aws_route53_record" "root" {
-  zone_id = data.aws_route53_zone.primary.zone_id
+  zone_id = var.cloudfront_zone_id
   name    = var.domain_name
   type    = "A"
 
   alias {
-    name                   = var.cloudfront_domain
+    name                   = var.domain_name
     zone_id                = var.cloudfront_zone_id
     evaluate_target_health = false
   }
