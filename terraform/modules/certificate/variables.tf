@@ -39,3 +39,11 @@ variable "tags" {
   description = "Tags to apply to all resources"
   default     = {}
 }
+
+#######################################################
+# CloudFront Zone ID
+#######################################################
+variable "cloudfront_zone_id" {
+  description = "The Route53 Hosted Zone ID for the CloudFront distribution"
+  type        = string
+}

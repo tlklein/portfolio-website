@@ -30,3 +30,16 @@ variable "environment" {
   description = "default enviornment name"
   type        = string
 }
+
+#######################################################
+# Input Data 
+#######################################################
+variable "visitors" {
+  description = "Map of visitor items to insert into the DynamoDB table"
+  type = map(object({
+    ip_address  = string
+    first_visit = number
+    last_visit  = number
+    visit_count = number
+  }))
+}
