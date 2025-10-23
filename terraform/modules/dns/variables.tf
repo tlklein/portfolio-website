@@ -31,22 +31,6 @@ variable "environment" {
 }
 
 #######################################################
-# CloudFront Domain Name
-#######################################################
-variable "cloudfront_domain" {
-  type        = string
-  description = "The CloudFront distribution domain name (used for CNAME record)"
-}
-
-#######################################################
-# ACM Certificate ARN
-#######################################################
-variable "acm_certificate_arn" {
-  type        = string
-  description = "ACM certificate ARN used for DNS validation"
-}
-
-#######################################################
 # CloudFront Zone ID
 #######################################################
 variable "cloudfront_zone_id" {

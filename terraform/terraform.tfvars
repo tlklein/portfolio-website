@@ -11,7 +11,7 @@ test_role_arn       = "arn:aws:iam::070634855522:role/TerraformExecutionRole"
 test_sso_arn        = "arn:aws:sts::070634855522:assumed-role/AWSReservedSSO_AdminLimitedAccess_23f24c5e34779300/tlklein-test"
 dynamodb_arn        = "arn:aws:dynamodb:us-east-2:230914977290:table/TerraformLocks"
 s3_arn              = "arn:aws:s3:::tlklein-portfolio-v2"
-s3_arn_foles        = "arn:aws:s3:::tlklein-portfolio-v2/*"
+s3_arn_files        = "arn:aws:s3:::tlklein-portfolio-v2/*"
 s3_state_arn        = "arn:aws:s3:::tlklein-portfolio-tf-state"
 s3_state_files      = "arn:aws:s3:::tlklein-portfolio-tf-state/*"
 tfstate_bucket_name = "tlklein-portfolio-tf-state"
@@ -32,10 +32,10 @@ lambda_s3_key       = "terraform/modules/lambda/visitor-counter"
 handler             = "index.handler" #v2_lambda_function.py
 runtime             = "python3.13"
 dynamodb_table_name = "VisitorCounter"
-cloudfront_zone_id  = "Z2FDTNDATAQYW2"
+cloudfront_zone_id  = "Z02233341C4F56R1K5L3W"
 tags = {
-  Project     = var.project_prefix
-  Environment = var.environment
+  Project     = "v3-tlklein-portfolio"
+  Environment = "prod"
   Owner       = "Trinity Klein"
   Purpose     = "Cloud Resume Challenge"
 }
@@ -44,9 +44,18 @@ table_name       = "VisitorCounter"
 billing_mode     = "PAY_PER_REQUEST"
 origin_bucket    = "v3-tlklein-portfolio-prod-site"
 lambda_s3_bucket = "v3-tlklein-portfolio-prod-site"
-
-# External references
-cloudfront_domain   = module.cloudfront.domain_name
-cloudfront_arn      = module.cloudfront.distribution_arn
-acm_certificate_arn = module.certificate.acm_certificate_arn
-route53_zone_id     = data.aws_route53_zone.primary.zone_id
+visitors = {
+  visitor1 = {
+    ip_address  = "192.168.1.1"
+    first_visit = 1697808000
+    last_visit  = 1697894400
+    visit_count = 3
+  }
+  visitor2 = {
+    ip_address  = "192.168.1.2"
+    first_visit = 1697809000
+    last_visit  = 1697894500
+    visit_count = 1
+  }
+}
+acm_certificate_arn = "arn:aws:acm:us-east-1:230914977290:certificate/1675d3f2-2583-4351-a738-ef4648c36d14"
