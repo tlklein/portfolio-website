@@ -3,41 +3,65 @@
 ![banner](/documentation/all-devices-black.png)
 
 Welcome! This repo documents my Cloud Resume Challenge, a hands-on project
-where I combined **AWS services, Infrastructure-as-Code CI/CD, and DevOps
-practices** into a single portfolio project. For more information about the
-final architecture, achievements, and lessons learned, head over to my
-[Dev.to blog series](#blog-series)
+where I combined AWS services, Infrastructure-as-Code CI/CD, and DevOps
+practices into a single portfolio project.
+
+[![Build Status](https://img.shields.io/badge/build-complete-red)](#)
+[![Deploy Status](https://img.shields.io/badge/deploy-progress-gree)](#)
+
+## Table of contents
+
+- [Final Product](#final-product)
+- [TL;DR](#tldr)
+- [Architecture Overview](#architecture-overview)
+- [Architecture Diagrams](#architecture-diagrams)
+- [Blog Series](#blog-series)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [How to Run](#how-to-run)
+- [File Structure](#file-structure)
+- [Future Improvements](#future-improvements)
+- [Let's Connect](#lets-connect)
+- [References / Helpful Links](#references--helpful-links)
 
 ## Final Product
 
-- **Live Cloud Resume:** [View Here](https://www.trinityklein.dev/)
+- Live Cloud Resume: [View Here](https://www.trinityklein.dev/)
 
-## Blog Series
+## TL;DR
 
-I documented every chunk on my blog:
+- Hugo front-end using the Console theme, optimized for performance (<500ms load).  
+- Multi-account AWS Organization setup: Production + Test OUs, MFA enabled.  
+- Backend visitor counter using Lambda + API Gateway + DynamoDB.  
+- Infrastructure managed via Terraform 1.6+ with modularized resources.  
+- CI/CD with GitHub Actions + Playwright, secured with OIDC and least-privilege IAM.  
 
-- Chunk 5 - The Final Write-Up
-- Chunk 4 - Building the Automation and CI
-- [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/cloud-resume-challenge-chunk-3-front-end-back-end-integration-11e5)
-- [Chunk 2 - Building the API](https://dev.to/tlklein/cloud-resume-challenge-chunk-2-building-the-api-4dgn)
-- [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)
-- [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)
+## Architecture Overview
 
-## Features & Achievements
-
-- Terminal-style using the Hugo Console Theme
-- Fast, lightweight, and terminal-inspired layout and nav
-- Hosted on an S3 bucket and CloudFront
-- AWS Organization with 1 Org, 2 OUs (Prod & Test), all accounts
-  MFA-protected.
-- Visitor counter with DynamoDB, Lambda, API Gateway (total + unique
-  visits).
-- GitHub Actions CI/CD pipeline setup as follows: GitHub Actions → build
-  Hugo, sync to S3, invalidate CloudFront, run Playwright tests.
-- Infra-as-code setup using Terraform for repeatability and version
-  control.
-- Implemented Supply Chain Security using OIDC instead of long-term keys,
-  lifecycle policies, least-privilege IAM.
+- Terminal-style front-end (Hugo Console theme)
+  Minimal, keyboard-friendly layout inspired by a Linux console. Built with Hugo for fast static generation and sub-500ms load times.
+- Static hosting: S3 + CloudFront (secure production setup)
+  - Static assets stored in an S3 bucket (public access disabled, static website hosting turned off).
+  - Files served only via CloudFront (Origin Access Control / OAC + restrictive bucket policy).
+  - Bucket hardening: versioning, server-side encryption (AES256), lifecycle rules to transition noncurrent objects to lower-cost classes, and `force_destroy = false` to avoid accidental mass deletes.
+- Infrastructure as Code using Terraform (repeatable & auditable)
+  - All cloud resources (S3, CloudFront, ACM, Route53 wiring, DynamoDB, Lambda, API Gateway, IAM roles/policies, etc.) are defined in Terraform modules for repeatable deployments and safe drift management.
+  - State stored remotely (S3 + DynamoDB locking) and deployed locally from the terminal (CLI-first workflow). CI uses Terraform only for automation/PR gating.
+- Account structure & hardening (AWS Organizations)
+  - 1 Organization with 2 OUs: `production` and `test`, each OU has dedicated user accounts for environment separation.
+  - Root account exists but is locked down; MFA enabled on all accounts.
+  - Billing alert configured to notify on very small thresholds (example: > $0.01) to catch accidental spend.
+- Visitor analytics (serverless + NoSQL)
+  - DynamoDB table(s) track visits.
+  - AWS Lambda implements the hit/visitor logic (total + unique visits).
+  - API Gateway (HTTP) fronts the Lambda and exposes a lightweight endpoint used by the resume footer to show counts, with graceful fallback (e.g., `Loading...` if API is unreachable).
+- CI/CD & smoke testing (GitHub Actions + Playwright)
+  - Workflow builds the Hugo site, uploads a build artifact, syncs to S3, invalidates CloudFront, and runs Playwright smoke tests.
+  - Deployments were performed primarily via terminal (AWS CLI / Terraform CLI) to keep tight control during development; GitHub Actions is configured for PR validation and optional automated deploys when desired.
+- Supply-chain & credential security (modern best practices)
+  - GitHub Actions uses OIDC / short-lived roles (no long-term secrets) to assume a deploy role in AWS.
+  - Principle of least privilege applied to IAM policies; deployment and runtime roles are scoped narrowly.
+  - Artifacts and objects use lifecycle policies and versioning to support rollback and forensic analysis.
 
 ## Architecture Diagrams
 
@@ -58,6 +82,17 @@ Here is a look at the architecture:
 ### S3 Lifecycle Management
 
 ![banner](/documentation/lifecycle-diagram.png)
+
+## Blog Series
+
+I documented every chunk on my blog:
+
+- Chunk 5 - The Final Write-Up
+- Chunk 4 - Building the Automation and CI
+- [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/cloud-resume-challenge-chunk-3-front-end-back-end-integration-11e5)
+- [Chunk 2 - Building the API](https://dev.to/tlklein/cloud-resume-challenge-chunk-2-building-the-api-4dgn)
+- [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)
+- [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)
 
 ## Prerequisites
 
@@ -169,7 +204,10 @@ After installing, this is a guide on the files in the repository.
   ```text
   ├── .github/
   │   └── workflows/
-  │       └── build-and-deploy-static-site.yml
+  │       └── build-and-deploy-static-site.txt
+  │       └── code-validation.txt
+  │       └── site-quality.txt
+  │       └── terraform-plan-apply.txt
   ├── layouts/
   │   └── _default/
   │       └── baseof.html
@@ -179,10 +217,13 @@ After installing, this is a guide on the files in the repository.
   │       └── favicon.html
   │       └── footer.html
   │       └── header.html
+  │       └── twitter_cards.html
+  │       └── opengraph.html
   │   └── 404.html
   │   └── index.html
+  │   └── index.xml
   │   └── sitemap.xml
-  ├── static/
+  ├── static/ 
   │   └── hugo-theme-console/
   │       └── css/
   │           └── animate-4.1.1.min.css
@@ -194,15 +235,20 @@ After installing, this is a guide on the files in the repository.
   │           └── RobotoMono-Italic.ttf
   │           └── RobotoMono-Regular.ttf
   │   └── images/
+  │       └── The-Cloud-Resume-Challenge-Graphics-2.png
   │       └── The-Cloud-Resume-Challenge-Graphics-4.png
+  │       └── The-Cloud-Resume-Challenge-Graphics-6.png
+  │       └── The-Cloud-Resume-Challenge-Graphics-7.png
   │       └── The-Cloud-Resume-Challenge-Graphics-8.png
   │       └── The-Cloud-Resume-Challenge-Graphics-10.png
   │       └── The-Cloud-Resume-Challenge-Graphics-12.png
   │       └── The-Cloud-Resume-Challenge-Graphics-14.png
+  │   └── favicon.ico
   │   └── resume.html
   │   └── ping.html
   │   └── posts.html
   │   └── projects.html
+  │   └── Trinity_Klein_Resume.pdf
   ├── test-results/
   │   └── .last-run.json
   ├── tests/
@@ -218,6 +264,45 @@ After installing, this is a guide on the files in the repository.
   │   └── back-end-diagram.png
   │   └── high-level-diagram.png
   │   └── lifecycle-diagram.png
+  ├── terraform/
+  │   └── modules/
+  │      └── api/
+  │          └── main.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │      └── certificate/
+  │          └── main.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │      └── cloudfront/
+  │          └── main.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │      └── database/
+  │          └── main.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │      └── dns/
+  │          └── main.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │      └── lambda/
+  │          └── visitor-counter
+  │             └── v2_lambda_function.py
+  │      └── s3_site/
+  │          └── main.tf
+  │          └── policies.tf
+  │          └── output.tf
+  │          └── variables.tf
+  │   └── backend.tf
+  │   └── main.tf
+  │   └── output.tf
+  │   └── provider.tf
+  │   └── role.tf
+  │   └── variables.tf
+  │   └── versions.tf
+  ├── .htmlvalidate.json
+  ├── .htmlvalidateignore
   ├── package.json
   ├── package-lock.json
   ├── go.mod
@@ -230,10 +315,10 @@ After installing, this is a guide on the files in the repository.
 
 ## Future Improvements
 
-- [x] Terraform Your Cloud Resume Challenge -
-  <https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/>
 - [ ] Securing your software supply chain -
   <https://cloudresumechallenge.dev/docs/extensions/supply-chain/>
+- [x] Terraform Your Cloud Resume Challenge -
+  <https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/>
 - [x] Architecture Diagrams, and Blog Posts
 
 ## Let's Connect
@@ -246,6 +331,7 @@ let me know!
 - [LinkedIn](https://linkedin.com/in/trinity-klein/)
 - [GitHub](https://github.com/tlklein)
 - [Dev.to Blog](https://dev.to/tlklein)
+- [Portfolio](https://www.trinityklein.dev/)
 - Email Address: <tlklein05@gmail.com>
 
 ## References / Helpful Links
@@ -294,10 +380,6 @@ let me know!
 23. Terraform State Lock Errors: Emergency Solutions &
     Prevention Guide -
     <https://scalr.com/learning-center/terraform-state-lock-errors-emergency-solutions-prevention-guide/>
-24. "no matching Route53Zone found": Terraform's 
+24. "no matching Route53Zone found": Terraform's
     Route53 data source is not recognizing the hosted zone name
     <https://stackoverflow.com/questions/41631966/no-matching-route53zone-found-terraforms-route53-data-source-is-not-recogniz>
-
----
-
-If you found this project helpful, feel free to star the repo!
