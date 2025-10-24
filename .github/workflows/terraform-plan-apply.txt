@@ -52,7 +52,7 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform -chdir=terraform plan -var-file="terraform.tfvars" -out=tfplan -lock-timeout=10m
+        run: terraform -chdir=terraform plan -var-file="terraform.tfvars" -out=tfplan
 
       - name: Upload terraform plan artifact
         uses: actions/upload-artifact@v4
