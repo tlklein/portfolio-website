@@ -18,4 +18,4 @@ ials.auto.tfvars
 --role-arn
 scripts.txt
 tfplan
-*.tf.vars
+*.tfvars
