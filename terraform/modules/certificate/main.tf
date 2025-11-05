@@ -15,7 +15,7 @@ locals {
 #######################################################
 provider "aws" {
   alias  = "test"
-  region = "us-east-2"
+  region = "us-east-1"
   profile = "tlklein-test"
 }
 
@@ -40,6 +40,7 @@ resource "aws_acm_certificate" "cloudfront_cert" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = [alias]
   }
 }
 

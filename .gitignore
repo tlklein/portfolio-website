@@ -17,5 +17,13 @@ ials.auto.tfvars
 .terraform/
 --role-arn
 scripts.txt
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 tfplan
 *.tfvars
+=======
+terraform.tfvars
+>>>>>>> Stashed changes
+=======
+terraform.tfvars
+>>>>>>> Stashed changes

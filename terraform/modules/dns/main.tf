@@ -31,25 +31,18 @@ data "aws_route53_zone" "primary" {
 # Route53 Validation Records
 #######################################################
 resource "aws_route53_record" "www" {
-  zone_id = var.cloudfront_zone_id
-  name    = "www.${var.domain_name}."
+  zone_id = data.aws_route53_zone.primary.zone_id
+  name    = "www.trinityklein.dev"
   type    = "A"
 
   alias {
-    name                   = "www.${var.domain_name}."
-    zone_id                = var.cloudfront_zone_id
+    name                   = module.cloudfront.domain_name
+    zone_id                = module.cloudfront.hosted_zone_id
     evaluate_target_health = false
   }
-}
 
-resource "aws_route53_record" "root" {
-  zone_id = var.cloudfront_zone_id
-  name    = var.domain_name
-  type    = "A"
-
-  alias {
-    name                   = var.domain_name
-    zone_id                = var.cloudfront_zone_id
-    evaluate_target_health = false
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [alias]
   }
 }

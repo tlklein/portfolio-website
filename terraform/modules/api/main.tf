@@ -73,8 +73,7 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
 ###########################################################
 resource "aws_lambda_function" "visitor" {
   function_name = "${var.project_prefix}-${var.environment}-visitor"
-  s3_bucket     = "${var.project_prefix}-${var.environment}-site"
-  s3_key        = var.lambda_s3_key
+  filename      = "modules/lambda/visitor-counter"
   handler       = var.handler
   runtime       = var.runtime
   role          = aws_iam_role.lambda_exec.arn
