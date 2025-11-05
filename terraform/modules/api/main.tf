@@ -1,6 +1,6 @@
-#######################################################
+###########################################################
 # Locals
-#######################################################
+###########################################################
 locals {
   common_tags = {
     Project     = var.project_prefix
@@ -11,14 +11,9 @@ locals {
 }
 
 ###########################################################
-# IAM role for Lambda execution
+# AWS Account Info
 ###########################################################
-resource "aws_iam_role" "lambda_exec" {
-  name               = "${var.project_prefix}-${var.environment}-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
-
-  tags = local.common_tags
-}
+data "aws_caller_identity" "current" {}
 
 ###########################################################
 # IAM policy document for Lambda trust
@@ -35,7 +30,16 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 ###########################################################
-# Attach policies to Lambda for DynamoDB and CloudWatch
+# IAM Role for Lambda Execution
+###########################################################
+resource "aws_iam_role" "lambda_exec" {
+  name               = "${var.project_prefix}-${var.environment}-lambda-role"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+  tags               = local.common_tags
+}
+
+###########################################################
+# Attach Inline Policy for DynamoDB + CloudWatch
 ###########################################################
 resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
   name = "${var.project_prefix}-${var.environment}-lambda-policy"
@@ -69,11 +73,11 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
 }
 
 ###########################################################
-# Lambda function
+# Lambda Function
 ###########################################################
 resource "aws_lambda_function" "visitor" {
   function_name = "${var.project_prefix}-${var.environment}-visitor"
-  filename      = "modules/lambda/visitor-counter"
+  filename      = "${path.module}/lambda/visitor-counter.zip"
   handler       = var.handler
   runtime       = var.runtime
   role          = aws_iam_role.lambda_exec.arn
@@ -86,31 +90,21 @@ resource "aws_lambda_function" "visitor" {
     }
   }
 
-  tracing_config {
-    mode = "Active"
-  }
-
+  tracing_config { mode = "Active" }
   tags = local.common_tags
 }
 
 ###########################################################
-# Lambda permission for API Gateway
-###########################################################
-resource "aws_lambda_permission" "apigw_invoke" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.visitor.function_name
-  principal     = "apigateway.amazonaws.com"
-}
-
-###########################################################
-# HTTP API (v2) Gateway
+# HTTP API Gateway (v2)
 ###########################################################
 resource "aws_apigatewayv2_api" "http_api" {
   name          = "${var.project_prefix}-${var.environment}-api"
   protocol_type = "HTTP"
+  tags          = local.common_tags
 
-  tags = local.common_tags
+  cors_configuration {
+    allow_origins     = ["*"]
+  }
 }
 
 ###########################################################
@@ -125,26 +119,32 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 }
 
 ###########################################################
-# Default Route
+# Route: ANY /visitors
 ###########################################################
-resource "aws_apigatewayv2_route" "default_route" {
+resource "aws_apigatewayv2_route" "visitors" {
   api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "GET /visitors"
+  route_key = "ANY /VisitorCounter"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
 
 ###########################################################
-# Default Stage with auto deploy
+# Lambda Permission for API Gateway
+###########################################################
+resource "aws_lambda_permission" "apigw_invoke" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.visitor.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
+}
+
+###########################################################
+# Default Stage (Auto Deploy)
 ###########################################################
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"
   auto_deploy = true
-
-  tags = local.common_tags
+  tags        = local.common_tags
 }
 
-###########################################################
-# AWS Account Info Fetch
-###########################################################
-data "aws_caller_identity" "current" {}

@@ -5,6 +5,8 @@ public
 *.yaml
 *.env
 node_modules
+cors.json
+*.toml
 
 
 # Terraform / Local overrides
@@ -17,13 +19,5 @@ ials.auto.tfvars
 .terraform/
 --role-arn
 scripts.txt
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 tfplan
 *.tfvars
-=======
-terraform.tfvars
->>>>>>> Stashed changes
-=======
-terraform.tfvars
->>>>>>> Stashed changes

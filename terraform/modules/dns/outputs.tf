@@ -1,16 +1,15 @@
 #######################################################
-# Route 53  Zone ID
+# Route53 Zone ID
 #######################################################
 output "zone_id" {
-  description = "The ID of the Route53 hosted zone for the project"
-  value       = data.aws_route53_zone.primary.zone_id
+  description = "The Route53 Hosted Zone ID"
+  value       = data.aws_route53_zone.existing.zone_id
 }
 
 #######################################################
-# Route 53 Zone Name
+# Route53 Zone Name 
 #######################################################
 output "zone_name" {
-  description = "The name of the Route53 hosted zone"
-  value       = data.aws_route53_zone.primary.name
+  description = "The Route53 Hosted Zone Name"
+  value       = data.aws_route53_zone.existing.name
 }
-

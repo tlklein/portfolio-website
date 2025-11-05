@@ -2,12 +2,10 @@
 
 ![banner](/documentation/all-devices-black.png)
 
-Welcome! This repo documents my Cloud Resume Challenge, a hands-on project
-where I combined AWS services, Infrastructure-as-Code CI/CD, and DevOps
-practices into a single portfolio project.
-
-[![Build Status](https://img.shields.io/badge/build-complete-red)](#)
-[![Deploy Status](https://img.shields.io/badge/deploy-progress-gree)](#)
+Welcome! This repo documents my Cloud Resume Challenge,
+a hands-on project where I combined AWS services
+Infrastructure-as-Code CI/CD, and DevOps practices
+into a single portfolio project.
 
 ## Table of contents
 
@@ -30,38 +28,64 @@ practices into a single portfolio project.
 
 ## TL;DR
 
-- Hugo front-end using the Console theme, optimized for performance (<500ms load).  
-- Multi-account AWS Organization setup: Production + Test OUs, MFA enabled.  
+- Hugo front-end using the Console theme, optimized for
+performance (<500ms load).  
+- Multi-account AWS Organization setup: Production + Test OUs,
+MFA enabled.  
 - Backend visitor counter using Lambda + API Gateway + DynamoDB.  
-- Infrastructure managed via Terraform 1.6+ with modularized resources.  
-- CI/CD with GitHub Actions + Playwright, secured with OIDC and least-privilege IAM.  
+- Infrastructure managed via Terraform 1.6+ with modularized
+resources.  
+- CI/CD with GitHub Actions + Playwright, secured with OIDC and
+least-privilege IAM.  
 
 ## Architecture Overview
 
-- Terminal-style front-end (Hugo Console theme)
-  Minimal, keyboard-friendly layout inspired by a Linux console. Built with Hugo for fast static generation and sub-500ms load times.
-- Static hosting: S3 + CloudFront (secure production setup)
-  - Static assets stored in an S3 bucket (public access disabled, static website hosting turned off).
-  - Files served only via CloudFront (Origin Access Control / OAC + restrictive bucket policy).
-  - Bucket hardening: versioning, server-side encryption (AES256), lifecycle rules to transition noncurrent objects to lower-cost classes, and `force_destroy = false` to avoid accidental mass deletes.
-- Infrastructure as Code using Terraform (repeatable & auditable)
-  - All cloud resources (S3, CloudFront, ACM, Route53 wiring, DynamoDB, Lambda, API Gateway, IAM roles/policies, etc.) are defined in Terraform modules for repeatable deployments and safe drift management.
-  - State stored remotely (S3 + DynamoDB locking) and deployed locally from the terminal (CLI-first workflow). CI uses Terraform only for automation/PR gating.
-- Account structure & hardening (AWS Organizations)
-  - 1 Organization with 2 OUs: `production` and `test`, each OU has dedicated user accounts for environment separation.
-  - Root account exists but is locked down; MFA enabled on all accounts.
-  - Billing alert configured to notify on very small thresholds (example: > $0.01) to catch accidental spend.
-- Visitor analytics (serverless + NoSQL)
-  - DynamoDB table(s) track visits.
-  - AWS Lambda implements the hit/visitor logic (total + unique visits).
-  - API Gateway (HTTP) fronts the Lambda and exposes a lightweight endpoint used by the resume footer to show counts, with graceful fallback (e.g., `Loading...` if API is unreachable).
-- CI/CD & smoke testing (GitHub Actions + Playwright)
-  - Workflow builds the Hugo site, uploads a build artifact, syncs to S3, invalidates CloudFront, and runs Playwright smoke tests.
-  - Deployments were performed primarily via terminal (AWS CLI / Terraform CLI) to keep tight control during development; GitHub Actions is configured for PR validation and optional automated deploys when desired.
-- Supply-chain & credential security (modern best practices)
-  - GitHub Actions uses OIDC / short-lived roles (no long-term secrets) to assume a deploy role in AWS.
-  - Principle of least privilege applied to IAM policies; deployment and runtime roles are scoped narrowly.
-  - Artifacts and objects use lifecycle policies and versioning to support rollback and forensic analysis.
+- Terminal-style front-end using the Hugo Console theme:
+  - Minimal and responsive layout inspired by a system console.
+  - Built with Hugo for ~500ms load times.
+- Static hosting using S3 and CloudFront:
+  - Static assets stored in an S3 bucket with public access
+  disabled and static website hosting turned off.
+  - Files served only via CloudFront OAC and a bucket policy.
+  - Bucket hardening using versioning, server-side encryption
+  (AES256), lifecycle rules to transition noncurrent objects to
+  lower-cost classes, and `force_destroy = false` to avoid
+  accidental mass deletes.
+- Infrastructure as Code using Terraform:
+  - All cloud resources (S3, CloudFront, ACM, Route53, DynamoDB,
+  Lambda, API Gateway, and IAM roles/policies) are defined in
+  Terraform modules for repeatable deployments.
+  - State stored remotely in S3 and DynamoDB. 3
+- Account structure & hardening using AWS Organizations:
+  - 1 Organization with 2 OUs: `production` and `test`, each OU
+  has dedicated user accounts for environment separation.
+  - Root account exists but is locked down; MFA enabled on all
+  accounts.
+  - Billing alert configured to notify on very small thresholds
+  (> $0.01) to catch accidental spending.
+- Visitor analytics using serverless and NoSQL:
+  - DynamoDB table track visits.
+  - AWS Lambda implements the hit/visitor logic logging total and
+  unique visits.
+  - API Gateway (HTTP) fronts the Lambda and exposes a
+  lightweight endpoint used by the resume footer to show counts,
+  with graceful fallback. It will show `Loading...` if API is
+  unreachable.
+- CI/CD, smoke testing using GitHub Actions and Playwright:
+  - Workflow builds the Hugo site, uploads a build artifact,
+  syncs to S3, invalidates CloudFront, and runs Playwright smoke
+  tests.
+  - Deployments were performed primarily via terminal in the AWS
+  CLI to keep tight control during development; GitHub
+  Actions is configured for code validation on all branches, and
+  only Terraform plan and apply on main branch.
+- Supply-chain and credential security:
+  - GitHub Actions uses OIDC and short-lived roles with no
+  long-term secrets to assume a deploy role in AWS.
+  - Principle of least privilege applied to IAM policies;
+  deployment and runtime roles are scoped narrowly.
+  - Artifacts and objects use lifecycle policies and versioning
+  to support rollback and forensic analysis.
 
 ## Architecture Diagrams
 
@@ -267,10 +291,8 @@ After installing, this is a guide on the files in the repository.
   ├── terraform/
   │   └── modules/
   │      └── api/
-  │          └── main.tf
-  │          └── output.tf
-  │          └── variables.tf
-  │      └── certificate/
+  |          └── lambda/
+  │               └── visitor-counter.zip
   │          └── main.tf
   │          └── output.tf
   │          └── variables.tf
@@ -286,9 +308,6 @@ After installing, this is a guide on the files in the repository.
   │          └── main.tf
   │          └── output.tf
   │          └── variables.tf
-  │      └── lambda/
-  │          └── visitor-counter
-  │             └── v2_lambda_function.py
   │      └── s3_site/
   │          └── main.tf
   │          └── policies.tf
@@ -315,8 +334,12 @@ After installing, this is a guide on the files in the repository.
 
 ## Future Improvements
 
-- [ ] Securing your software supply chain -
+- [-] Securing your software supply chain -
   <https://cloudresumechallenge.dev/docs/extensions/supply-chain/>
+  - **Note:** Currently, I am not able to set up the code
+  scanning, status checks, and  vulnerability checks *completely*
+  because I have no free runs of GitHub Actions left. Because
+  this, I had to run everything through Powershell.
 - [x] Terraform Your Cloud Resume Challenge -
   <https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/>
 - [x] Architecture Diagrams, and Blog Posts

@@ -23,22 +23,6 @@ variable "region" {
 }
 
 #######################################################
-# Lambda S3 Bucket Name
-#######################################################
-variable "lambda_s3_bucket" {
-  type        = string
-  description = "S3 bucket where the Lambda zip is stored"
-}
-
-#######################################################
-# Lambda S3 Bucket Key
-#######################################################
-variable "lambda_s3_key" {
-  type        = string
-  description = "S3 key for Lambda zip file"
-}
-
-#######################################################
 # Lambda Handler
 #######################################################
 variable "handler" {
@@ -60,4 +44,20 @@ variable "runtime" {
 variable "dynamodb_table_name" {
   type        = string
   description = "DynamoDB table name for visitor counter"
+}
+
+#######################################################
+# Lambda Code File Name 
+#######################################################
+variable "filename" {
+  type        = string
+  description = "file name for lambda code"
+}
+
+#######################################################
+# Lambda Code Function Name
+#######################################################
+variable "function_name" {
+  type        = string
+  description = "file name for lambda code"
 }

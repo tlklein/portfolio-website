@@ -22,10 +22,3 @@ output "bucket_regional_domain_name" {
   value       = aws_s3_bucket.site.bucket_regional_domain_name
 }
 
-#######################################################
-# Bucket Website Static Endpoint
-#######################################################
-output "bucket_website_endpoint" {
-  value       = try(aws_s3_bucket_website_configuration.site.website_endpoint, null)
-  description = "The static website endpoint (if configured)"
-}
