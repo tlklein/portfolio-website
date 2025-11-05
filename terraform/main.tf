@@ -45,18 +45,30 @@ module "s3_site" {
   tags           = local.common_tags
   cloudfront_arn = module.cloudfront.distribution_arn
   project_prefix = var.project_prefix
+  test_sso_arn   = var.test_sso_arn
 }
 
 #######################################################
 # CloudFront Module
 #######################################################
 module "cloudfront" {
-  source              = "./modules/cloudfront"
-  origin_bucket       = module.s3_site.bucket_name
-  project_prefix      = var.project_prefix
-  environment         = var.environment
-  cloudfront_zone_id  = var.cloudfront_zone_id
-  acm_certificate_arn = module.certificate.acm_certificate_arn
+  source                 = "./modules/cloudfront"
+  origin_bucket          = var.origin_bucket
+  project_prefix         = var.project_prefix
+  environment            = var.environment
+  domain_name = var.domain_name
+  cloudfront_zone_id     = var.cloudfront_zone_id
+  cloudfront_domain_name = var.cloudfront_domain_name
+  cloudfront_arn = module.cloudfront.distribution_arn
+  acm_certificate_arn    = var.acm_certificate_arn
+  existing_oac_name      = var.existing_oac_name
+  existing_oac_id        = var.existing_oac_id
+  tags                   = local.common_tags
+  root_profile           = var.root_profile
+  test_profile           = var.test_profile
+  test_sso_arn           = var.test_sso_arn
+  region = var.region
+  origin_bucket_domain_name = var.origin_bucket_domain_name
 }
 
 #######################################################
@@ -87,29 +99,16 @@ module "database" {
 #######################################################
 # API Module
 #######################################################
-module "visitor_counter" {
+module "api" {
   source              = "./modules/api"
   project_prefix      = var.project_prefix
+  function_name       = "${var.project_prefix}-${var.environment}-visitor"
+  filename            = "modules/lambda/visitor-counter"
   environment         = var.environment
   region              = var.region
-  lambda_s3_bucket    = module.s3_site.bucket_name
-  lambda_s3_key       = var.lambda_s3_key
   handler             = var.handler
   runtime             = var.runtime
   dynamodb_table_name = var.dynamodb_table_name
-}
-
-#######################################################
-# ACM Certificate
-#######################################################
-module "certificate" {
-  source             = "./modules/certificate"
-  domain_name        = var.domain_name
-  subdomain          = var.subdomain
-  tags               = local.common_tags
-  project_prefix     = var.project_prefix
-  environment        = var.environment
-  cloudfront_zone_id = var.cloudfront_zone_id
 }
 
 #######################################################
@@ -117,9 +116,6 @@ module "certificate" {
 #######################################################
 module "dns" {
   source             = "./modules/dns"
-  project_prefix     = var.project_prefix
-  environment        = var.environment
   domain_name        = var.domain_name
-  subdomain          = var.subdomain
   cloudfront_zone_id = var.cloudfront_zone_id
 }

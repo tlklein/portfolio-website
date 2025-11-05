@@ -50,6 +50,14 @@ variable "tags" {
 # CloudFront ARN String
 #######################################################
 variable "cloudfront_arn" {
-  description = "Optional CloudFront distribution ARN for S3 access policy"
+  description = "CloudFront distribution ARN for S3 access policy"
+  type        = string
+}
+
+#######################################################
+# Terraform test account sso arn
+#######################################################
+variable "test_sso_arn" {
+  description = "ARN of the IAM role for root account"
   type        = string
 }

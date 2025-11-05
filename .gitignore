@@ -5,6 +5,8 @@ public
 *.yaml
 *.env
 node_modules
+cors.json
+*.toml
 
 
 # Terraform / Local overrides
@@ -19,4 +21,4 @@ ials.auto.tfvars
 --role-arn
 scripts.txt
 tfplan
-*.tf.vars
+*.tfvars

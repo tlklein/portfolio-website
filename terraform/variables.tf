@@ -150,14 +150,6 @@ variable "mime_types" {
 }
 
 #######################################################
-# Lambda S3 Bucket Key
-#######################################################
-variable "lambda_s3_key" {
-  type        = string
-  description = "S3 key for Lambda zip file"
-}
-
-#######################################################
 # Lambda Handler
 #######################################################
 variable "handler" {
@@ -171,14 +163,6 @@ variable "handler" {
 variable "runtime" {
   type        = string
   description = "Lambda runtime"
-}
-
-#######################################################
-# Lambda S3 Bucket Name
-#######################################################
-variable "lambda_s3_bucket" {
-  type        = string
-  description = "S3 bucket where the Lambda zip is stored"
 }
 
 #######################################################
@@ -257,3 +241,60 @@ variable "acm_certificate_arn" {
   description = "ACM certificate ARN to use for CloudFront"
   type        = string
 }
+
+#######################################################
+# Lambda Code File Name 
+#######################################################
+variable "filename" {
+  type        = string
+  description = "file name for lambda code"
+}
+
+#######################################################
+# Lambda Code Function Name
+#######################################################
+variable "function_name" {
+  type        = string
+  description = "file name for lambda code"
+}
+
+#######################################################
+# CloudFront Domain Name
+#######################################################
+variable "cloudfront_domain_name" {
+  description = "The Route53 Hosted Zone ID for the CloudFront distribution"
+  type        = string
+}
+
+#######################################################
+# CloudFront ARN String
+#######################################################
+variable "cloudfront_arn" {
+  description = "Optional CloudFront distribution ARN for S3 access policy"
+  type        = string
+}
+
+###########################################################
+# Import CloudFront Name
+###########################################################
+variable "existing_oac_name" {
+  description = "Name of existing CloudFront OAC"
+  type        = string
+}
+
+###########################################################
+# Import CloudFront OAC ID
+###########################################################
+variable "existing_oac_id" {
+  description = "The ID of the existing CloudFront Origin Access Control"
+  type        = string
+}
+
+#######################################################
+# S3 Bucket Name Domain Name
+#######################################################
+variable "origin_bucket_domain_name" {
+  description = "S3 bucket domain name to serve as the CloudFront origin"
+  type        = string
+}
+

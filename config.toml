@@ -36,7 +36,7 @@ canonifyURLs = true
   [[deployment.targets]]
     name = "aws"
     URL = "s3://tlklein-portfolio-v2?region=us-east-2"
-    cloudFrontDistributionID = "E3CEI4S8QN6ZBW"
+    cloudFrontDistributionID = "EFS2H3TJQLCM3"
 
   [[deployment.matchers]]
     pattern = "^.+\\.(js|css|svg|png|jpg|jpeg|gif|woff2?)$"

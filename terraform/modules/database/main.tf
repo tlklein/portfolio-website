@@ -39,6 +39,9 @@ resource "aws_dynamodb_table" "visitor" {
   tags = local.common_tags
 }
 
+###########################################################
+# Seed DynamoDB Table with Sample Visitors
+###########################################################
 resource "aws_dynamodb_table_item" "visitor" {
   for_each = {
       visitor1 = {
