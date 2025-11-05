@@ -5,6 +5,8 @@ public
 *.yaml
 *.env
 node_modules
+cors.json
+*.toml
 
 
 # Terraform / Local overrides

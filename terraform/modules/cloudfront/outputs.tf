@@ -1,31 +1,30 @@
 #######################################################
-# CloudFront Domain Name String
+# CloudFront Zone ID
 #######################################################
-output "cloudfront_domain" {
+output "cloudfront_zone_id" {
+  description = "The hosted zone ID for the CloudFront distribution"
+  value       = aws_cloudfront_distribution.cdn.hosted_zone_id
+}
+
+#######################################################
+# CloudFront Domain Name
+#######################################################
+output "cloudfront_domain_name" {
   description = "The domain name of the CloudFront distribution"
   value       = aws_cloudfront_distribution.cdn.domain_name
 }
 
 #######################################################
-# CloudFront Distribution ID
+# CloudFront OAC ID
 #######################################################
-output "distribution_id" {
-  description = "The ID of the CloudFront distribution"
-  value       = aws_cloudfront_distribution.cdn.id
+output "oac_id" {
+  description = "ID of the CloudFront Origin Access Control in use"
+  value       = local.oac_id
 }
 
 #######################################################
 # CloudFront Distribution ARN
 #######################################################
 output "distribution_arn" {
-  description = "ARN of the CloudFront distribution"
-  value       = aws_cloudfront_distribution.cdn.arn
-}
-
-#######################################################
-# CloudFront Domain Name
-#######################################################
-output "domain_name" {
-  description = "The domain name of the CloudFront distribution"
-  value       = aws_cloudfront_distribution.cdn.domain_name
+  value = aws_cloudfront_distribution.cdn.arn
 }
