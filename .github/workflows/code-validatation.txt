@@ -1,13 +1,14 @@
-name: "Code Validation Checks" 
+name: "Code Validation Checks"
 
 on:
   push:
     branches:
-      - '**'
-
+      - main
+      - dev
   pull_request:
     branches:
-      - '**'
+      - main
+      - dev
 
 permissions:
   id-token: write
@@ -17,27 +18,37 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
-  #################################################################
-  # HTML-validate, markdownlint-cli, and Linkinator Checks
-  #################################################################
-  build-html:
-    name: build-html
+  ############################################################################
+  # Full Site Validation: markdownlint, HTML-validate, Linkinator, Playwright
+  ############################################################################
+  site-validation:
+    name: Site Validation & Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+      #################################################################
+      # Setup Node.js and install CLI tools
+      #################################################################
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
+      - name: Install markdownlint-cli, html-validate, and linkinator
+        run: |
+          npm install -g markdownlint-cli html-validate linkinator
 
+      #################################################################
+      # Run markdown linting
+      #################################################################
       - name: Run markdownlint
-        run: markdownlint "README.md" # Will run through node modules if using the wildcard
+        run: markdownlint "README.md"
 
+      #################################################################
+      # Setup Hugo
+      #################################################################
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
@@ -45,55 +56,28 @@ jobs:
 
       - name: Build Hugo site
         run: hugo --baseURL=${{ env.BASE_URL }}
-        
-      - name: Install HTML-Validate and Linkinator
-        run: |
-          npm install -g html-validate linkinator
 
+      #################################################################
+      # Run HTML and link validation
+      #################################################################
       - name: Run html-validate
         run: html-validate "layouts/**/*.html" "static/**/*.html"
 
-      - name: Run Linkinator (skip external blocked links)
+      - name: Run Linkinator (skip known blocked/external links)
         run: |
           linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
 
-      - name: Upload built site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: ./public
-
-  #################################################################
-  # Playwright tests (run against local server built from PR)
-  #################################################################
-  playwright:
-    name: playwright-tests
-    runs-on: ubuntu-latest
-    needs: build-html
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: '0.125.4'
-      
-      - name: Install dependencies
-        run: npm install --save-dev wait-on
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
+      #################################################################
+      # Playwright tests against local Hugo server
+      #################################################################
+      - name: Install Playwright dependencies
+        run: |
+          npm install --save-dev wait-on
+          npx playwright install --with-deps
 
       - name: Serve site in background
-        run:  hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
-
+        run: hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
+      
       - name: Wait for server
         run: npx wait-on http://localhost:1313
 
