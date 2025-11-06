@@ -18,15 +18,15 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
-  #################################################################
+  ############################################################################
   # Full Site Validation: markdownlint, HTML-validate, Linkinator, Playwright
-  #################################################################
+  ############################################################################
   site-validation:
     name: Site Validation & Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       #################################################################
       # Setup Node.js and install CLI tools
