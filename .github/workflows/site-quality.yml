@@ -134,7 +134,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "🔍 Finding all go.mod files..."
+          echo "Finding all go.mod files..."
           mapfile -t mods < <(find . -name go.mod)
 
           if [ "${#mods[@]}" -eq 0 ]; then
@@ -156,15 +156,15 @@ jobs:
             echo "-> Attempting to upgrade selinux and containerd (patch upgrades preferred)"
             # Use explicit requested versions (these should be safe, adjust if upstream changes)
             if go get github.com/opencontainers/selinux@v1.13.0; then
-              echo "  ✓ selinux upgraded in $dir"
+              echo "selinux upgraded in $dir"
             else
-              echo "  ⚠️ selinux upgrade FAILED in $dir (maybe not referenced here)"
+              echo "selinux upgrade FAILED in $dir (maybe not referenced here)"
             fi
 
             if go get github.com/containerd/containerd@v1.7.29; then
-              echo "  ✓ containerd upgraded in $dir"
+              echo "containerd upgraded in $dir"
             else
-              echo "  ⚠️ containerd upgrade FAILED in $dir (maybe not referenced here)"
+              echo "containerd upgrade FAILED in $dir (maybe not referenced here)"
             fi
 
             # cleanup and show resulting versions (if any)
@@ -173,6 +173,18 @@ jobs:
             go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "   (none found in this module)"
             popd >/dev/null
           done
+      
+      - name: Force-patch vulnerable transitive Go modules
+        shell: bash
+        run: |
+          echo "Patching go.mod with secure replacements..."
+          if [ -f go.mod ]; then
+            grep -q 'opencontainers/selinux' go.mod || echo 'replace github.com/opencontainers/selinux => github.com/opencontainers/selinux v1.13.0' >> go.mod
+            grep -q 'containerd/containerd' go.mod || echo 'replace github.com/containerd/containerd => github.com/containerd/containerd v1.7.29' >> go.mod
+            go mod tidy
+          else
+            echo "No go.mod in root; skipping."
+          fi
 
       # --------------------------
       # Rebuild module cache + regenerate SBOM (syft dir . -o json)
