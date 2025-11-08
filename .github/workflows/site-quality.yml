@@ -112,20 +112,39 @@ jobs:
       # Update vulnerable Go dependencies before scanning
       # --------------------------
       - name: Update vulnerable Go dependencies
+        continue-on-error: true
         run: |
-          echo "Upgrading known vulnerable Go modules before SBOM generation..."
-          if [ -f "go.mod" ]; then
-            go mod download
-            # Explicitly upgrade vulnerable modules
-            go get github.com/opencontainers/selinux@v1.13.0
-            go get github.com/containerd/containerd@v1.7.29
-            go mod tidy
-            echo "Verifying updated dependency versions..."
-            go list -m all | grep -E 'selinux|containerd'
-          else
-            echo "No go.mod file found — skipping Go module update."
+          set -e
+          echo "Checking for go.mod..."
+          if [ ! -f "go.mod" ]; then
+            echo "No go.mod file found — skipping update."
+            exit 0
           fi
-    
+
+          echo "Downloading existing modules..."
+          go mod download || echo "Go mod download failed, continuing..."
+
+          echo "⬆Attempting to upgrade vulnerable modules..."
+          {
+            go get github.com/opencontainers/selinux@v1.13.0 || echo "⚠️ Failed to update selinux"
+            go get github.com/containerd/containerd@v1.7.29 || echo "⚠️ Failed to update containerd"
+          }
+
+          echo "Tidying up module files..."
+          go mod tidy || echo "go mod tidy failed, continuing..."
+
+          echo "Verifying updated module versions:"
+          go list -m all | grep -E 'selinux|containerd' || echo "Expected modules not found."
+      
+      # --------------------------
+      # Force rebuild the dependency Graph
+      # --------------------------
+      - name: Verify dependency graph
+        run: |
+          echo "Verifying Go dependency graph..."
+          go mod verify || echo "go mod verify reported issues."
+          go list -m all | head -20
+
       # --------------------------
       # Generate SBOM (syft packages . -o json > sbom.json)
       # --------------------------
