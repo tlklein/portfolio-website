@@ -28,6 +28,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Verify signed commits
+        shell: bash
         run: |
           echo "Verifying GPG-signed commits..."
           git fetch origin main || true
@@ -64,6 +65,7 @@ jobs:
           output: results.sarif
 
       - name: Fail on high severity issues
+        shell: bash
         run: |
           if grep -q '"level": "error"' results.sarif; then
             echo "High severity CodeQL issues detected!"
@@ -80,23 +82,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: verify-signatures
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      # --------------------------
-      # Install tools
-      # --------------------------
-      - name: Install Syft
-        run: |
-          echo "Installing Syft..."
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
-          syft version
-
-      - name: Install Grype
-        run: |
-          echo "Installing Grype..."
-          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
-          grype version
-      
       # --------------------------
       # Pin Go version ≥1.24.9 to avoid stdlib CVEs
       # --------------------------
@@ -104,68 +92,133 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.24.9'
-      - run: |
+
+      - name: Show Go version
+        shell: bash
+        run: |
           echo "Go version pinned to:"
           go version
 
       # --------------------------
-      # Update vulnerable Go dependencies before scanning
+      # Install Syft & Grype
       # --------------------------
-      - name: Ensure vulnerable Go modules are upgraded across submodules
+      - name: Install Syft
+        shell: bash
+        run: |
+          echo "Installing Syft..."
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          syft version
+
+      - name: Install Grype
+        shell: bash
+        run: |
+          echo "Installing Grype..."
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+          grype version
+
+      # --------------------------
+      # Debug: show go.mod files (optional, helpful)
+      # --------------------------
+      - name: Debug - list go.mod files and current module graph heads
+        shell: bash
+        run: |
+          echo "Found go.mod files:"
+          find . -name go.mod -print || true
+          echo "Root go.mod (if present):"
+          if [ -f go.mod ]; then sed -n '1,200p' go.mod || true; else echo "no root go.mod"; fi
+
+      # --------------------------
+      # Update vulnerable Go dependencies recursively (per-module)
+      # --------------------------
+      - name: Update vulnerable Go dependencies recursively
         shell: bash
         run: |
           set -euo pipefail
-          echo "Searching for go.mod files..."
-          find . -name go.mod -print | while read -r gm; do
+          echo "🔍 Finding all go.mod files..."
+          mapfile -t mods < <(find . -name go.mod)
+
+          if [ "${#mods[@]}" -eq 0 ]; then
+            echo "No go.mod files found. Skipping Go module update."
+            exit 0
+          fi
+
+          for gm in "${mods[@]}"; do
             dir=$(dirname "$gm")
-            echo "=== Processing $gm ==="
+            echo
+            echo "=== Processing module at $dir ==="
             pushd "$dir" >/dev/null || continue
+
+            # refresh cache for this module
+            echo "-> go mod download (best-effort)"
             go mod download || true
-            go get github.com/opencontainers/selinux@v1.13.0 || echo "selinux upgrade failed in $dir"
-            go get github.com/containerd/containerd@v1.7.29 || echo "containerd upgrade failed in $dir"
-            go mod tidy || echo "go mod tidy failed in $dir"
-            go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "None found in $dir"
+
+            # try conservative patch-level upgrades for the known vulnerable modules
+            echo "-> Attempting to upgrade selinux and containerd (patch upgrades preferred)"
+            # Use explicit requested versions (these should be safe, adjust if upstream changes)
+            if go get github.com/opencontainers/selinux@v1.13.0; then
+              echo "  ✓ selinux upgraded in $dir"
+            else
+              echo "  ⚠️ selinux upgrade FAILED in $dir (maybe not referenced here)"
+            fi
+
+            if go get github.com/containerd/containerd@v1.7.29; then
+              echo "  ✓ containerd upgraded in $dir"
+            else
+              echo "  ⚠️ containerd upgrade FAILED in $dir (maybe not referenced here)"
+            fi
+
+            # cleanup and show resulting versions (if any)
+            go mod tidy || true
+            echo "-> Current selinux/containerd entries (if present):"
+            go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "   (none found in this module)"
             popd >/dev/null
           done
 
       # --------------------------
-      # Force rebuild the dependency Graph
+      # Rebuild module cache + regenerate SBOM (syft dir . -o json)
       # --------------------------
-      - name: Verify dependency graph
+      - name: Rebuild module cache and generate SBOM
+        shell: bash
         run: |
-          echo "Verifying Go dependency graph..."
-          go mod verify || echo "go mod verify reported issues."
-          go list -m all | head -20
+          echo "Cleaning module cache (best-effort)..."
+          go clean -modcache || true
+          echo "Regenerating SBOM (Syft full SBOM JSON)..."
+          # generate Syft JSON SBOM (full)
+          syft dir:. -o json > sbom.json
+          echo "SBOM size:"
+          wc -c sbom.json || true
+          echo "SBOM head (first 100 lines):"
+          head -n 100 sbom.json || true
 
       # --------------------------
-      # Generate SBOM (syft packages . -o json > sbom.json)
+      # Verify that modules were updated (debug)
       # --------------------------
-      - name: Generate SBOM with Syft
+      - name: Verify fixed module versions (debug)
+        shell: bash
         run: |
-          echo "Generating SBOM..."
-          syft packages . -o json > sbom.json
-          echo "SBOM generated successfully."
+          echo "Verifying module versions across repo:"
+          find . -name go.mod -print | while read -r gm; do
+            d=$(dirname "$gm")
+            echo "---- $d ----"
+            (cd "$d" && go list -m all | grep -E 'opencontainers/selinux|containerd' ) || echo "No matching modules found in $d"
+          done
 
       # --------------------------
-      # Confirm that Go modules were updated correctly
-      # --------------------------
-      - name: Verify fixed module versions
-        run: |
-          echo "Confirming Go dependency patch levels..."
-          go list -m all | grep -E 'selinux|containerd' || echo "No matching modules found."
-
-      # --------------------------
-      # Grype scan
+      # Grype scan (fail on Critical/High)
       # --------------------------
       - name: Run Grype vulnerability scan
+        shell: bash
         run: |
           echo "Running Grype vulnerability scan..."
+          # print table for humans (do not fail on table)
           grype sbom:./sbom.json -o table || true
 
-          echo "Checking for Critical/High vulnerabilities..."
+          # compute number of Critical/High findings
           CRIT_HIGH=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
-          if [ "$CRIT_HIGH" -gt 0 ]; then
-            echo "Detected $CRIT_HIGH Critical/High vulnerabilities via Grype:"
+          echo "Critical/High count: ${CRIT_HIGH}"
+
+          if [ "${CRIT_HIGH}" -gt 0 ]; then
+            echo "Detected ${CRIT_HIGH} Critical/High vulnerabilities via Grype:"
             grype sbom:./sbom.json -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "• \(.artifact.name) \(.artifact.version) → \(.vulnerability.id) (\(.vulnerability.severity))"'
             exit 1
           else
@@ -173,30 +226,34 @@ jobs:
           fi
 
       # --------------------------
-      # OSV API vulnerability scan
+      # OSV API vulnerability scan (defense-in-depth)
       # --------------------------
       - name: Run OSV API vulnerability check
+        shell: bash
         run: |
           echo "Running OSV API vulnerability scan..."
           FOUND=0
+          # iterate artifacts (name,version) from syft SBOM
           cat sbom.json | jq -c '.artifacts[] | {name: .name, version: .version}' | while read -r pkg; do
             NAME=$(echo "$pkg" | jq -r '.name')
             VERSION=$(echo "$pkg" | jq -r '.version')
-            if [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [ "$NAME" = "null" ] || [ "$VERSION" = "null" ]; then
               continue
             fi
+            echo "Checking OSV for ${NAME}@${VERSION}..."
             RESPONSE=$(curl -s -X POST "https://api.osv.dev/v1/query" \
               -H "Content-Type: application/json" \
-              -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
-            if echo "$RESPONSE" | jq -e '.vulns' | grep -q '.'; then
-              echo "Vulnerabilities found in $NAME@$VERSION"
-              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary)"'
+              -d "{\"package\": {\"name\": \"${NAME}\"}, \"version\": \"${VERSION}\"}")
+            if echo "$RESPONSE" | jq -e '.vulns' >/dev/null 2>&1; then
+              echo "VULNS for ${NAME}@${VERSION}:"
+              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary // \"(no summary)\")"'
               FOUND=1
             fi
           done
-          if [ "$FOUND" = "1" ]; then
-            echo "Vulnerabilities detected by OSV."
+
+          if [ "$FOUND" -eq 1 ]; then
+            echo "Vulnerabilities detected by OSV API scan."
             exit 1
           else
-            echo "No vulnerabilities detected by OSV."
+            echo "No vulnerabilities detected by OSV API scan."
           fi
