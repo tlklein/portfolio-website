@@ -1,6 +1,6 @@
 name: "Site Quality Checks"
 
-# Runs on pushes, PRs, and monthly schedule
+# Trigger on pushes, pull requests, and monthly schedule
 on:
   push:
     branches:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   #################################################################
-  # Enforce signed commits (status check)
+  # Enforce signed commits
   #################################################################
   verify-signatures:
     name: Verify commit signatures
@@ -103,7 +103,7 @@ jobs:
       - name: Generate SBOM with Syft
         run: |
           echo "Generating SBOM..."
-          syft packages . -o json > sbom.json
+          syft . -o json > sbom.json
           echo "SBOM generated successfully."
 
       # --------------------------
@@ -127,7 +127,7 @@ jobs:
       # --------------------------
       # OSV API vulnerability scan
       # --------------------------
-      - name: Run OSV vulnerability check
+      - name: Run OSV API vulnerability check
         run: |
           echo "Running OSV API vulnerability scan..."
           FOUND=0
