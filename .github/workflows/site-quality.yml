@@ -112,27 +112,22 @@ jobs:
       # Update vulnerable Go dependencies before scanning
       # --------------------------
       - name: Ensure vulnerable Go modules are upgraded across submodules
-      -  run: |
+        shell: bash
+        run: |
           set -euo pipefail
           echo "Searching for go.mod files..."
           find . -name go.mod -print | while read -r gm; do
             dir=$(dirname "$gm")
             echo "=== Processing $gm ==="
             pushd "$dir" >/dev/null || continue
-            # ensure module cache refreshed
             go mod download || true
-
-            # attempt to upgrade vulnerable modules in this module
-            echo "Attempting upgrades in $dir"
             go get github.com/opencontainers/selinux@v1.13.0 || echo "selinux upgrade failed in $dir"
             go get github.com/containerd/containerd@v1.7.29 || echo "containerd upgrade failed in $dir"
-
-            # tidy up
             go mod tidy || echo "go mod tidy failed in $dir"
-            echo "Resulting selinux/containerd entries (if present):"
             go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "None found in $dir"
             popd >/dev/null
           done
+
 
       # --------------------------
       # Force rebuild the dependency Graph
