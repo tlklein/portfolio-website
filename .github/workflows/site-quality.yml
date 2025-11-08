@@ -6,10 +6,12 @@ on:
     branches:
       - main
       - dev
+      - feature
   pull_request:
     branches:
       - main
       - dev
+      - feature
   schedule:
     - cron: '0 0 1 * *'  # 1st of every month, 00:00 UTC
 
@@ -127,63 +129,30 @@ jobs:
           echo "Root go.mod (if present):"
           if [ -f go.mod ]; then sed -n '1,200p' go.mod || true; else echo "no root go.mod"; fi
 
+      # -------------------------------
+      # Force patch vulnerable transitive Go modules
       # --------------------------
-      # Update vulnerable Go dependencies recursively (per-module)
-      # --------------------------
-      - name: Update vulnerable Go dependencies recursively
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Finding all go.mod files..."
-          mapfile -t mods < <(find . -name go.mod)
-
-          if [ "${#mods[@]}" -eq 0 ]; then
-            echo "No go.mod files found. Skipping Go module update."
-            exit 0
-          fi
-
-          for gm in "${mods[@]}"; do
-            dir=$(dirname "$gm")
-            echo
-            echo "=== Processing module at $dir ==="
-            pushd "$dir" >/dev/null || continue
-
-            # refresh cache for this module
-            echo "-> go mod download (best-effort)"
-            go mod download || true
-
-            # try conservative patch-level upgrades for the known vulnerable modules
-            echo "-> Attempting to upgrade selinux and containerd (patch upgrades preferred)"
-            # Use explicit requested versions (these should be safe, adjust if upstream changes)
-            if go get github.com/opencontainers/selinux@v1.13.0; then
-              echo "selinux upgraded in $dir"
-            else
-              echo "selinux upgrade FAILED in $dir (maybe not referenced here)"
-            fi
-
-            if go get github.com/containerd/containerd@v1.7.29; then
-              echo "containerd upgraded in $dir"
-            else
-              echo "containerd upgrade FAILED in $dir (maybe not referenced here)"
-            fi
-
-            # cleanup and show resulting versions (if any)
-            go mod tidy || true
-            echo "-> Current selinux/containerd entries (if present):"
-            go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "   (none found in this module)"
-            popd >/dev/null
-          done
-      
       - name: Force-patch vulnerable transitive Go modules
         shell: bash
         run: |
-          echo "Patching go.mod with secure replacements..."
+          echo "Injecting secure replacements into go.mod..."
           if [ -f go.mod ]; then
-            grep -q 'opencontainers/selinux' go.mod || echo 'replace github.com/opencontainers/selinux => github.com/opencontainers/selinux v1.13.0' >> go.mod
-            grep -q 'containerd/containerd' go.mod || echo 'replace github.com/containerd/containerd => github.com/containerd/containerd v1.7.29' >> go.mod
+            # Backup for debug
+            cp go.mod go.mod.bak
+            echo "Adding replacements for selinux and containerd..."
+            # Add or update replace directives
+            awk '!/replace github.com\/opencontainers\/selinux/ && !/replace github.com\/containerd\/containerd/' go.mod > go.mod.tmp
+            mv go.mod.tmp go.mod
+            {
+              echo ''
+              echo 'replace github.com/opencontainers/selinux => github.com/opencontainers/selinux v1.13.0'
+              echo 'replace github.com/containerd/containerd => github.com/containerd/containerd v1.7.29'
+            } >> go.mod
             go mod tidy
+            echo "Replacement lines added. Showing relevant module versions:"
+            go list -m all | grep -E 'opencontainers/selinux|containerd'
           else
-            echo "No go.mod in root; skipping."
+            echo "No go.mod in root; skipping force patch."
           fi
 
       # --------------------------
