@@ -103,7 +103,7 @@ jobs:
       - name: Generate SBOM with Syft
         run: |
           echo "Generating SBOM..."
-          syft packages . -o json > sbom.json
+          syft . -o json > sbom.json
           echo "SBOM generated successfully."
 
       # --------------------------
