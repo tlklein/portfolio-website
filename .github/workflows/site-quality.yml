@@ -109,29 +109,39 @@ jobs:
           go version
 
       # --------------------------
-      # Update Go dependencies before scanning
+      # Update vulnerable Go dependencies before scanning
       # --------------------------
       - name: Update vulnerable Go dependencies
         run: |
           echo "Upgrading known vulnerable Go modules before SBOM generation..."
           if [ -f "go.mod" ]; then
             go mod download
-            go get github.com/opencontainers/selinux@v1.13.0 || true
-            go get github.com/containerd/containerd@v1.7.29 || true
+            # Explicitly upgrade vulnerable modules
+            go get github.com/opencontainers/selinux@v1.13.0
+            go get github.com/containerd/containerd@v1.7.29
             go mod tidy
-            go list -m all | grep -E 'selinux|containerd' || echo "Modules not found in dependency graph."
+            echo "Verifying updated dependency versions..."
+            go list -m all | grep -E 'selinux|containerd'
           else
-            echo "No go.mod file found — skipping Go module update step."
+            echo "No go.mod file found — skipping Go module update."
           fi
     
       # --------------------------
-      # Generate SBOM
+      # Generate SBOM (syft packages . -o json > sbom.json)
       # --------------------------
       - name: Generate SBOM with Syft
         run: |
           echo "Generating SBOM..."
           syft . -o json > sbom.json
           echo "SBOM generated successfully."
+
+      # --------------------------
+      # Confirm that Go modules were updated correctly
+      # --------------------------
+      - name: Verify fixed module versions
+        run: |
+          echo "Confirming Go dependency patch levels..."
+          go list -m all | grep -E 'selinux|containerd' || echo "No matching modules found."
 
       # --------------------------
       # Grype scan
