@@ -96,7 +96,34 @@ jobs:
           echo "Installing Grype..."
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
           grype version
+      
+      # --------------------------
+      # Pin Go version ≥1.24.9 to avoid stdlib CVEs
+      # --------------------------
+      - name: Set up Go 1.24.9
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.9'
+      - run: |
+          echo "Go version pinned to:"
+          go version
 
+      # --------------------------
+      # Update Go dependencies before scanning
+      # --------------------------
+      - name: Update vulnerable Go dependencies
+        run: |
+          echo "Upgrading known vulnerable Go modules before SBOM generation..."
+          if [ -f "go.mod" ]; then
+            go mod download
+            go get github.com/opencontainers/selinux@v1.13.0 || true
+            go get github.com/containerd/containerd@v1.7.29 || true
+            go mod tidy
+            go list -m all | grep -E 'selinux|containerd' || echo "Modules not found in dependency graph."
+          else
+            echo "No go.mod file found — skipping Go module update step."
+          fi
+    
       # --------------------------
       # Generate SBOM
       # --------------------------

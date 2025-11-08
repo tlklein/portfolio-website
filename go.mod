@@ -1,3 +1,3 @@
 module github.com/tlklein/portfolio-website
 
-go 1.25
+go 1.24
