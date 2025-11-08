@@ -111,31 +111,14 @@ jobs:
       # --------------------------
       # Update vulnerable Go dependencies before scanning
       # --------------------------
-      - name: Update vulnerable Go dependencies
-        continue-on-error: true
+      - name: Force upgrade transitive modules
         run: |
-          set -e
-          echo "Checking for go.mod..."
-          if [ ! -f "go.mod" ]; then
-            echo "No go.mod file found — skipping update."
-            exit 0
-          fi
+          echo "Forcing explicit upgrade of vulnerable transitive dependencies..."
+          go get github.com/opencontainers/selinux@v1.13.0
+          go get github.com/containerd/containerd@v1.7.29
+          go mod tidy
+          go list -m all | grep -E 'selinux|containerd' || echo "No matching modules found."
 
-          echo "Downloading existing modules..."
-          go mod download || echo "Go mod download failed, continuing..."
-
-          echo "⬆Attempting to upgrade vulnerable modules..."
-          {
-            go get github.com/opencontainers/selinux@v1.13.0 || echo "⚠️ Failed to update selinux"
-            go get github.com/containerd/containerd@v1.7.29 || echo "⚠️ Failed to update containerd"
-          }
-
-          echo "Tidying up module files..."
-          go mod tidy || echo "go mod tidy failed, continuing..."
-
-          echo "Verifying updated module versions:"
-          go list -m all | grep -E 'selinux|containerd' || echo "Expected modules not found."
-      
       # --------------------------
       # Force rebuild the dependency Graph
       # --------------------------
