@@ -1,0 +1,49 @@
+name: "Site Quality Checks"
+
+# Trigger on pushes, pull requests, and monthly schedule
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feature
+  schedule:
+    - cron: '0 0 1 * *'  # 1st of every month, 00:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  #################################################################
+  # CodeQL security analysis
+  #################################################################
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript,python
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "security"
+          output: results.sarif
+      - name: Fail on high severity issues
+        run: |
+          if grep -q '"level": "error"' results.sarif; then
+            echo "High severity CodeQL issues detected!"
+            exit 1
+          else
+            echo "No high severity CodeQL findings."
+          fi

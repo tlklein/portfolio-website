@@ -1,0 +1,63 @@
+name: "Code Validation Checks"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  BASE_URL: https://www.trinityklein.dev/
+
+jobs:
+  ############################################################################
+  # Run Playwright Test on a Local Server
+  ############################################################################
+  site-validation:
+    name: Site Validation & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      #################################################################
+      # Setup Hugo
+      #################################################################
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.125.4'
+
+      - name: Build Hugo site
+        run: hugo --baseURL=${{ env.BASE_URL }}
+
+      #################################################################
+      # Playwright tests against local Hugo server
+      #################################################################
+      - name: Install Playwright dependencies
+        run: |
+          npm install --save-dev wait-on
+          npx playwright install --with-deps
+
+      - name: Serve site in background
+        run: hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
+      
+      - name: Wait for server
+        run: npx wait-on http://localhost:1313
+
+      - name: Run Playwright tests
+        env:
+          BASE_URL: http://localhost:1313
+        run: npx playwright test tests/
+
+      - name: Stop server
+        run: pkill -f "hugo server"
+        if: always()
