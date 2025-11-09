@@ -1,0 +1,25 @@
+name: Site Validation
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm install -g markdownlint-cli html-validate linkinator
+      - run: markdownlint "README.md"
+      - uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: '0.125.4'
+      - run: hugo --baseURL="${{ env.BASE_URL }}"
+      - run: html-validate "layouts/**/*.html" "static/**/*.html"
+      - run: linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"

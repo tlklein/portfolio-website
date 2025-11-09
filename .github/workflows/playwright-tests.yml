@@ -19,7 +19,7 @@ env:
 
 jobs:
   ############################################################################
-  # Full Site Validation: markdownlint, HTML-validate, Linkinator, Playwright
+  # Run Playwright Test on a Local Server
   ############################################################################
   site-validation:
     name: Site Validation & Tests
@@ -27,24 +27,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
-      #################################################################
-      # Setup Node.js and install CLI tools
-      #################################################################
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install markdownlint-cli, html-validate, and linkinator
-        run: |
-          npm install -g markdownlint-cli html-validate linkinator
-
-      #################################################################
-      # Run markdown linting
-      #################################################################
-      - name: Run markdownlint
-        run: markdownlint "README.md"
 
       #################################################################
       # Setup Hugo
@@ -56,16 +38,6 @@ jobs:
 
       - name: Build Hugo site
         run: hugo --baseURL=${{ env.BASE_URL }}
-
-      #################################################################
-      # Run HTML and link validation
-      #################################################################
-      - name: Run html-validate
-        run: html-validate "layouts/**/*.html" "static/**/*.html"
-
-      - name: Run Linkinator (skip known blocked/external links)
-        run: |
-          linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
 
       #################################################################
       # Playwright tests against local Hugo server
