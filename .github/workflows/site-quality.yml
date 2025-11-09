@@ -80,71 +80,57 @@ jobs:
       - uses: actions/checkout@v5
 
       #################################################################
-      # Pin Go version ≥1.24.9 to avoid stdlib CVEs
+      # Set up Go and enable caching for faster builds
       #################################################################
-      - name: Set up Go 1.24.9
+      - name: Set up Go and Cache Dependencies
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.9'
-      - run: |
-          echo "Go version pinned to:"
-          go version
+          go-version: '1.24.9' # Ensure you pin to a safe Go version
+          cache: true # Enable caching for go modules (~/go/pkg/mod)
+
+      - name: Show Go version
+        run: go version
 
       #################################################################
-      # Install Syft and Grype
+      # Explicitly update ALL dependencies to their latest safe versions
+      # This performs the equivalent of your manual 'replace' + 'go get -u'
       #################################################################
-      - name: Install Syft
-        run: |
-          echo "Installing Syft..."
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
-          syft version
-      - name: Install Grype
-        run: |
-          echo "Installing Grype..."
-          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
-          grype version
-
-      #################################################################
-      # Inject patched modules + upgrade all dependencies
-      #################################################################
-      - name: Inject secure replacements and upgrade dependencies
+      - name: Update All Go Dependencies
         shell: bash
         run: |
           set -euo pipefail
-          echo "Injecting secure replacements and updating all Go dependencies..."
+          echo "Updating all Go dependencies in all modules..."
+          # Find all go.mod files and run go get -u all
           find . -name go.mod -print | while read -r gm; do
             dir=$(dirname "$gm")
             echo "--- Processing $gm ---"
             pushd "$dir" >/dev/null || continue
-
-            # Force patched versions
-            go mod edit -replace=github.com/opencontainers/selinux@v1.12.0=github.com/opencontainers/selinux@v1.13.0 || true
-            go mod edit -replace=github.com/containerd/containerd@v1.7.28=github.com/containerd/containerd@v1.7.29 || true
-
-            # Upgrade all direct and indirect dependencies
-            echo "Upgrading all dependencies..."
-            go get -u ./...
-
-            # Tidy and verify module graph
-            go mod tidy || echo "go mod tidy failed in $dir"
-            go list -m all | grep -E 'opencontainers/selinux|containerd' || echo "No matching modules found in $dir"
-
+            
+            # Use 'go get -u all' to update all direct and indirect dependencies
+            go get -u all
+            go mod tidy
+            
             popd >/dev/null
           done
+          echo "All dependencies updated in the CI environment."
+      
+      #################################################################
+      # Install Syft and Grype (Moved down for clarity)
+      #################################################################
+      - name: Install Syft and Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+          syft version
+          grype version
 
       #################################################################
-      # Generate SBOM
+      # Generate SBOM and Run Grype scan (No change needed here)
       #################################################################
       - name: Generate SBOM with Syft
-        run: |
-          echo "Generating SBOM..."
-          syft packages . -o json > sbom.json
-          echo "SBOM generated successfully."
+        run: syft packages . -o json > sbom.json
 
-      #################################################################
-      # Grype scan
-      #################################################################
-      - name: Run Grype vulnerability scan
+      - name: Run Grype vulnerability scan and Fail on Critical/High
         run: |
           echo "Running Grype vulnerability scan..."
           grype sbom:./sbom.json -o table || true
