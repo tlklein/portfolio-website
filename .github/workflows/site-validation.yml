@@ -1,10 +1,20 @@
-name: Site Validation
+name: "Site Validation"
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - main
+      - dev
+      - feature
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feature
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   validate:
