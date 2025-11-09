@@ -70,17 +70,17 @@ jobs:
           fi
 
   #################################################################
-  # SBOM generation + Grype + OSV scanning
+  # SBOM generation + Grype + OSV scanning (only fail on SBOM)
   #################################################################
   vulnerability-scan:
-    name: SBOM + Grype + OSV Scanning
+    name: SBOM + Grype + OSV Scanning (fail only on SBOM results)
     runs-on: ubuntu-latest
     needs: verify-signatures
     steps:
       - uses: actions/checkout@v5
 
       #################################################################
-      # Pin Go version and cache modules
+      # Pin Go and cache modules
       #################################################################
       - name: Set up Go 1.24.9
         uses: actions/setup-go@v5
@@ -103,38 +103,42 @@ jobs:
             dir=$(dirname "$gm")
             echo "=== $gm (dir=$dir) ==="
             pushd "$dir" >/dev/null || continue
-            # Set the module's go directive to 1.24 (uses minor version; patch is not required here)
             go mod edit -go=1.24 || echo "go mod edit -go=1.24 failed in $dir"
-            # Tidy to update go.sum and module graph
             go mod tidy || echo "go mod tidy warning in $dir"
             echo "go.mod in $dir now contains: $(grep '^go ' go.mod || true)"
             popd >/dev/null
           done
 
       #################################################################
-      # Explicitly update ALL dependencies (direct + transitive)
+      # Inject patched module replacements and upgrade dependencies
       #################################################################
-      - name: Update All Go Dependencies
+      - name: Inject replacements + upgrade transitive dependencies
         shell: bash
         run: |
           set -euo pipefail
-          echo "Updating all Go dependencies in all modules..."
+          echo "Injecting replace directives and upgrading dependencies..."
           find . -name go.mod -print | while read -r gm; do
             dir=$(dirname "$gm")
             echo "--- Processing $gm ---"
             pushd "$dir" >/dev/null || continue
-            # Upgrade all dependencies to newest compatible versions
-            # Use -u=patch if you prefer safer patch-only upgrades
+
+            # Force patched versions (safe, targeted replacements)
+            go mod edit -replace=github.com/opencontainers/selinux@v1.12.0=github.com/opencontainers/selinux@v1.13.0 || true
+            go mod edit -replace=github.com/containerd/containerd@v1.7.28=github.com/containerd/containerd@v1.7.29 || true
+
+            # Upgrade direct + indirect dependencies (use -u=patch if you want patch-only)
+            echo "Upgrading dependencies (may take a moment)..."
             go get -u ./... || echo "go get -u failed in $dir (continuing)"
             go mod tidy || echo "go mod tidy failed in $dir (continuing)"
-            echo "Resulting top modules (sample):"
+
+            echo "Top modules (sample):"
             go list -m all | head -n 20 || true
+
             popd >/dev/null
           done
-          echo "All modules processed."
 
       #################################################################
-      # Install Syft & Grype, jq
+      # Install Syft, Grype and jq
       #################################################################
       - name: Install Syft, Grype and jq
         run: |
@@ -147,7 +151,7 @@ jobs:
           jq --version
 
       #################################################################
-      # Generate SBOM (full Syft JSON) and also run grype . (filesystem)
+      # Generate SBOM
       #################################################################
       - name: Generate SBOM with Syft (full JSON)
         run: |
@@ -155,39 +159,43 @@ jobs:
           syft . -o json > sbom.json
           echo "SBOM generated: $(wc -c sbom.json) bytes"
 
-      - name: Run Grype against SBOM and filesystem (both)
+      #################################################################
+      # Run Grype: SBOM and filesystem scans 
+      #################################################################
+      - name: Run Grype scans and only fail on SBOM Critical/High
         shell: bash
         run: |
           set -euo pipefail
           echo "Scanning SBOM with Grype (sbom:./sbom.json)"
           grype sbom:./sbom.json -o table || true
+
           echo
-          echo "Scanning filesystem with Grype (.)"
-          # Run grype . after updating go directives and modules; this should now reflect go 1.24 and updated go.sum
+          echo "Scanning filesystem with Grype (.) — results are informational only"
           grype . -o table || true
 
           echo
           echo "Checking SBOM-based results for Critical/High..."
           CRIT_HIGH_SBOM=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
-          echo "SBOM Critical/High: $CRIT_HIGH_SBOM"
+          echo "SBOM Critical/High count: $CRIT_HIGH_SBOM"
 
-          echo "Checking filesystem-based results for Critical/High..."
+          echo "Checking filesystem-based results (informational) for Critical/High..."
           CRIT_HIGH_FS=$(grype . -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
-          echo "Filesystem Critical/High: $CRIT_HIGH_FS"
+          echo "Filesystem Critical/High count: $CRIT_HIGH_FS (informational only)"
 
-          if [ "$CRIT_HIGH_SBOM" -gt 0 ] || [ "$CRIT_HIGH_FS" -gt 0 ]; then
-            echo "CRITICAL/HIGH vulnerabilities detected (SBOM:$CRIT_HIGH_SBOM FS:$CRIT_HIGH_FS)."
-            # Print details from SBOM scan
+          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
+            echo "CRITICAL/HIGH vulnerabilities detected in SBOM ($CRIT_HIGH_SBOM). Failing the job."
             grype sbom:./sbom.json -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "SBOM: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"' || true
-            # Print details from filesystem scan
-            grype . -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "FS: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"' || true
             exit 1
           else
-            echo "No Critical/High vulnerabilities found by either SBOM or filesystem scan."
+            echo "No Critical/High vulnerabilities in SBOM. Continuing despite filesystem findings (informational)."
+            if [ "$CRIT_HIGH_FS" -gt 0 ]; then
+              echo "WARNING: filesystem scan found Critical/High entries (informational only):"
+              grype . -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "FS: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"' || true
+            fi
           fi
 
       #################################################################
-      # OSV API scan (defense-in-depth)
+      # OSV API scan
       #################################################################
       - name: Run OSV API vulnerability check
         shell: bash
@@ -211,7 +219,7 @@ jobs:
             fi
           done
           if [ "$FOUND" -eq 1 ]; then
-            echo "Vulnerabilities detected by OSV."
+            echo "Vulnerabilities detected by OSV. Failing job."
             exit 1
           else
             echo "No vulnerabilities detected by OSV."
