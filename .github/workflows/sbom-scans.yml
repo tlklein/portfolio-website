@@ -75,23 +75,34 @@ jobs:
         run: |
           echo "Running OSV API vulnerability scan..."
           FOUND=0
+
+          # Iterate through all packages in the SBOM
           cat sbom.json | jq -c '.artifacts[] | {name: .name, version: .version}' | while read -r pkg; do
             NAME=$(echo "$pkg" | jq -r '.name')
             VERSION=$(echo "$pkg" | jq -r '.version')
-            if [ -z "$NAME" ] || [ -z "$VERSION" ]; then
+
+            # Skip invalid or tool artifacts
+            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [[ "$NAME" == *"grype"* ]] || [[ "$VERSION" == "UNKNOWN" ]]; then
               continue
             fi
+
             RESPONSE=$(curl -s -X POST "https://api.osv.dev/v1/query" \
               -H "Content-Type: application/json" \
               -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
-            if echo "$RESPONSE" | jq -e '.vulns' | grep -q '.'; then
-              echo "Vulnerabilities found in $NAME@$VERSION"
-              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary)"'
+
+            HAS_VULNS=$(echo "$RESPONSE" | jq -r 'if (.vulns and (.vulns | length > 0)) then "yes" else "no" end')
+
+            if [ "$HAS_VULNS" = "yes" ]; then
+              echo "Vulnerabilities found in $NAME@$VERSION:"
+              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary // "No summary provided")"'
               FOUND=1
             fi
           done
+
           if [ "$FOUND" = "1" ]; then
-            echo "Vulnerabilities detected by OSV (informational only)."
+            echo "OSV API detected one or more vulnerabilities."
+            exit 1
           else
             echo "No vulnerabilities detected by OSV."
           fi
+          
