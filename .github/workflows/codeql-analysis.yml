@@ -1,4 +1,4 @@
-name: "Site Quality Checks"
+name: "CodeQL Analysis"
 
 # Trigger on pushes, pull requests, and monthly schedule
 on:

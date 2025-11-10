@@ -1,0 +1,99 @@
+name: "SBOM Generation"
+
+# Trigger on pushes, pull requests, and monthly schedule
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feature
+  schedule:
+    - cron: '0 0 1 * *' # 1st of every month, 00:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  #################################################################
+  # SBOM generation
+  #################################################################
+  vulnerability-scan:
+    name: SBOM + Grype + OSV Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # --------------------------
+      # Set up Go
+      # --------------------------
+      - name: Set up Go 1.24.9
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.9'
+
+      - name: Show Go version
+        run: go version
+
+      # --------------------------
+      # Install Syft and Grype
+      # --------------------------
+      - name: Install Syft and Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+          syft version
+          grype version
+
+      # --------------------------
+      # Patch vulnerable Go modules
+      # --------------------------
+      - name: Patch vulnerable Go modules and update all dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Processing all go.mod files for module patching..."
+          find . -name go.mod -print | while read -r gm; do
+            dir=$(dirname "$gm")
+            echo "--- Processing $gm ---"
+            pushd "$dir" >/dev/null || continue
+
+            # Inject replacement lines for known vulnerable modules
+            go mod edit -replace=github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
+            go mod edit -replace=github.com/containerd/containerd=github.com/containerd/containerd@v1.7.29
+
+            # Update all direct and indirect dependencies
+            go get -u all
+            go mod tidy
+
+            # Show patched versions
+            go list -m all | grep -E 'selinux|containerd' || echo "No selinux/containerd found in $dir"
+
+            popd >/dev/null
+          done
+          echo "All modules patched and updated successfully."
+
+      # --------------------------
+      # Generate valid JSON SBOM
+      # --------------------------
+      - name: Generate SBOM
+        run: |
+          echo "Generating SBOM in JSON format..."
+          syft packages . -o json > sbom.json
+          if ! jq empty sbom.json; then
+            echo "Error: sbom.json is not valid JSON"
+            exit 1
+          fi
+          echo "SBOM successfully generated and validated."
+      
+      # --------------------------
+      # Remove nulls in JSON SBOM
+      # --------------------------
+      - name: Clean SBOM
+        run: |
+         jq 'if .artifacts then .artifacts |= map(select(.name != null and .version != null and .version != "null")) else . end' sbom.json
