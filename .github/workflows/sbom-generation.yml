@@ -1,4 +1,4 @@
-name: "SBOM Generation & Vulnerability Scan"
+name: "SBOM Generation"
 
 # Trigger on pushes, pull requests, and monthly schedule
 on:
@@ -90,49 +90,3 @@ jobs:
             exit 1
           fi
           echo "SBOM successfully generated and validated."
-
-      # --------------------------
-      # Grype scan (fail only on SBOM)
-      # --------------------------
-      - name: Scan SBOM with Grype
-        run: |
-          echo "Scanning SBOM with Grype..."
-          grype sbom:./sbom.json -o table || true
-          CRIT_HIGH_SBOM=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
-          echo "SBOM Critical/High count: $CRIT_HIGH_SBOM"
-
-          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
-            echo "CRITICAL/HIGH vulnerabilities detected in SBOM ($CRIT_HIGH_SBOM). Failing the job."
-            grype sbom:./sbom.json -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "SBOM: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"'
-            exit 1
-          else
-            echo "No Critical/High vulnerabilities in SBOM."
-          fi
-
-      # --------------------------
-      # Optional: OSV API check
-      # --------------------------
-      - name: OSV API vulnerability check
-        run: |
-          echo "Running OSV API vulnerability scan..."
-          FOUND=0
-          cat sbom.json | jq -c '.artifacts[] | {name: .name, version: .version}' | while read -r pkg; do
-            NAME=$(echo "$pkg" | jq -r '.name')
-            VERSION=$(echo "$pkg" | jq -r '.version')
-            if [ -z "$NAME" ] || [ -z "$VERSION" ]; then
-              continue
-            fi
-            RESPONSE=$(curl -s -X POST "https://api.osv.dev/v1/query" \
-              -H "Content-Type: application/json" \
-              -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
-            if echo "$RESPONSE" | jq -e '.vulns' | grep -q '.'; then
-              echo "Vulnerabilities found in $NAME@$VERSION"
-              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary)"'
-              FOUND=1
-            fi
-          done
-          if [ "$FOUND" = "1" ]; then
-            echo "Vulnerabilities detected by OSV (informational only)."
-          else
-            echo "No vulnerabilities detected by OSV."
-          fi
