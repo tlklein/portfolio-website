@@ -1,14 +1,16 @@
-name: "Code Validation Checks"
+name: "Playwright Tests"
 
 on:
   push:
     branches:
       - main
       - dev
+      - feature
   pull_request:
     branches:
       - main
       - dev
+      - feature
 
 permissions:
   id-token: write

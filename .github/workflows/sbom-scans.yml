@@ -1,0 +1,108 @@
+name: "Vulnerability Scans"
+
+# Trigger on pushes, pull requests, and monthly schedule
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feature
+  schedule:
+    - cron: '0 0 1 * *' # 1st of every month, 00:00 UTC
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  #################################################################
+  # Grype + OSV scans
+  #################################################################
+  vulnerability-scan:
+    name: Grype + OSV Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # --------------------------
+      # Set up Go
+      # --------------------------
+      - name: Set up Go 1.24.9
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.9'
+
+      - name: Show Go version
+        run: go version
+
+      # --------------------------
+      # Install Syft and Grype
+      # --------------------------
+      - name: Install Syft and Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+          syft version
+          grype version
+
+      # --------------------------
+      # Grype scan (fail only on SBOM)
+      # --------------------------
+      - name: Scan SBOM with Grype
+        run: |
+          echo "Scanning SBOM with Grype..."
+          grype sbom:./sbom.json -o table || true
+          CRIT_HIGH_SBOM=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
+          echo "SBOM Critical/High count: $CRIT_HIGH_SBOM"
+
+          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
+            echo "CRITICAL/HIGH vulnerabilities detected in SBOM ($CRIT_HIGH_SBOM). Failing the job."
+            grype sbom:./sbom.json -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "SBOM: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"'
+            exit 1
+          else
+            echo "No Critical/High vulnerabilities in SBOM."
+          fi
+
+      # --------------------------
+      # Optional: OSV API check
+      # --------------------------
+      - name: OSV API vulnerability check
+        run: |
+          echo "Running OSV API vulnerability scan..."
+          FOUND=0
+
+          # Iterate through all packages in the SBOM
+          cat sbom.json | jq -c '.artifacts[] | {name: .name, version: .version}' | while read -r pkg; do
+            NAME=$(echo "$pkg" | jq -r '.name')
+            VERSION=$(echo "$pkg" | jq -r '.version')
+
+            # Skip invalid or tool artifacts
+            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [[ "$NAME" == *"grype"* ]] || [[ "$VERSION" == "UNKNOWN" ]]; then
+              continue
+            fi
+
+            RESPONSE=$(curl -s -X POST "https://api.osv.dev/v1/query" \
+              -H "Content-Type: application/json" \
+              -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
+
+            HAS_VULNS=$(echo "$RESPONSE" | jq -r 'if (.vulns and (.vulns | length > 0)) then "yes" else "no" end')
+
+            if [ "$HAS_VULNS" = "yes" ]; then
+              echo "Vulnerabilities found in $NAME@$VERSION:"
+              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary // "No summary provided")"'
+              FOUND=1
+            fi
+          done
+
+          if [ "$FOUND" = "1" ]; then
+            echo "OSV API detected one or more vulnerabilities."
+            exit 1
+          else
+            echo "No vulnerabilities detected by OSV."
+          fi
+          
