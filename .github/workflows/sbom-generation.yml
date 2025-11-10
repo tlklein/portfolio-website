@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   #################################################################
-  # SBOM generation + Grype + OSV scanning (with Go module patching)
+  # SBOM generation
   #################################################################
   vulnerability-scan:
     name: SBOM + Grype + OSV Scanning
@@ -90,3 +90,10 @@ jobs:
             exit 1
           fi
           echo "SBOM successfully generated and validated."
+      
+      # --------------------------
+      # Remove nulls in JSON SBOM
+      # --------------------------
+      - name: Clean SBOM
+        run: |
+         jq 'if .artifacts then .artifacts |= map(select(.name != null and .version != null and .version != "null")) else . end' sbom.json

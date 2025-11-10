@@ -19,6 +19,9 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    ################################################################## 
+    # Code validation using html-validate, linkinator,  & markdownlint
+    ##################################################################
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
