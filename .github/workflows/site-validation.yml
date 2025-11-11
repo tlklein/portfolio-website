@@ -17,10 +17,10 @@ permissions:
   security-events: write
 
 jobs:
-  validate:
+  site-validate:
     runs-on: ubuntu-latest
     ################################################################## 
-    # Code validation using html-validate, linkinator,  & markdownlint
+    # Site validation using html-validate, linkinator,  & markdownlint
     ##################################################################
     steps:
       - uses: actions/checkout@v5
