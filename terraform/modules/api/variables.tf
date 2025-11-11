@@ -61,3 +61,12 @@ variable "function_name" {
   type        = string
   description = "file name for lambda code"
 }
+
+#######################################################
+# Lambda Code Signing ARN
+#######################################################
+variable "code_signing_config_arn" {
+  description = "ARN of the Lambda code signing configuration"
+  type        = string
+  default     = null
+}

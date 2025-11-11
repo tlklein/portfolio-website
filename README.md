@@ -111,8 +111,8 @@ Here is a look at the architecture:
 
 I documented every chunk on my blog:
 
-- Chunk 5 - The Final Write-Up
-- Chunk 4 - Building the Automation and CI
+- [Chunk 5 - The Final Write-Up](https://dev.to/tlklein/cloud-resume-challenge-chunk-5-the-final-write-up-4n06)
+- [Chunk 4 - Building the Automation and CI](https://dev.to/tlklein/cloud-resume-challenge-chunk-4-building-the-automation-and-ci-3fbo)
 - [Chunk 3 - Front-End & Back-End Integration](https://dev.to/tlklein/cloud-resume-challenge-chunk-3-front-end-back-end-integration-11e5)
 - [Chunk 2 - Building the API](https://dev.to/tlklein/cloud-resume-challenge-chunk-2-building-the-api-4dgn)
 - [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)
@@ -262,17 +262,15 @@ After installing, this is a guide on the files in the repository.
   │       └── The-Cloud-Resume-Challenge-Graphics-2.png
   │       └── The-Cloud-Resume-Challenge-Graphics-4.png
   │       └── The-Cloud-Resume-Challenge-Graphics-6.png
-  │       └── The-Cloud-Resume-Challenge-Graphics-7.png
   │       └── The-Cloud-Resume-Challenge-Graphics-8.png
   │       └── The-Cloud-Resume-Challenge-Graphics-10.png
   │       └── The-Cloud-Resume-Challenge-Graphics-12.png
-  │       └── The-Cloud-Resume-Challenge-Graphics-14.png
   │   └── favicon.ico
   │   └── resume.html
   │   └── ping.html
   │   └── posts.html
   │   └── projects.html
-  │   └── Trinity_Klein_Resume.pdf
+  │   └── trinity-klein-resume.pdf
   ├── test-results/
   │   └── .last-run.json
   ├── tests/
@@ -329,17 +327,16 @@ After installing, this is a guide on the files in the repository.
   ├── makefile
   ├── .gitignore
   ├── config.toml
+  ├── grype-results.json
+  ├── sbom-clean.json
+  ├── sbom.json
   ├── README.md
   ```
 
 ## Future Improvements
 
-- [-] Securing your software supply chain -
+- [x] Securing your software supply chain -
   <https://cloudresumechallenge.dev/docs/extensions/supply-chain/>
-  - **Note:** Currently, I am not able to set up the code
-  scanning, status checks, and  vulnerability checks *completely*
-  because I have no free runs of GitHub Actions left. Because
-  this, I had to run everything through Powershell.
 - [x] Terraform Your Cloud Resume Challenge -
   <https://cloudresumechallenge.dev/docs/extensions/terraform-getting-started/>
 - [x] Architecture Diagrams, and Blog Posts
