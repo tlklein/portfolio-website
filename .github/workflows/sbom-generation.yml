@@ -23,8 +23,8 @@ jobs:
   #################################################################
   # SBOM generation
   #################################################################
-  vulnerability-scan:
-    name: SBOM + Grype + OSV Scanning
+  sbom-generation:
+    name: SBOM Generation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

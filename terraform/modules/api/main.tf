@@ -16,6 +16,34 @@ locals {
 data "aws_caller_identity" "current" {}
 
 ###########################################################
+# AWS Signer Profile for Lambda
+###########################################################
+resource "aws_signer_signing_profile" "lambda_profile" {
+  name        = "${replace(var.project_prefix, "-", "")}${replace(var.environment, "-", "")}LambdaProfile"
+  platform_id = "AWSLambda-SHA384-ECDSA"
+
+  tags = local.common_tags
+}
+
+###########################################################
+# Lambda Code Signing Configuration
+###########################################################
+resource "aws_lambda_code_signing_config" "lambda_signing_config" {
+  allowed_publishers {
+    signing_profile_version_arns = [
+      aws_signer_signing_profile.lambda_profile.arn
+    ]
+  }
+
+  policies {
+    untrusted_artifact_on_deployment = "Enforce"
+  }
+
+  description = "Code signing enforcement for Lambda"
+  tags        = local.common_tags
+}
+
+###########################################################
 # IAM policy document for Lambda trust
 ###########################################################
 data "aws_iam_policy_document" "lambda_assume_role" {
@@ -71,6 +99,8 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
     ]
   })
 }
+
+
 
 ###########################################################
 # Lambda Function

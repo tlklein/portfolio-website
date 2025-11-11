@@ -24,7 +24,7 @@ jobs:
   # Run Playwright Test on a Local Server
   ############################################################################
   site-validation:
-    name: Site Validation & Tests
+    name: Run Playwright Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
