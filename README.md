@@ -13,6 +13,7 @@ into a single portfolio project.
 - [TL;DR](#tldr)
 - [Architecture Overview](#architecture-overview)
 - [Architecture Diagrams](#architecture-diagrams)
+- [Architecture Trade-Offs](#architecture-trade-offs)
 - [Blog Series](#blog-series)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -89,23 +90,99 @@ least-privilege IAM.
 
 ## Architecture Diagrams
 
-Here is a look at the architecture:
+These the are the set of diagrams that illustrate the system from multiple perspectives. These visuals help clarify how the application is structured end-to-end, from the user-facing front-end, to the serverless back-end, all the way down to how S3 objects are managed over time.
 
 ### High-level
 
+Provides a system-wide overview showing CloudFront, API Gateway, Lambda, DynamoDB, S3, and supporting services
+
 ![banner](/documentation/high-level-diagram.png)
 
+
 ### Front-end
+
+Shows how the static website is delivered from S3 through CloudFront and how client-side logic interacts with the API.
 
 ![banner](/documentation/frontend-diagram.png)
 
 ### Back-end
 
+Illustrates the serverless data path, including API Gateway routing, Lambda execution, DynamoDB persistence, IAM permissions, and operational logging.
+
 ![banner](/documentation/backend-diagram.png)
 
 ### S3 Lifecycle Management
 
+Explains how static assets transition through S3 storage classes over time to optimize cost efficiency.
+
 ![banner](/documentation/lifecycle-diagram.png)
+
+## Architecture Trade-Offs
+
+This section outlines the architectural decisions considered during the build of this project. This section outlines the architectural decisions considered during the build of this project. Each option includes a high-level overview of pros and cons, with an emphasis on scalability, cost, operational complexity, and long-term maintenance.
+
+### Real-Time Visitor Counter (WebSockets + DynamoDB Streams)
+
+#### Pros
+
+- True real-time updates with low latency, ideal for dashboard or live traffic visualization 
+- DynamoDB Streams provide event-driven scalability, automatically reacting to counter increments.
+- Removes the need for client-side polling, reducing redundant API calls and bandwidth
+- Works well with serverless patterns and avoids managing WebSocket servers yourself.
+
+#### Cons
+
+- Significantly more complex than a simple API read/write pattern. 
+- WebSocket APIs in API Gateway for significantly more complex and add more mental overhead. 
+- DynamoDB Streams double the moving parts and areas to debug.
+- Higher operations cost than a base counter due to the active components doubling. 
+- Overkill over a simple visitor counter, unless real-time behavior is essential. 
+- Same end effect as a simple visitor counter for the end-user
+
+### Using Amazon RDS Instead of DynamoDB
+
+#### Pros
+
+- Supports relational queries and SQL joins, if the data grows in complexity
+- Offers predictable query performance and transactional guarantees.
+- Works well if expanding to a multi-table application later (e.g., user profiles, sessions, etc.).
+
+#### Cons
+
+- Far more expensive, even at a small scale, and requires continuous uptime and storage.
+- Requires patching, backups, maintenance windows.
+- More operational overhead than DynamoDB
+- Unnecessary complexity for a simple visitor counter, that only requires fast read/writes to a single record. 
+
+### Using a Hugo Template Instead of Hand-Crafting Your Own
+
+#### Pros
+
+- Rapid development, themes provide layouts, components, and styling out of the box.
+- Built-in optimizations, like minification, static pipelines, and SEO-ready structures.
+- Easier long-term maintenance with clearly defined template partials and content organization.
+- Simpler to scale the portfolio with additional blogs, pages, sections.
+
+#### Cons
+
+- Less creative control; customizing a theme can require learning the template’s internals.
+- Some themes can feel heavy or overly opinionated, adding features you don’t need.
+- Risk of relying on a theme that isn’t maintained long-term.
+- For small personal sites, building by hand can feel more lightweight and minimal.
+
+### Modular Terraform vs. a Simple Single-File Setup
+
+#### Pros
+- Extremely scalable, easy to grow out my infrastructure without having to rewrite configuration. 
+- Modules keep resources logically separated by AWS Service. 
+- Enables reuse of the same patterns that can be applied to new environments (dev, test and prod). 
+- Cleaner organization reduces the chance of misconfigurations in more complex projects.
+
+#### Cons
+- High initial complexity, module input, outputs, and variables must all be well-designed. 
+- Debugging can be harder when resources are in modules.
+- Overkill for a small-scale project.
+- Requires more documentation to ensure consistency across modules.
 
 ## Blog Series
 
