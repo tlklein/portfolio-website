@@ -90,7 +90,7 @@ least-privilege IAM.
 
 ## Architecture Diagrams
 
-These the are the set of diagrams that illustrate the system from multiple perspectives.These visuals help clarify how the application is structured end-to-end—from the user-facing front-end, to the serverless back-end, all the way down to how S3 objects are managed over time.
+These the are the set of diagrams that illustrate the system from multiple perspectives. These visuals help clarify how the application is structured end-to-end, from the user-facing front-end, to the serverless back-end, all the way down to how S3 objects are managed over time.
 
 ### High-level
 
