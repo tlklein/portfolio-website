@@ -170,9 +170,9 @@ This section outlines the architectural decisions considered during the build of
 - Risk of relying on a theme that isn’t maintained long-term.
 - For small personal sites, building by hand can feel more lightweight and minimal.
 
-#### Modular Terraform vs. a Simple Single-File Setup
+### Modular Terraform vs. a Simple Single-File Setup
 
-##### Pros
+#### Pros
 - Extremely scalable, easy to grow out my infrastructure without having to rewrite configuration. 
 - Modules keep resources logically separated by AWS Service. 
 - Enables reuse of the same patterns that can be applied to new environments (dev, test and prod). 
