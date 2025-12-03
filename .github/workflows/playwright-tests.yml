@@ -51,22 +51,19 @@ jobs:
       #################################################################
       # Playwright tests against local Hugo server
       #################################################################
-      - name: Install Playwright dependencies
-        run: |
-          npm install --save-dev wait-on
-          npx playwright install --with-deps
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
       - name: Serve site in background
         run: npx astro dev &
-      
+
       - name: Wait for server
-        run: npx wait-on http://localhost:4321/
+        run: npx wait-on http://localhost:4321
 
       - name: Run Playwright tests
         env:
-          BASE_URL: http://localhost:4321/
-        run: npx playwright test tests/
-
-      - name: Stop Astro server
-        run: pkill -f "astro dev"
-        if: always()
+          BASE_URL: http://localhost:4321
+        run: npx playwright test
