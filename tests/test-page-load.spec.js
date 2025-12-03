@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-test('Homepage loads and visitor data appears (Hugo Console Theme)', async ({ page }) => {
+test('Homepage loads and visitor data appears', async ({ page }) => {
 
   await page.goto('https://www.trinityklein.dev/', { waitUntil: 'networkidle' });
 
   const title = await page.title();
   console.log('Trinity Klein - Cloud Developer', title);
-  expect(title.length).toBeLessThanOrEqual(14);
+  expect(title.length).toBeLessThanOrEqual(40);
 
   /* Check that index.html contents load as expected */
   await page.goto('https://www.trinityklein.dev/', { waitUntil: 'networkidle' });
