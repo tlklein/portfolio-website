@@ -27,39 +27,46 @@ jobs:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
     steps:
+      # Checkout repo
       - name: Checkout code
         uses: actions/checkout@v5
 
-      #################################################################
-      # Setup Hugo
-      #################################################################
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          hugo-version: '0.125.4'
+          node-version: 20
+          cache: "pnpm"
 
-      - name: Build Hugo site
-        run: hugo --baseURL=${{ env.BASE_URL }}
+      # Setup PNPM
+      - name: Install PNPM
+        run: npm install -g pnpm
+
+      # Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+
+      # Build Astro site
+      - name: Build Astro site
+        run: pnpm run build
 
       #################################################################
-      # Playwright tests against local Hugo server
+      # Playwright tests against local Astro server
       #################################################################
-      - name: Install Playwright dependencies
-        run: |
-          npm install --save-dev wait-on
-          npx playwright install --with-deps
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-      - name: Serve site in background
-        run: hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
+      - name: Serve Astro site in background
+        run: pnpm run preview &
       
       - name: Wait for server
-        run: npx wait-on http://localhost:1313
+        run: npx wait-on http://localhost:4173
 
       - name: Run Playwright tests
         env:
-          BASE_URL: http://localhost:1313
+          BASE_URL: http://localhost:4173
         run: npx playwright test tests/
 
       - name: Stop server
-        run: pkill -f "hugo server"
+        run: pkill -f "astro preview"
         if: always()
