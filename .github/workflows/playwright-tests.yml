@@ -1,0 +1,74 @@
+name: "Playwright Tests"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feature
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  BASE_URL: https://www.trinityklein.dev/
+
+jobs:
+  ############################################################################
+  # Run Playwright Test on a Local Astro Preview Server
+  ############################################################################
+  site-validation:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"       # choose node version your project uses
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --progress=false
+
+      #################################################################
+      # Install Playwright browsers & deps
+      #################################################################
+      - name: Install Playwright browsers
+        run: |
+          npx playwright install --with-deps
+
+      #################################################################
+      # Build using the local Astro binary (exact command you asked for)
+      #################################################################
+      - name: Build Astro site (using local binary)
+        run: ./node_modules/.bin/astro build
+
+      #################################################################
+      # Preview the built site in background and run Playwright tests
+      #################################################################
+      - name: Start Astro preview (background)
+        run: |
+          # Start preview server in background on port 1313
+          ./node_modules/.bin/astro preview --port 1313 --host &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:1313
+
+      - name: Run Playwright tests
+        env:
+          BASE_URL: http://localhost:1313
+        run: npx playwright test tests/
+
+      - name: Stop preview server
+        if: always()
+        run: |
+          pkill -f "astro preview" || true
