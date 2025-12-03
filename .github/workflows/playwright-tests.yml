@@ -21,7 +21,7 @@ env:
 
 jobs:
   ############################################################################
-  # Run Playwright Test on a Local Astro Preview Server
+  # Run Playwright Test on a Local Server
   ############################################################################
   site-validation:
     name: Run Playwright Tests
@@ -30,45 +30,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      #################################################################
+      # Setup Hugo
+      #################################################################
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
         with:
-          node-version: "20"       # choose node version your project uses
-          cache: "npm"
+          hugo-version: '0.125.4'
 
-      - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --progress=false
-
+      - name: Build Hugo site
+        run: .\node_modules\.bin\astro build
+        
       #################################################################
-      # Install Playwright browsers & deps
+      # Playwright tests against local Hugo server
       #################################################################
-      - name: Install Playwright browsers
+      - name: Install Playwright dependencies
         run: |
+          npm install --save-dev wait-on
           npx playwright install --with-deps
 
-      #################################################################
-      # Build using the local Astro binary (exact command you asked for)
-      #################################################################
-      - name: Build Astro site (using local binary)
-        run: ./node_modules/.bin/astro build
-
-      #################################################################
-      # Preview the built site in background and run Playwright tests
-      #################################################################
-      - name: Start Astro preview (background)
-        run: |
-          # Start preview server in background on port 1313
-          ./node_modules/.bin/astro preview --port 1313 --host &
-
+      - name: Serve site in background
+        run: .\node_modules\.bin\astro dev
+      
       - name: Wait for server
-        run: npx wait-on http://localhost:1313
+        run: npx wait-on http://localhost:4321/
 
       - name: Run Playwright tests
         env:
-          BASE_URL: http://localhost:1313
+          BASE_URL: http://localhost:4321/
         run: npx playwright test tests/
 
-      - name: Stop preview server
+      - name: Stop server
+        run: pkill -f "hugo server"
         if: always()
-        run: |
-          pkill -f "astro preview" || true
