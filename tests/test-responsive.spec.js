@@ -1,4 +1,4 @@
-const { test, expect, devices } = require('@playwright/test');
+import { test, expect, devices } from '@playwright/test';
 
 test.use({ ...devices['iPhone 13'] });
 
