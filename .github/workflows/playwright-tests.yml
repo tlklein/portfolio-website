@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-        
+
       #################################################################
       # Setup Node.js and Astro
       #################################################################
@@ -46,7 +46,7 @@ jobs:
       # Build Astro site
       #################################################################
       - name: Build Astro site
-        run: .\node_modules\.bin\astro build
+        run: npx astro build
         
       #################################################################
       # Playwright tests against local Hugo server
