@@ -57,7 +57,7 @@ jobs:
           npx playwright install --with-deps
 
       - name: Serve site in background
-        run: .\node_modules\.bin\astro dev
+        run: npx astro dev &
       
       - name: Wait for server
         run: npx wait-on http://localhost:4321/
@@ -67,6 +67,6 @@ jobs:
           BASE_URL: http://localhost:4321/
         run: npx playwright test tests/
 
-      - name: Stop server
-        run: pkill -f "hugo server"
+      - name: Stop Astro server
+        run: pkill -f "astro dev"
         if: always()
