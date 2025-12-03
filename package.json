@@ -1,23 +1,19 @@
 {
-  "name": "playwright-tests",
-  "version": "1.0.0",
-  "description": "End-to-end tests for Hugo static site using Playwright",
+  "name": "devportfolio",
+  "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "test": "playwright test",
-    "preflight": "bash scripts/preflight.js"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "again": "^0.0.1",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.1",
-    "playwright": "^1.54.0",
-    "markdownlint-cli": "^0.39.0",
-    "html-validate": "^9.0.0",
-    "linkinator": "^3.1.0"
-  },
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "astro": "^5.16.3"
+  }
 }

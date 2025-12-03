@@ -78,15 +78,15 @@ resource "aws_s3_bucket_cors_configuration" "origin" {
 }
 
 #######################################################
-# Uploads all files from /public folder
+# Uploads all files from /dist folder
 #######################################################
 resource "aws_s3_object" "static_files" {
-  for_each = fileset("${path.module}/../../../public", "**")
+  for_each = fileset("${path.module}/../../../dist", "**")
 
   bucket = aws_s3_bucket.site.id
   key    = each.value
-  source = "${path.module}/../../../public/${each.value}"
-  etag   = filemd5("${path.module}/../../../public/${each.value}")
+  source = "${path.module}/../../../dist/${each.value}"
+  etag   = filemd5("${path.module}/../../../dist/${each.value}")
 
   content_type = lookup(
     var.mime_types,

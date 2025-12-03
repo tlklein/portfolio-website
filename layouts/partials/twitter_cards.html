@@ -1,8 +1,0 @@
-{{ with .Site.Params.twitter }}
-<meta name="twitter:card" content="{{ .card }}">
-<meta name="twitter:title" content="{{ .title }}">
-<meta name="twitter:description" content="{{ .description }}">
-{{ if .image }}<meta name="twitter:image" content="{{ .image }}">{{ end }}
-{{ if .site }}<meta name="twitter:site" content="{{ .site }}">{{ end }}
-{{ if .creator }}<meta name="twitter:creator" content="{{ .creator }}">{{ end }}
-{{ end }}
