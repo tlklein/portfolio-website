@@ -29,16 +29,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
+        
       #################################################################
-      # Setup Hugo
+      # Setup Node.js and Astro
       #################################################################
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          hugo-version: '0.125.4'
+          node-version: "20"  # or your project's Node version
+          cache: "npm"
 
-      - name: Build Hugo site
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --progress=false
+
+      #################################################################
+      # Build Astro site
+      #################################################################
+      - name: Build Astro site
         run: .\node_modules\.bin\astro build
         
       #################################################################
