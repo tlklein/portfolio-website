@@ -5,20 +5,17 @@ const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
 
 {
   hasExperience && (
-    <section id="experience" aria-labelledby="Experience Card" class="p-8 sm:p-12 md:p-16 lg:p-24">
+    <section id="experience" class="p-8 sm:p-12 md:p-16 lg:p-24">
       <div>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           <div class="lg:col-span-4">
-            <h2
-              id="experience-heading"
-              class="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold text-gray-900">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-bold text-gray-900">
               Experience
             </h2>
-
-            <!-- Accent bar uses Tailwind arbitrary bg color (no inline style) -->
             <div
-              class={`w-[75px] h-[5px] mt-2 rounded-full bg-[${siteConfig.accentColor}]`}
-            ></div>
+              class="w-[75px] h-[5px] mt-2 rounded-full"
+              style={`background-color: ${siteConfig.accentColor}`}
+            />
           </div>
 
           <div class="lg:col-span-8">
@@ -27,15 +24,13 @@ const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
                 <div class="relative mb-12 last:mb-0">
                   {/* Timeline dot at top of card */}
                   <div
-                    class={`absolute left-1/2 -top-2 w-4 h-4 rounded-full -translate-x-1/2 z-20 transition-all duration-300
-                      border-2 border-[${siteConfig.accentColor}] bg-[${siteConfig.accentColor}]`}
-                  ></div>
+                    class="absolute left-1/2 -top-2 w-4 h-4 bg-white border-2 rounded-full -translate-x-1/2 z-20 transition-all duration-300"
+                    style={`border-color: ${siteConfig.accentColor}; background-color: ${siteConfig.accentColor}`}
+                  />
 
                   {/* Connecting line below card */}
                   {index < siteConfig.experience.length - 1 && (
-                    <div
-                      class="absolute left-1/2 bottom-0 w-0.5 h-12 bg-gray-300 -translate-x-1/2 translate-y-full z-10"
-                    ></div>
+                    <div class="absolute left-1/2 bottom-0 w-0.5 h-12 bg-gray-300 -translate-x-1/2 translate-y-full z-10" />
                   )}
 
                   {/* Experience card */}
@@ -45,13 +40,13 @@ const hasExperience = siteConfig.experience && siteConfig.experience.length > 0;
                         <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                           {exp.title}
                         </h3>
-
-                        <!-- Company uses accent text via Tailwind arbitrary text color -->
-                        <p class={`text-base sm:text-lg text-[${siteConfig.accentColor}]`}>
+                        <p
+                          class="text-base sm:text-lg"
+                          style={`color: ${siteConfig.accentColor}`}
+                        >
                           {exp.company}
                         </p>
                       </div>
-
                       <span class="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-0">
                         {exp.dateRange}
                       </span>
