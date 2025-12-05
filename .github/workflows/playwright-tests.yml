@@ -4,13 +4,9 @@ on:
   push:
     branches:
       - main
-      - dev
-      - feature
   pull_request:
     branches:
       - main
-      - dev
-      - feature
 
 permissions:
   id-token: write
@@ -20,49 +16,56 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
-  ############################################################################
-  # Run Playwright Test on a Local Server
-  ############################################################################
   site-validation:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      #################################################################
-      # Setup Node.js and Astro
-      #################################################################
+      #########################################################
+      # Setup Node
+      #########################################################
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"  # or your project's Node version
+          node-version: "20"
           cache: "npm"
 
+      #########################################################
+      # Install dependencies (use npm install to rebuild lockfile)
+      #########################################################
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --progress=false
+        run: |
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install
 
-      #################################################################
+      #########################################################
       # Build Astro site
-      #################################################################
+      #########################################################
       - name: Build Astro site
-        run: npx astro build
-        
-      #################################################################
-      # Playwright tests against local Hugo server
-      #################################################################
-      - name: Install dependencies
-        run: npm install
+        run: npm run build
 
+      #########################################################
+      # Playwright setup
+      #########################################################
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Serve site in background
-        run: npx astro dev &
-
+      #########################################################
+      # Serve built site using astro preview
+      #########################################################
+      - name: Serve site
+        run: npx astro preview &
+        
       - name: Wait for server
         run: npx wait-on http://localhost:4321
 
+      #########################################################
+      # Run Playwright tests
+      #########################################################
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:4321
