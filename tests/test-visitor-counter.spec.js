@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect} from '@playwright/test';
 
 test('Visitor counter API returns valid data and displays it', async ({ page }) => {
   await page.goto('https://www.trinityklein.dev/', { waitUntil: 'networkidle' });

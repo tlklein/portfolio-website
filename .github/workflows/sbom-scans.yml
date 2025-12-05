@@ -5,13 +5,9 @@ on:
   push:
     branches:
       - main
-      - dev
-      - feature
   pull_request:
     branches:
       - main
-      - dev
-      - feature
   schedule:
     - cron: '0 0 1 * *' # 1st of every month, 00:00 UTC
 

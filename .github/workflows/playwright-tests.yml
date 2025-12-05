@@ -31,35 +31,39 @@ jobs:
         uses: actions/checkout@v5
 
       #################################################################
-      # Setup Hugo
+      # Setup Node.js and Astro
       #################################################################
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          hugo-version: '0.125.4'
+          node-version: "20"  # or your project's Node version
+          cache: "npm"
 
-      - name: Build Hugo site
-        run: hugo --baseURL=${{ env.BASE_URL }}
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --progress=false
 
+      #################################################################
+      # Build Astro site
+      #################################################################
+      - name: Build Astro site
+        run: npx astro build
+        
       #################################################################
       # Playwright tests against local Hugo server
       #################################################################
-      - name: Install Playwright dependencies
-        run: |
-          npm install --save-dev wait-on
-          npx playwright install --with-deps
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
       - name: Serve site in background
-        run: hugo server -D --bind 0.0.0.0 --baseURL http://localhost:1313 &
-      
+        run: npx astro dev &
+
       - name: Wait for server
-        run: npx wait-on http://localhost:1313
+        run: npx wait-on http://localhost:4321
 
       - name: Run Playwright tests
         env:
-          BASE_URL: http://localhost:1313
-        run: npx playwright test tests/
-
-      - name: Stop server
-        run: pkill -f "hugo server"
-        if: always()
+          BASE_URL: http://localhost:4321
+        run: npx playwright test

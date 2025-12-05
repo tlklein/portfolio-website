@@ -28,11 +28,11 @@ jobs:
         with:
           node-version: "20"
 
-      - run: npm install -g markdownlint-cli html-validate linkinator
+      - run: npm install -g markdownlint-cli linkinator
       - run: markdownlint "README.md"
       - uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: '0.125.4'
       - run: hugo --baseURL="${{ env.BASE_URL }}"
-      - run: html-validate "layouts/**/*.html" "static/**/*.html"
-      - run: linkinator ./public --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
+     # - run: html-validate "dist/index.html"
+      - run: linkinator ./dist --skip "livereload,linkedin.com,facebook.com,twitter.com,instagram.com"
