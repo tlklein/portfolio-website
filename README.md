@@ -356,6 +356,8 @@ npm run dev
 
 or
 
+Bypass npm using this: 
+
 ```bash
 .\node_modules\.bin\astro dev
 ```
@@ -372,7 +374,18 @@ or
 │       └── sbom-generation.yml            
 │       └── sbom-vulnerability-scan.yml   
 │       └── site-validation.yml            
-│       └── terraform-plan-apply.txt       
+│       └── terraform-plan-apply.txt  
+├── .vscode/                     
+│   └── extensions.json 
+│   └── launch.json 
+├── bin/                     
+│   └── grype.exe    
+├── documentation/                     
+│   └── all-devices-black.png          
+│   └── front-end-diagram.png          
+│   └── back-end-diagram.png           
+│   └── high-level-diagram.png         
+│   └── lifecycle-diagram.png       
 ├── src/
 │   ├── components/                    
 │   │   ├── About.astro                
@@ -386,23 +399,7 @@ or
 │   │   └── index.astro                
 │   ├── styles/
 │   │   └── global.css                 
-│   └── config.ts                      
-├── astro.config.mjs                   
-├── test-results/
-│   └── .last-run.json                 
-├── tests/                             
-│   └── test-console-errors.spec.js    
-│   └── test-page-load.spec.js         
-│   └── test-responsive.spec.js        
-│   └── test-visitor-counter.spec.js   
-├── visitor-counter/
-│   └── v2_lambda_function.py          
-├── documentation/                     
-│   └── all-devices-black.png          
-│   └── front-end-diagram.png          
-│   └── back-end-diagram.png           
-│   └── high-level-diagram.png         
-│   └── lifecycle-diagram.png          
+│   └── config.ts                                                
 ├── terraform/                         
 │   └── modules/                       
 │      └── api/
@@ -434,17 +431,26 @@ or
 │   └── provider.tf                     
 │   └── role.tf                         
 │   └── variables.tf                    
-│   └── versions.tf                     
-├── .htmlvalidate.json                  
-├── .htmlvalidateignore                 
-├── package.json                        
-├── package-lock.json                   
-├── .gitignore                          
-├── tsconfig.json                       
-├── grype-results.json                  
+│   └── versions.tf  
+├── test-results/
+│   └── .last-run.json                 
+├── tests/                             
+│   └── test-console-errors.spec.js    
+│   └── test-page-load.spec.js         
+│   └── test-responsive.spec.js        
+│   └── test-visitor-counter.spec.js   
+├── visitor-counter/
+│   └── v2_lambda_function.py    
+├── .gitignore
+├── astro.config.mjs
+├── CHANGELOG.md                                                                                               
+├── grype-results.json                         
+├── package-lock.json  
+├── package.json  
+├── README.md                    
 ├── sbom-clean.json                     
-├── sbom.json                           
-├── README.md                           
+├── sbom.json    
+├── tsconfig.json                                                  
 ```
 
 ## Future Improvements

@@ -23,6 +23,7 @@ tfplan
 
 # build output
 dist/
+
 # generated types
 .astro/
 
