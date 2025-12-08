@@ -18,6 +18,22 @@ let me know!
 - [Dev.To Blog](https://dev.to/tlklein)
 - Email: <tlklein05@gmail.com>
 
+## Final Product
+
+To view the live website, please [click here](https://www.trinityklein.dev/)
+
+## TL;DR
+
+- Modern, minimalist portfolio template built with Astro and Tailwind CSS
+  using DevPortfolio.
+- Multi-account AWS Organization setup: Production + Test OUs, MFA enabled.  
+- Backend visitor counter using Lambda + API Gateway + DynamoDB.  
+- Infrastructure managed via Terraform 1.6+ with modularized resources.  
+- CI/CD with GitHub Actions + Playwright, secured with OIDC and
+  least-privilege IAM.  
+
+----
+
 ## Table of Contents
 
 - [Let's Connect](#lets-connect)
@@ -33,20 +49,6 @@ let me know!
 - [File Structure](#file-structure)
 - [Future Improvements](#future-improvements)
 - [References / Helpful Links](#references--helpful-links)
-
-## Final Product
-
-To view the live website, please [click here](https://www.trinityklein.dev/)
-
-## TL;DR
-
-- Modern, minimalist portfolio template built with Astro and Tailwind CSS
-  using DevPortfolio.
-- Multi-account AWS Organization setup: Production + Test OUs, MFA enabled.  
-- Backend visitor counter using Lambda + API Gateway + DynamoDB.  
-- Infrastructure managed via Terraform 1.6+ with modularized resources.  
-- CI/CD with GitHub Actions + Playwright, secured with OIDC and
-  least-privilege IAM.  
 
 ## Architecture Overview
 
@@ -103,7 +105,6 @@ Provides a system-wide overview showing CloudFront, API Gateway, Lambda,
 DynamoDB, S3, and supporting services
 
 ![banner](/documentation/high-level-diagram.png)
-
 
 ### Front-end
 
@@ -366,92 +367,89 @@ Bypass npm using this:
 ## File Structure
 
 ```text
-├── .github/
-│   └── workflows/                         
-│       └── build-and-deploy-static-site.txt  
-│       └── code-signature-check.yml       
-│       └── codeql-analysis.yml            
-│       └── playwright-tests.yml           
-│       └── sbom-generation.yml            
-│       └── sbom-vulnerability-scan.yml   
-│       └── site-validation.yml            
-│       └── terraform-plan-apply.txt  
-├── .vscode/                     
-│   └── extensions.json 
-│   └── launch.json 
-├── bin/                     
-│   └── grype.exe    
-├── documentation/                     
-│   └── all-devices-black.png          
-│   └── front-end-diagram.png          
-│   └── back-end-diagram.png           
-│   └── high-level-diagram.png         
-│   └── lifecycle-diagram.png       
-├── src/
-│   ├── components/                    
-│   │   ├── About.astro                
-│   │   ├── Education.astro            
-│   │   ├── Experience.astro           
-│   │   ├── Footer.astro               
-│   │   ├── Header.astro               
-│   │   ├── Hero.astro                 
-│   │   └── Projects.astro             
-│   ├── pages/
-│   │   └── index.astro                
-│   ├── styles/
-│   │   └── global.css                 
-│   └── config.ts                                                
-├── terraform/                         
-│   └── modules/                       
-│      └── api/
-│          └── lambda/
-│               └── visitor-counter.zip 
-│          └── main.tf                  
-│          └── output.tf                
-│          └── variables.tf             
-│      └── cloudfront/
-│          └── main.tf                  
-│          └── output.tf
-│          └── variables.tf
-│      └── database/
-│          └── main.tf                  
-│          └── output.tf
-│          └── variables.tf
-│      └── dns/
-│          └── main.tf                  
-│          └── output.tf
-│          └── variables.tf
-│      └── s3_site/
-│          └── main.tf                  
-│          └── policies.tf              
-│          └── output.tf
-│          └── variables.tf
-│   └── backend.tf                      
-│   └── main.tf                         
-│   └── output.tf                       
-│   └── provider.tf                     
-│   └── role.tf                         
-│   └── variables.tf                    
-│   └── versions.tf  
-├── test-results/
-│   └── .last-run.json                 
-├── tests/                             
-│   └── test-console-errors.spec.js    
-│   └── test-page-load.spec.js         
-│   └── test-responsive.spec.js        
-│   └── test-visitor-counter.spec.js   
-├── visitor-counter/
-│   └── v2_lambda_function.py    
-├── .gitignore
-├── astro.config.mjs
-├── CHANGELOG.md                                                                                               
-├── grype-results.json                         
-├── package-lock.json  
-├── package.json  
-├── README.md                    
-├── sbom-clean.json                     
-├── sbom.json    
-├── tsconfig.json                                                  
+  ├── .github/
+  │   └── workflows/                         
+  │       ├── build-and-deploy-static-site.txt   # GitHub Actions pipeline that builds Astro site & deploys to S3/CloudFront
+  │       ├── code-signature-check.yml           # Verifies AWS Lambda code signatures before deployment
+  │       ├── codeql-analysis.yml                # GitHub CodeQL security/static analysis for the repository
+  │       ├── playwright-tests.yml               # End-to-end UI test pipeline using Playwright
+  │       ├── sbom-generation.yml                # Syft-based SBOM generation for the entire stack
+  │       ├── sbom-vulnerability-scan.yml        # Grype + OSV vulnerability scanning of SBOM artifacts
+  │       ├── site-validation.yml                # Linting, link checking, accessibility & performance validation for site
+  │       └── terraform-plan-apply.txt           # Terraform CI/CD for plan/apply with safety controls
+  │
+  ├── .vscode/                     
+  │   ├── extensions.json                         # Recommended VS Code extensions for consistent development setup
+  │   └── launch.json                             # Debugger configuration for the Lambda and Astro project
+  │
+  ├── bin/                     
+  │   └── grype.exe                               # Locally installed Grype scanner for Windows
+  │
+  ├── documentation/                     
+  │   ├── all-devices-black.png                   # Device mockup used for portfolio visuals
+  │   ├── front-end-diagram.png                   # Front-end architecture diagram
+  │   ├── back-end-diagram.png                    # Back-end Lambda/API/DynamoDB architecture diagram
+  │   ├── high-level-diagram.png                  # System-level infrastructure diagram
+  │   └── lifecycle-diagram.png                   # S3 lifecycle & storage-tiering diagram
+  │
+  ├── src/
+  │   ├── components/                             # Astro UI components used across the site
+  │   │   ├── About.astro                          # About section component
+  │   │   ├── Education.astro                      # Education section component
+  │   │   ├── Experience.astro                     # Experience/work section
+  │   │   ├── Footer.astro                         # Global footer
+  │   │   ├── Header.astro                         # Navigation bar/header
+  │   │   ├── Hero.astro                           # Landing section with CTA + visuals
+  │   │   └── Projects.astro                       # Projects section, including Cloud Resume Challenge
+  │   ├── pages/
+  │   │   └── index.astro                          # Main homepage/portfolio entry point
+  │   ├── styles/
+  │   │   └── global.css                           # Global styling for the Astro site
+  │   └── config.ts                                # Astro site configuration
+  │
+  ├── terraform/                         
+  │   ├── modules/                                 # Modular Terraform design for reusable infra components
+  │   │   ├── api/                                 # Lambda, API Gateway, IAM policies, code signing resources
+  │   │   │   ├── lambda/visitor-counter.zip       # Packaged Lambda artifact deployed by Terraform
+  │   │   │   ├── main.tf                          # Main module logic for API + Lambda
+  │   │   │   ├── output.tf                        # Outputs for use by root module
+  │   │   │   └── variables.tf                     # Module inputs 
+  │   │   ├── cloudfront/                          # CDN distribution for static website
+  │   │   │   ├── main.tf
+  │   │   │   ├── output.tf
+  │   │   │   └── variables.tf
+  │   │   ├── database/                            # DynamoDB table + IAM policies
+  │   │   ├── dns/                                 # Route53 hosted zone + records module
+  │   │   └── s3_site/                             # Static hosting bucket + lifecycle + bucket policies
+  │   ├── backend.tf                               # Remote Terraform state backend configuration
+  │   ├── main.tf                                  # Root module orchestrating all infrastructure modules
+  │   ├── output.tf                                # Global outputs for CloudFront URL, API URL, etc.
+  │   ├── provider.tf                              # AWS provider configuration
+  │   ├── role.tf                                  # Helper IAM roles for deployment processes
+  │   └── variables.tf                             # Root-level variables for environment, project prefix, etc.
+  │
+  ├── test-results/
+  │   └── .last-run.json                           # Playwright test output used by GitHub Actions
+  │
+  ├── tests/                                      
+  │   ├── test-console-errors.spec.js              # Fails build if console errors are detected
+  │   ├── test-page-load.spec.js                   # Basic page load & performance tests
+  │   ├── test-responsive.spec.js                  # Responsive design validation across breakpoints
+  │   └── test-visitor-counter.spec.js             # Functional test validating the Lambda visitor counter API
+  │
+  ├── visitor-counter/
+  │   └── v2_lambda_function.py                    # Source code for Lambda visitor counter
+  │
+  ├── .gitignore                                   # Ignore patterns for node, Terraform, Python, build outputs
+  ├── astro.config.mjs                             # Astro configuration entrypoint
+  ├── CHANGELOG.md                                 # Versioned release notes
+  ├── grype-results.json                           # Cached vulnerability scan results
+  ├── package-lock.json                            # Node package lockfile
+  ├── package.json                                 # Dependencies + scripts
+  ├── README.md                                    # Project overview, architecture, diagrams, setup instructions
+  ├── sbom-clean.json                              # Cleaned SBOM used for OSV scanning
+  ├── sbom.json                                    # Raw Syft SBOM
+  └── tsconfig.json                                # TypeScript configuration                                                
 ```
 
 ## Future Improvements
