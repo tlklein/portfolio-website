@@ -32,8 +32,6 @@ To view the live website, please [click here](https://www.trinityklein.dev/)
 - CI/CD with GitHub Actions + Playwright, secured with OIDC and
   least-privilege IAM.  
 
-----
-
 ## Table of Contents
 
 - [Let's Connect](#lets-connect)
