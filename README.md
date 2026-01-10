@@ -2,54 +2,51 @@
 
 ![banner](/documentation/all-devices-black.png)
 
-Welcome! This repo documents my Cloud Resume Challenge, a hands-on project
-where I combined AWS services, Infrastructure-as-Code, CI/CD, and DevOps
-practices into a single portfolio project.
-
-## Let's Connect
-
-If you're following this challenge, or just passing by, feel free to connect
-with me and explore my socials. I'm always happy to help if you need anything!
-I'm also open to new opportunities. If you have inquiries or questions for me,
-let me know!
-
-- [LinkedIn](https://linkedin.com/in/trinity-klein/)
-- [GitHub](https://github.com/tlklein)
-- [Dev.To Blog](https://dev.to/tlklein)
-- Email: <tlklein05@gmail.com>
-
-## Final Product
-
-To view the live website, please [click here](https://www.trinityklein.dev/)
-
-## TL;DR
-
-- Modern, minimalist portfolio template built with Astro and Tailwind CSS
-  using DevPortfolio.
-- Multi-account AWS Organization setup: Production + Test OUs, MFA enabled.  
-- Backend visitor counter using Lambda + API Gateway + DynamoDB.  
-- Infrastructure managed via Terraform 1.6+ with modularized resources.  
-- CI/CD with GitHub Actions + Playwright, secured with OIDC and
-  least-privilege IAM.  
-
 ## Table of Contents
 
-- [Let's Connect](#lets-connect)
+- [Project Overview](#project-overview)
 - [Final Product](#final-product)
-- [TL;DR](#tldr)
-- [Architecture Overview](#architecture-overview)
-- [Architecture Diagrams](#architecture-diagrams)
-- [Architecture Trade-Offs](#architecture-trade-offs)
-- [Blog Series](#blog-series)
 - [Tech Stack](#tech-stack)
+- [Architecture Breakdown](#architecture-overview)
+  - [Architecture Diagrams](#architecture-diagrams)
+  - [Architecture Trade-Offs](#architecture-trade-offs)
+- [Blog Series](#blog-series)
 - [Configuration](#configuration)
 - [Local Development](#local-development)
 - [File Structure](#file-structure)
 - [Future Improvements](#future-improvements)
 - [References / Helpful Links](#references--helpful-links)
 
-## Architecture Overview
+## Project Overview
+The Cloud Resume Challenge is a full-stack, serverless web 
+application that demonstrates modern cloud-native development 
+practices. The project includes a public-facing resume website 
+and an automated backend that tracks visitor analytics, deployed 
+entirely on AWS using services such as S3, CloudFront, Lambda, 
+DynamoDB, and API Gateway. Infrastructure is managed with 
+**Terraform** and deployments are automated via **GitHub Actions 
+CI/CD pipelines**, providing a production-grade workflow with 
+security best practices like IAM least-privilege policies and 
+encrypted storage.
 
+## Final Product
+
+To view the live website, please [click here](https://www.trinityklein.dev/)
+
+## Tech Stack
+
+- **[Astro](https://astro.build/)** - Static site generator for modern web apps
+- **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Tabler Icons](https://tabler.io/icons)** - Free and open source icons
+- **[TypeScript](https://www.typescriptlang.org/)** - For type-safe configuration
+- **[AWS CLI](https://aws.amazon.com/cli/)** - For deploying to S3 and managing AWS
+  resources
+- **[Terraform](https://www.hashicorp.com/en)** - For IaC and cloud resource
+  management
+
+## Architecture Breakdown
+
+### Architecture Overview
 - Modern, minimalist portfolio template built with Astro and Tailwind CSS.
 - Static hosting using S3 and CloudFront:
   - Static assets stored in an S3 bucket with public access disabled and
@@ -90,49 +87,49 @@ To view the live website, please [click here](https://www.trinityklein.dev/)
   - Artifacts and objects use lifecycle policies and versioning to support
     rollback and forensic analysis.
 
-## Architecture Diagrams
+### Architecture Diagrams
 
 These are the set of diagrams that illustrate the system from multiple
 perspectives. These visuals help clarify how the application is structured
 end-to-end, from the user-facing front-end, to the serverless back-end, all
 the way down to how S3 objects are managed over time.
 
-### High-level
+#### High-level
 
 Provides a system-wide overview showing CloudFront, API Gateway, Lambda,
 DynamoDB, S3, and supporting services
 
 ![banner](/documentation/high-level-diagram.png)
 
-### Front-end
+#### Front-end
 
 Shows how the static website is delivered from S3 through CloudFront and how
 client-side logic interacts with the API.
 
 ![banner](/documentation/frontend-diagram.png)
 
-### Back-end
+#### Back-end
 
 Illustrates the serverless data path, including API Gateway routing, Lambda
 execution, DynamoDB persistence, IAM permissions, and operational logging.
 
 ![banner](/documentation/backend-diagram.png)
 
-### S3 Lifecycle Management
+#### S3 Lifecycle Management
 
 Explains how static assets transition through S3 storage classes over time to
 optimize cost efficiency.
 
 ![banner](/documentation/lifecycle-diagram.png)
 
-## Architecture Trade-Offs
+### Architecture Trade-Offs
 
 This section outlines the architectural decisions considered during the build of
 this project. Each option includes a high-level overview of pros and cons, with
 an emphasis on scalability, cost, operational complexity, and long-term
 maintenance.
 
-### Real-Time Visitor Counter (WebSockets + DynamoDB Streams)
+#### Real-Time Visitor Counter (WebSockets + DynamoDB Streams)
 
 Pros
 
@@ -155,7 +152,7 @@ Cons
   essential.
 - Same end effect as a simple visitor counter for the end-user.
 
-### Using Amazon RDS Instead of DynamoDB
+#### Using Amazon RDS Instead of DynamoDB
 
 Pros
 
@@ -171,7 +168,7 @@ Cons
 - More operational overhead than DynamoDB.
 - Unnecessary complexity for a simple visitor counter.
 
-### Using a Hugo Template Instead of Hand-Crafting Your Own
+#### Using a Hugo Template Instead of Hand-Crafting Your Own
 
 Pros
 
@@ -189,7 +186,7 @@ Cons
 - Risk of relying on a theme that isn’t maintained long-term.
 - For small personal sites, building by hand can feel more lightweight and minimal.
 
-### Modular Terraform vs. a Simple Single-File Setup
+#### Modular Terraform vs. a Simple Single-File Setup
 
 Pros
 
@@ -205,7 +202,7 @@ Cons
 - Overkill for small-scale projects.
 - Requires more documentation to ensure consistency across modules.
 
-### Updating Hugo Console to DevPortfolio
+#### Updating Hugo Console to DevPortfolio
 
 Pros
 
@@ -230,16 +227,6 @@ I documented every chunk on my blog:
 - [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)
 - [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)
 
-## Tech Stack
-
-- **[Astro](https://astro.build/)** - Static site generator for modern web apps
-- **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Tabler Icons](https://tabler.io/icons)** - Free and open source icons
-- **[TypeScript](https://www.typescriptlang.org/)** - For type-safe configuration
-- **[AWS CLI](https://aws.amazon.com/cli/)** - For deploying to S3 and managing AWS
-  resources
-- **[Terraform](https://www.hashicorp.com/en)** - For IaC and cloud resource
-  management
 
 ## Configuration
 
