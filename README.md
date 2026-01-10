@@ -7,7 +7,7 @@
 - [Project Overview](#project-overview)
 - [Final Product](#final-product)
 - [Tech Stack](#tech-stack)
-- [Architecture Breakdown](#architecture-overview)
+- [Architecture Overview](#architecture-overview)
   - [Architecture Diagrams](#architecture-diagrams)
   - [Architecture Trade-Offs](#architecture-trade-offs)
 - [Blog Series](#blog-series)
@@ -24,8 +24,8 @@ practices. The project includes a public-facing resume website
 and an automated backend that tracks visitor analytics, deployed 
 entirely on AWS using services such as S3, CloudFront, Lambda, 
 DynamoDB, and API Gateway. Infrastructure is managed with 
-**Terraform** and deployments are automated via **GitHub Actions 
-CI/CD pipelines**, providing a production-grade workflow with 
+Terraform and deployments are automated via GitHub Actions 
+CI/CD pipelines, providing a production-grade workflow with 
 security best practices like IAM least-privilege policies and 
 encrypted storage.
 
@@ -44,9 +44,7 @@ To view the live website, please [click here](https://www.trinityklein.dev/)
 - **[Terraform](https://www.hashicorp.com/en)** - For IaC and cloud resource
   management
 
-## Architecture Breakdown
-
-### Architecture Overview
+## Architecture Overview
 - Modern, minimalist portfolio template built with Astro and Tailwind CSS.
 - Static hosting using S3 and CloudFront:
   - Static assets stored in an S3 bucket with public access disabled and
