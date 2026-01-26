@@ -10,38 +10,33 @@ export const siteConfig = {
     devto: "https://dev.to/tlklein",
   },
   aboutMe:
-    "Cloud Developer with a B.S. in Computer Information Systems (Cum Laude) from the University of Houston and AWS Cloud Practitioner certification. Experienced in designing, deploying, and automating cloud-native applications using AWS services (Lambda, S3, DynamoDB, CloudFront), serverless computing, and CI/CD pipelines with Terraform and GitHub Actions. Delivered measurable impact through full-stack application development, workflow automation, and AI-integrated solutions that optimize performance, scalability, and operational efficiency.",
+    "Trinity Klein is a Cloud Developer (B.S., Computer Information Systems - Cum Laude) and an AWS Certified Cloud Practitioner who designs, deploys, and automates cloud-native applications. Specialties include serverless architectures (Lambda, S3, CloudFront, DynamoDB), Infrastructure as Code (Terraform), and CI/CD pipelines with GitHub Actions. Experienced with Python, SQL, and infrastructure hardening.",
   skills: [
-    "AWS (Certified Cloud Practitioner, Lambda, S3, DynamoDB, CloudFront)",
-    "Terraform & Infrastructure as Code",
-    "CI/CD Pipelines (GitHub Actions)",
+    "Terraform",
+    "CI/CD ",
     "Python",
-    "Node.js & React",
-    "API Design & Integration",
-    "Cloud Security & IAM",
-    "Serverless Architecture",
-    "Linux / Bash",
-    "Cisco Essentials Data Analytics"
+    "SQL",
+    "Automation"
   ],
   projects: [
     {
       name: "Cloud Resume Challenge",
       description:
-        "Built a full-stack serverless resume website using AWS infrastructure, while automating deployment with CI/CD pipelines via GitHub Actions, and Terraform.",
+        "A fully serverless, end-to-end web application showcasing cloud-native design and automation. Built on AWS using S3, CloudFront, Lambda, and DynamoDB, deployed via Terraform with GitHub Action CI/CD pipelines.",
       link: "https://github.com/tlklein/portfolio-website",
       skills: ["Infrastructure-as-Code CI/CD", "DevOps Practices", "AWS"],
     },
     {
       name: "Innov8 Barber Shop Management System",
       description:
-        "Served as APM to deliver a full-stack management platform for a local barbershop.",
+        "A full-stack web application built for a local barbershop owner, featuring a public-facing site and a private dashboard to manage clients, services, and appointments.",
       link: "https://github.com/tlklein/CIS-4375-Team3-CapstoneProject",
       skills: ["Vue.js", "RDS", "Node.js", "AWS"],
     },
     {
       name: "Enterprise Data Platform",
       description:
-        "Full-stack application using Vue Composition API and featuring interactive data visualizations.",
+        "A full-stack data platform built with Vue 3 and Node.js to manage events, services, and client data. Features role-based access control, interactive data visualizations, and a modular MEVN architecture designed for maintainability and real-world scalability.",
       link: "https://github.com/tlklein/mongodb-data-platform-project",
       skills: ["MongoDB", "Express", "Vue.js", "Node.js"],
     },
@@ -53,12 +48,13 @@ export const siteConfig = {
       dateRange: "Mar. 2020 - Dec. 2024",
       bullets: [
         "Southeast Hypnosis offers professional hypnosis services to help clients achieve personal goals, with a focus on leveraging digital systems to enhance customer experience.",
-        "Deployed an automated appointment system, reducing scheduling workload by approximately 50% and client no-shows by 20%.",
-        "Migrated corporate site to WordPress, boosting performance by 40% and reducing downtime",
-        "Centralized around 1,000 client records into a digital database, improving accuracy and accessibility.",
-        "Integrated AI chatbot and automated reminder funnels, increasing client leads by 25% and retention rates.",
-        "Partnered with leadership to refine branding, streamline processes, expand the online presence across platforms, and align digital strategy with business growth objectives.",
-        "Created data-driven marketing campaigns, integrating visual design and analytics to strengthen conversion strategy."
+        "Architected and deployed automated appointment scheduling and reminder workflows (white-labeled automation platform), reducing manual scheduling effort and lowering client no-shows by approximately 20%.",
+        "Migrated and optimized corporate website to WordPress from Site Grounds, improving site performance and availability by approximately 40% and reducing downtime through performance tuning and configuration best practices.",
+        "Consolidated and normalized approximately 1,000 client records into a centralized, secure digital database improving data accuracy, reporting and operational effectiveness.",
+        "Integrated AI-powered chatbot workflows and automated lead-nurture funnels, increasing inbound leads by approximately 25%, and improving client retention via automated follow-ups.",
+        "Designs and executed data-driven marketing campaigns using analytics to iterate creative and targeting, improving conversion and engagement metrics.",
+        "Partnered with executive leadership to align digital strategy with branding, streamline operational processes, and scale multi-channel digital presences.",
+        "Documented system architecture, runbooks, and process flows to support handoffs, compliance, and maintainability."
       ],
     }
   ],
@@ -68,12 +64,13 @@ export const siteConfig = {
       degree: "Bachelor of Science in Computer Information Systems",
       dateRange: "2020 - 2025",
       achievements: [
-        "Graduated Cum Laude with 3.5 GPA",
-        "Dean's List 3 times",
-        "Member of Future Information Technology Professionals (FITP)",
+        "Relevant Coursework: Database Management, Network Infrastructure, Application Development, Cloud Computing, Information Security, Systems Analysis",
+        "Cum Laude (GPA: 3.5)",
+        "Dean's List (3x)"
       ],
     }
-  ],
+  ]
+  /*
   volunteer: [
     {
       company: "Greater Business of Pearland",
@@ -81,9 +78,8 @@ export const siteConfig = {
       dateRange: "Mar. 2020 - Dec. 2024",
       bullets: [
         "The Greater Businesses of Pearland (GB Pearland) nonprofit's mission is to provide a variety of avenues that equally support business growth and prosperity and the greater good of the community.",
-        "Strengthened community partnerships, contributing to a 3,000+ increase in event attendance.",
-        "Conducted demographic analysis of 1,500+ attendees using Excel to inform strategy."
+        "Analyzed engagement data from 1,500+ participants using Excel to inform outreach strategy, contributing to a 3,000+ increase in event attendance through data-backed targeting and stakeholder coordination."
       ],
     }
-  ]
+  ] */
 };

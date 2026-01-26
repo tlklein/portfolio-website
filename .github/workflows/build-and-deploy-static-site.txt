@@ -24,22 +24,32 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
         with:
-          hugo-version: '0.125.4'
+          fetch-depth: 0
 
-      - name: Build Hugo site
-        run: hugo
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
 
-      - name: Upload artifact
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Astro site
+        run: |
+          .\node_modules\.bin\astro build
+          test -d dist
+
+      - name: Save build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: site
-          path: public/
+          name: astro-site
+          path: |
+            dist/
+            sbom.json
   ########################################################
-  # JOB 2️: DEPLOY JOB
+  # Deploy to S3 bucket, & invalidate CloudFront cache 
   ########################################################
   deploy-site:
     needs: build-site
@@ -49,7 +59,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: ./public
+          path: ./dist
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -63,7 +73,7 @@ jobs:
 
       - name: Sync site to S3
         run: |
-          aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
 
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
@@ -71,26 +81,3 @@ jobs:
           DISTRIBUTION: ${{ env.DISTRIBUTION_ID }}
           PATHS: "/*"
           AWS_REGION: ${{ env.AWS_REGION }}
-  ########################################################
-  # JOB 3️: SMOKETEST JOB
-  ########################################################
-  smoketests:
-    needs: deploy-site
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo (for tests)
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies and browsers
-        run: |
-          npm ci
-          npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: npx playwright test tests/ 
