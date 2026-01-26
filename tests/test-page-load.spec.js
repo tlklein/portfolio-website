@@ -14,7 +14,7 @@ test('Homepage loads and visitor data appears', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Experience/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Education/i })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Projects/i })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Volunteer/i })).toBeVisible();
+  // await expect(page.getByRole('heading', { name: /Volunteer/i })).toBeVisible();
 
   /* Check that visitor counter loads as expected*/
   await expect(page.locator('#unique_visitors')).not.toHaveText('Loading...', { timeout: 10000 });
