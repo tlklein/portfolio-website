@@ -54,15 +54,11 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GithubActionsDeployRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Delete old index.html
-        run: |
-          aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }}/index.html || true
-
       - name: Upload Astro build to S3 (bucket root, no dist folder)
         run: |
           set -euo pipefail
 
-          aws s3 sync >/dist/ s3://${{ secrets.AWS_S3_BUCKET }}/ \
+          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }}/ \
             --delete
 
       - name: Invalidate CloudFront cache
