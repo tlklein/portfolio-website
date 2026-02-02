@@ -48,6 +48,7 @@ jobs:
           path: |
             dist/
             sbom.json
+            
   ########################################################
   # Deploy to S3 bucket, & invalidate CloudFront cache 
   ########################################################
