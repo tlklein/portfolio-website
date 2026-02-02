@@ -1,22 +1,22 @@
 export const siteConfig = {
   name: "Trinity Klein",
-  title: "Cloud Developer",
+  title: "Cloud & DevOps Engineer",
   description: "Portfolio website of Trinity Klein",
   accentColor: "#0066CC", 
   social: {
+    email: "trinitylklein@outlook.com"
     resume: "/trinity-klein-resume.pdf",
     linkedin: "https://linkedin.com/in/trinity-klein",
     github: "https://github.com/tlklein",
-    devto: "https://dev.to/tlklein",
   },
   aboutMe:
-    "Trinity Klein is a Cloud Developer (B.S., Computer Information Systems - Cum Laude) and an AWS Certified Cloud Practitioner who designs, deploys, and automates cloud-native applications. Specialties include serverless architectures (Lambda, S3, CloudFront, DynamoDB), Infrastructure as Code (Terraform), and CI/CD pipelines with GitHub Actions. Experienced with Python, SQL, and infrastructure hardening.",
+    "I am a Cloud & DevOps Engineer (B.S., Computer Information Systems - Cum Laude) and AWS Certified Cloud Practitioner who architects, deploys, and automates scalable cloud infrastructure and full-stack systems. My specialties include serverless architectures (Lambda, API Gateway, S3, DynamoDB), Infrastructure as Code (Terraform), CI/CD pipelines (GitHub Actions), and security-focused design. I'm experienced with Python, Node.js, Vue.js, database engineering, and network architecture.",
   skills: [
     "Terraform",
     "CI/CD ",
     "Python",
-    "SQL",
-    "Automation"
+    "Serverless Architecture",
+    "Full-Stack"
   ],
   projects: [
     {
@@ -24,7 +24,7 @@ export const siteConfig = {
       description:
         "A fully serverless, end-to-end web application showcasing cloud-native design and automation. Built on AWS using S3, CloudFront, Lambda, and DynamoDB, deployed via Terraform with GitHub Action CI/CD pipelines.",
       link: "https://github.com/tlklein/portfolio-website",
-      skills: ["Infrastructure-as-Code CI/CD", "DevOps Practices", "AWS"],
+      skills: ["Infrastructure-as-Code CI/CD", "DevOps", "AWS"],
     },
     {
       name: "Innov8 Barber Shop Management System",
@@ -40,46 +40,62 @@ export const siteConfig = {
       link: "https://github.com/tlklein/mongodb-data-platform-project",
       skills: ["MongoDB", "Express", "Vue.js", "Node.js"],
     },
+    {
+      name: "IT Asset Management Database",
+      description:
+        "A production-oriented relational database with constraints, automation, cloud migration, and performance tuning.",
+      link: "https://github.com/tlklein/oracle-sql-db-project",
+      skills: ["Oracle SQL", "PL/SQL", "Oracle SQL Developer", "Oracle Cloud Infrastructure"],
+    },
+    {
+      name: "Multi-Step Cyber Attack Simulation",
+      description:
+        "A end-to-end penetration testing exercise covering reconnaissance, exploitation, reverse engineering, and privilege escalation.",
+      link: "https://github.com/tlklein/multi-step-cyber-attack",
+      skills: ["Bookstore CTF", "TryHackMe Lab", "Penetration Testing", "Exploit Development"],
+    },
+    {
+      name: "College Apartment Network Design",
+      description:
+        "A high-performance network architecture for a luxury college apartment complex - hospitality-grade connectivity, segmented security, and operational manageability.",
+      link: "https://github.com/tlklein/college-apartment-network-design",
+      skills: ["Cisco Meraki", "VLAN Segmentation", "SD-WAN", "Layered Routing"],
+    }
   ],
   experience: [
     {
       company: "Southeast Hypnosis",
-      title: "Digital Systems Engineer",
+      title: "Digital Transformation & Automation Engineer",
       dateRange: "Mar. 2020 - Dec. 2024",
       bullets: [
-        "Southeast Hypnosis offers professional hypnosis services to help clients achieve personal goals, with a focus on leveraging digital systems to enhance customer experience.",
-        "Architected and deployed automated appointment scheduling and reminder workflows (white-labeled automation platform), reducing manual scheduling effort and lowering client no-shows by approximately 20%.",
-        "Migrated and optimized corporate website to WordPress from Site Grounds, improving site performance and availability by approximately 40% and reducing downtime through performance tuning and configuration best practices.",
-        "Consolidated and normalized approximately 1,000 client records into a centralized, secure digital database improving data accuracy, reporting and operational effectiveness.",
-        "Integrated AI-powered chatbot workflows and automated lead-nurture funnels, increasing inbound leads by approximately 25%, and improving client retention via automated follow-ups.",
-        "Designs and executed data-driven marketing campaigns using analytics to iterate creative and targeting, improving conversion and engagement metrics.",
-        "Partnered with executive leadership to align digital strategy with branding, streamline operational processes, and scale multi-channel digital presences.",
-        "Documented system architecture, runbooks, and process flows to support handoffs, compliance, and maintainability."
+        "Architected and deployed automated appointment scheduling and reminder workflows using white-labeled automation platform, reducing manual scheduling effort and lowering client no-shows by ~20%.",
+        "Migrated corporate website from SiteGround to optimized WordPress infrastructure with caching, CDN integration, and database tuning, improving site performance by ~40%.",
+        "Consolidated and normalized ~300+ client records into a centralized, secure digital database, improving data accuracy, reporting capabilities, and operational effectiveness across the organization.",
+        "Integrated AI-powered chatbot and automated lead-nurture funnels, driving a ~25% increase in inbound leads and measurably improving client retention through intelligent follow-up sequences.",
+        "Designed and executed data-driven marketing campaigns, leveraging analytics to optimize creative assets and target audience, resulting in improved conversion rates and client engagement.",
+        "Collaborated with executive leadership to define and execute digital transformation roadmap, directly contributing to streamlined workflows, reduced operational overhead, and accelerated campaign delivery.",
+        "Documented system architecture, runbooks, and process flows to ensure knowledge transfer, support compliance requirements, and maintain long-term system maintainability."
       ],
+    },
+    {
+      company: "Greater Business of Pearland",
+      title: "Community Business Ambassador",
+      dateRange: "Nov. 2021 - May 2024",
+      bullets: [
+        "Analyzed engagement data from ~1,500+ participants using Excel, identifying demographic trends and behavioral patterns to inform targeted outreach strategies and stakeholder coordination.",
+        "Delivered a ~3,000+ increase in event attendance across ~25+ business networking events through data-driven targeting, strategic community partnerships, and cross-functional collaboration.",
+        "Collaborated with local business leaders, chamber officials, and community stakeholders to strengthen regional economic development and facilitate business growth initiatives."
+      ]
     }
   ],
   education: [
     {
       school: "University of Houston",
-      degree: "Bachelor of Science in Computer Information Systems",
-      dateRange: "2020 - 2025",
+      degree: "Bachelor of Science, Computer Information Systems",
+      dateRange: "Aug. 2020 - May 2025",
       achievements: [
-        "Relevant Coursework: Database Management, Network Infrastructure, Application Development, Cloud Computing, Information Security, Systems Analysis",
-        "Cum Laude (GPA: 3.5)",
-        "Dean's List (3x)"
+        "GPA: 3.5 / 4.0; Cum Laude"
       ],
     }
   ]
-  /*
-  volunteer: [
-    {
-      company: "Greater Business of Pearland",
-      title: "Ambassador",
-      dateRange: "Mar. 2020 - Dec. 2024",
-      bullets: [
-        "The Greater Businesses of Pearland (GB Pearland) nonprofit's mission is to provide a variety of avenues that equally support business growth and prosperity and the greater good of the community.",
-        "Analyzed engagement data from 1,500+ participants using Excel to inform outreach strategy, contributing to a 3,000+ increase in event attendance through data-backed targeting and stakeholder coordination."
-      ],
-    }
-  ] */
 };
