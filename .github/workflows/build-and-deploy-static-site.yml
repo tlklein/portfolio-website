@@ -40,14 +40,12 @@ jobs:
       - name: Build Astro site
         run: |
           npm run build 
-          test -d dist
       
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
         with:
           name: site-artifact
           path: dist/
-          retention-days: 1
             
   ########################################################
   # Deploy to S3 bucket & invalidate CloudFront cache 
