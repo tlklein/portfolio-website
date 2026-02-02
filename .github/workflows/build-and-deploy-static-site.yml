@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Astro site
         run: |
-          .\node_modules\.bin\astro build
+          astro build
           test -d dist
 
       - name: Save build artifacts
