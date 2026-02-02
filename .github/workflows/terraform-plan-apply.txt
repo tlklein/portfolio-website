@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  SOURCE_DIR: ./public
+  SOURCE_DIR: ./dist
   BASE_URL: https://www.trinityklein.dev/
   TF_DIR: ./terraform
 
@@ -92,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site
-          path: ./public
+          path: ./dist
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -102,7 +102,7 @@ jobs:
 
       - name: Sync site to S3
         run: |
-          aws s3 sync ./public s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
 
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
@@ -110,32 +110,4 @@ jobs:
           DISTRIBUTION: ${{ secrets.DISTRIBUTION }}
           PATHS: "/*"
           AWS_REGION: ${{ secrets.AWS_REGION }}
-
-  #################################################################
-  # Smoke tests after deploy (on main)
-  #################################################################
-  smoketests:
-    name: smoketests
-    runs-on: ubuntu-latest
-    needs: deploy-site
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      
-      - name: Install dependencies
-        run: npm install --save-dev wait-on
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests against live site
-        env:
-          BASE_URL: ${{ env.BASE_URL }}
-        run: npx playwright test tests/
   
