@@ -40,19 +40,6 @@ jobs:
         run: |
           npm run build
           test -d dist
-
-      - name: Upload Astro build to S3 (bucket root, no dist folder)
-        run: |
-          set -euo pipefail
-
-          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }}/ \
-            --delete
-
-      - name: Save build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: astro-site
-          path: 
             
   ########################################################
   # Deploy to S3 bucket, & invalidate CloudFront cache 
@@ -61,11 +48,6 @@ jobs:
     needs: build-site
     runs-on: ubuntu-latest
     steps:
-      - name: Download built site
-        uses: actions/download-artifact@v4
-        with:
-          name: astro-site
-
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -76,9 +58,12 @@ jobs:
         run: |
           aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }}/index.html || true
 
-      - name: Sync site to S3
+      - name: Upload Astro build to S3 (bucket root, no dist folder)
         run: |
-          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          set -euo pipefail
+
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }}/ \
+            --delete
 
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
