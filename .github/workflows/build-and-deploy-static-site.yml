@@ -1,5 +1,5 @@
 name: Build and Deploy Static Site
-# Build website, then push to infra
+
 on:
   push:
     branches:
@@ -9,55 +9,47 @@ permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: us-east-2
-  SOURCE_DIR: ./dist
-  DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION }}
-
 jobs:
   ########################################################
-  # Build the site, then save to an artifact 
+  # JOB 1: BUILD JOB
   ########################################################
   build-site:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      # .\node_modules\.bin\astro build
       - name: Build Astro site
-        run: |
-          npm run build 
-      
+        run: npm run build 
+
+      # We must UPLOAD the result so the next job can see it
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
         with:
           name: site-artifact
           path: dist/
-            
+          retention-days: 1
+
   ########################################################
-  # Deploy to S3 bucket & invalidate CloudFront cache 
+  # JOB 2: DEPLOY JOB
   ########################################################
   deploy-site:
     needs: build-site
     runs-on: ubuntu-latest
     steps:
-      - name: Download built site artifact (from build-html job)
+      - name: Download built site artifact
         uses: actions/download-artifact@v4
         with:
-          name: site
+          name: site-artifact
           path: ./dist
 
       - name: Configure AWS credentials (OIDC)
