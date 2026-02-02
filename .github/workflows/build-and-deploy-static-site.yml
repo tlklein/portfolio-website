@@ -58,7 +58,7 @@ jobs:
       - name: Download built site
         uses: actions/download-artifact@v4
         with:
-          name: site
+          name: astro-site
           path: ./dist
 
       - name: Configure AWS credentials (OIDC)
