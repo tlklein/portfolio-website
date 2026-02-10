@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   ########################################################
-  # JOB 1: BUILD JOB
+  # Build astro site, then save to site artifact
   ########################################################
   build-site:
     runs-on: ubuntu-latest
@@ -31,7 +31,6 @@ jobs:
       - name: Build Astro site
         run: npm run build 
 
-      # We must UPLOAD the result so the next job can see it
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +39,7 @@ jobs:
           retention-days: 1
 
   ########################################################
-  # JOB 2: DEPLOY JOB
+  # Deploy to S3 Bucket, and invalidate CloudFront cache
   ########################################################
   deploy-site:
     needs: build-site
@@ -50,7 +49,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site-artifact
-          path: ./dist
+          path: .
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,7 +59,7 @@ jobs:
 
       - name: Sync site to S3
         run: |
-          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync . s3://${{ secrets.AWS_S3_BUCKET }} --delete
       
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2

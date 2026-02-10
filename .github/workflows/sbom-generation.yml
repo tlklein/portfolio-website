@@ -1,6 +1,5 @@
 name: "SBOM Generation"
 
-# Trigger on pushes, pull requests, and monthly schedule
 on:
   push:
     branches:
@@ -25,9 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # --------------------------
-      # Set up Go
-      # --------------------------
       - name: Set up Go 1.24.9
         uses: actions/setup-go@v5
         with:
@@ -36,9 +32,6 @@ jobs:
       - name: Show Go version
         run: go version
 
-      # --------------------------
-      # Install Syft and Grype
-      # --------------------------
       - name: Install Syft and Grype
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
@@ -46,9 +39,6 @@ jobs:
           syft version
           grype version
 
-      # --------------------------
-      # Patch vulnerable Go modules
-      # --------------------------
       - name: Patch vulnerable Go modules and update all dependencies
         shell: bash
         run: |
@@ -74,9 +64,6 @@ jobs:
           done
           echo "All modules patched and updated successfully."
 
-      # --------------------------
-      # Generate valid JSON SBOM
-      # --------------------------
       - name: Generate SBOM
         run: |
           echo "Generating SBOM in JSON format..."
@@ -87,9 +74,6 @@ jobs:
           fi
           echo "SBOM successfully generated and validated."
       
-      # --------------------------
-      # Remove nulls in JSON SBOM
-      # --------------------------
       - name: Clean SBOM
         run: |
          jq 'if .artifacts then .artifacts |= map(select(.name != null and .version != null and .version != "null")) else . end' sbom.json

@@ -1,6 +1,5 @@
 name: "Enforce Signed Commits"
 
-# Trigger on pushes, pull requests, and monthly schedule
 on:
   push:
     branches:

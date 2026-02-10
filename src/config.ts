@@ -20,7 +20,7 @@ export const siteConfig = {
   ],
   projects: [
     {
-      name: "Cloud Resume Challenge",
+      name: "Cloud Resume Project",
       description:
         "A fully serverless, end-to-end web application showcasing cloud-native design and automation. Built on AWS using S3, CloudFront, Lambda, and DynamoDB, deployed via Terraform with GitHub Action CI/CD pipelines.",
       link: "https://github.com/tlklein/portfolio-website",
@@ -65,27 +65,15 @@ export const siteConfig = {
   experience: [
     {
       company: "Southeast Hypnosis",
-      title: "Digital Transformation & Automation Engineer",
+      title: "Automation Engineer (Digital Transformation)",
       dateRange: "Mar. 2020 - Dec. 2024",
       bullets: [
-        "Architected and deployed automated appointment scheduling and reminder workflows using white-labeled automation platform, reducing manual scheduling effort and lowering client no-shows by ~20%.",
-        "Migrated corporate website from SiteGround to optimized WordPress infrastructure with caching, CDN integration, and database tuning, improving site performance by ~40%.",
-        "Consolidated and normalized ~300+ client records into a centralized, secure digital database, improving data accuracy, reporting capabilities, and operational effectiveness across the organization.",
-        "Integrated AI-powered chatbot and automated lead-nurture funnels, driving a ~25% increase in inbound leads and measurably improving client retention through intelligent follow-up sequences.",
-        "Designed and executed data-driven marketing campaigns, leveraging analytics to optimize creative assets and target audience, resulting in improved conversion rates and client engagement.",
-        "Collaborated with executive leadership to define and execute digital transformation roadmap, directly contributing to streamlined workflows, reduced operational overhead, and accelerated campaign delivery.",
-        "Documented system architecture, runbooks, and process flows to ensure knowledge transfer, support compliance requirements, and maintain long-term system maintainability."
+        "Architected and deployed automated appointment scheduling and reminder workflows using a white-labeled automation/CRM platform with webhook integrations, reducing manual scheduling effort by 50% and lowering client no-shows by 20%.",
+        "Migrated corporate website from SiteGround to optimized WordPress infrastructure with caching, CDN integration, and database tuning, improving page load times by 40% and maintaining high availability.",
+        "Consolidated and normalized 300+ client records into a centralized, secure database; implemented access controls, data validation, and backup procedures to enhance data integrity and operational reporting.",
+        "Integrated AI-driven chatbot and automated lead-nurture workflows to qualify inbound traffic and trigger follow-ups, increasing qualified leads by 25% and improving client retention.",
+        "Authored technical documentation, runbooks, and standard operating procedures; collaborated with executive stakeholders to translate business requirements into maintainable, scalable solutions."
       ],
-    },
-    {
-      company: "Greater Business of Pearland",
-      title: "Community Business Ambassador",
-      dateRange: "Nov. 2021 - May 2024",
-      bullets: [
-        "Analyzed engagement data from ~1,500+ participants using Excel, identifying demographic trends and behavioral patterns to inform targeted outreach strategies and stakeholder coordination.",
-        "Delivered a ~3,000+ increase in event attendance across ~25+ business networking events through data-driven targeting, strategic community partnerships, and cross-functional collaboration.",
-        "Collaborated with local business leaders, chamber officials, and community stakeholders to strengthen regional economic development and facilitate business growth initiatives."
-      ]
     }
   ],
   education: [
@@ -96,6 +84,16 @@ export const siteConfig = {
       achievements: [
         "GPA: 3.5 / 4.0; Cum Laude"
       ],
+    }
+  ],
+  volunteer: [
+    {
+      company: "Greater Business of Pearland",
+      title: "Community Business Ambassador",
+      dateRange: "Nov. 2021 - May 2024",
+      bullets: [
+        "Analyzed engagement data from 1,500+ participants using Excel to inform outreach strategies, delivering 3,000+ increase in event attendance through data-driven targeting and community partnerships."
+      ]
     }
   ]
 };

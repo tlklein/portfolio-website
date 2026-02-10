@@ -1,6 +1,5 @@
 name: "Vulnerability Scans"
 
-# Trigger on pushes, pull requests, and monthly schedule
 on:
   push:
     branches:
@@ -17,7 +16,7 @@ permissions:
 
 jobs:
   #################################################################
-  # Grype + OSV scans
+  # Grype + OSV scans of SBOM
   #################################################################
   vulnerability-scan:
     name: Grype + OSV Scanning
@@ -25,9 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # --------------------------
-      # Set up Go
-      # --------------------------
       - name: Set up Go 1.24.9
         uses: actions/setup-go@v5
         with:
@@ -36,9 +32,6 @@ jobs:
       - name: Show Go version
         run: go version
 
-      # --------------------------
-      # Install Syft and Grype
-      # --------------------------
       - name: Install Syft and Grype
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
@@ -46,9 +39,6 @@ jobs:
           syft version
           grype version
 
-      # --------------------------
-      # Grype scan (fail only on SBOM)
-      # --------------------------
       - name: Scan SBOM with Grype
         run: |
           echo "Scanning SBOM with Grype..."
@@ -64,9 +54,6 @@ jobs:
             echo "No Critical/High vulnerabilities in SBOM."
           fi
 
-      # --------------------------
-      # Optional: OSV API check
-      # --------------------------
       - name: OSV API vulnerability check
         run: |
           echo "Running OSV API vulnerability scan..."

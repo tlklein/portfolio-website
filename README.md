@@ -1,4 +1,4 @@
-# Cloud Resume Challenge
+# Cloud Resume Project
 
 ![banner](/documentation/all-devices-black.png)
 
@@ -6,6 +6,7 @@
 
 - [Project Overview](#project-overview)
 - [Final Product](#final-product)
+- [Changelog](#changelog)
 - [Tech Stack](#tech-stack)
 - [Architecture Overview](#architecture-overview)
   - [Architecture Diagrams](#architecture-diagrams)
@@ -32,6 +33,9 @@ encrypted storage.
 ## Final Product
 
 To view the live website, please [click here](https://www.trinityklein.dev/)
+
+## Changelog
+To view any significant changes, after production, please view the `CHANGELOG.md` file. 
 
 ## Tech Stack
 

@@ -16,6 +16,9 @@ env:
   BASE_URL: https://www.trinityklein.dev/
 
 jobs:
+  ##################################################################
+  # Run basic playwright validation tests, that all content appears
+  ##################################################################
   site-validation:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
@@ -24,48 +27,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      #########################################################
-      # Setup Node
-      #########################################################
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
-      #########################################################
-      # Install dependencies (use npm install to rebuild lockfile)
-      #########################################################
       - name: Install dependencies
         run: |
           rm -rf node_modules package-lock.json
           npm cache clean --force
           npm install
 
-      #########################################################
-      # Build Astro site
-      #########################################################
       - name: Build Astro site
         run: npm run build
 
-      #########################################################
-      # Playwright setup
-      #########################################################
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      #########################################################
-      # Serve built site using astro preview
-      #########################################################
       - name: Serve site
         run: npx astro preview &
         
       - name: Wait for server
         run: npx wait-on http://localhost:4321
 
-      #########################################################
-      # Run Playwright tests
-      #########################################################
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:4321

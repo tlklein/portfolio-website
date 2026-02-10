@@ -1,6 +1,5 @@
 name: "CodeQL Analysis"
 
-# Trigger on pushes, pull requests, and monthly schedule
 on:
   push:
     branches:
@@ -16,9 +15,9 @@ permissions:
   security-events: write
 
 jobs:
-  #################################################################
-  # CodeQL security analysis
-  #################################################################
+  #######################################################################
+  # CodeQL security analysis on pushes, pull requests, scheduled monthly
+  #######################################################################
   codeql:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
