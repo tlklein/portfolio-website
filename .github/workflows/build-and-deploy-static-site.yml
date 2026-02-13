@@ -59,7 +59,7 @@ jobs:
 
       - name: Sync site to S3
         run: |
-          aws s3 sync . s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync ./dist s3://${{ secrets.AWS_S3_BUCKET }} --recursive
       
       - name: Invalidate CloudFront cache
         uses: chetan/invalidate-cloudfront-action@v2
