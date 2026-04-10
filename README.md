@@ -1,4 +1,4 @@
-# Cloud Resume Project
+# AWS Serverless Cloud Platform
 
 ![banner](/documentation/all-devices-black.png)
 
@@ -19,15 +19,17 @@
 - [References / Helpful Links](#references--helpful-links)
 
 ## Project Overview
-The Cloud Resume Challenge is a full-stack, serverless web 
-application that demonstrates modern cloud-native development 
-practices. The project includes a public-facing resume website 
-and an automated backend that tracks visitor analytics, deployed 
-entirely on AWS using services such as S3, CloudFront, Lambda, 
-DynamoDB, and API Gateway. Infrastructure is managed with 
-Terraform and deployments are automated via GitHub Actions 
-CI/CD pipelines, providing a production-grade workflow with 
-security best practices like IAM least-privilege policies and 
+
+This project stems from a challenge called *The Cloud Resume Challenge*
+that is a full-stack, serverless web application that demonstrates
+modern cloud-native development practices. The project includes
+a public-facing resume website and an automated backend that
+tracks visitor analytics, deployed entirely on AWS using
+services such as S3, CloudFront, Lambda, DynamoDB, and
+API Gateway. Infrastructure is managed with Terraform and
+deployments are automated via GitHub Actions CI/CD pipelines,
+providing a production-grade workflow with security
+best practices like IAM least-privilege policies and
 encrypted storage.
 
 ## Final Product
@@ -35,7 +37,8 @@ encrypted storage.
 To view the live website, please [click here](https://www.trinityklein.dev/)
 
 ## Changelog
-To view any significant changes, after production, please view the `CHANGELOG.md` file. 
+
+To view any significant changes, after production, please view the `CHANGELOG.md` file.
 
 ## Tech Stack
 
@@ -49,6 +52,7 @@ To view any significant changes, after production, please view the `CHANGELOG.md
   management
 
 ## Architecture Overview
+
 - Modern, minimalist portfolio template built with Astro and Tailwind CSS.
 - Static hosting using S3 and CloudFront:
   - Static assets stored in an S3 bucket with public access disabled and
@@ -229,7 +233,6 @@ I documented every chunk on my blog:
 - [Chunk 1 - Building the Front-End](https://dev.to/tlklein/cloud-resume-challenge-chunk-1-building-the-front-end-49hi)
 - [Chunk 0 - Access, Credentials, and Certification Prep](https://dev.to/tlklein/cloud-resume-challenge-chunk-0-access-credentials-and-certification-prep-56db)
 
-
 ## Configuration
 
 Configure the `config.ts` file. The template is designed to be easily
@@ -345,7 +348,7 @@ npm run dev
 
 or
 
-Bypass npm using this: 
+Bypass npm using this:
 
 ```bash
 .\node_modules\.bin\astro dev
