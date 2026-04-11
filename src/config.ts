@@ -44,7 +44,7 @@ export const siteConfig = {
       name: "Resume Automation System",
       description:
         "Automated generation of my professional resume using Docker, LaTeX, with ATS optimized formatting.",
-      link: "https://github.com/tlklein/mongodb-data-platform-project",
+      link: "https://github.com/tlklein/resume",
       skills: ["Docker", "LaTex", "pdflatex"],
     },
     {
