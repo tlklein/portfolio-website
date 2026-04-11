@@ -20,7 +20,7 @@ export const siteConfig = {
   ],
   projects: [
     {
-      name: "Cloud Resume Project",
+      name: "AWS Serverless Cloud Platform",
       description:
         "A fully serverless, end-to-end web application showcasing cloud-native design and automation. Built on AWS using S3, CloudFront, Lambda, and DynamoDB, deployed via Terraform with GitHub Action CI/CD pipelines.",
       link: "https://github.com/tlklein/portfolio-website",
@@ -34,11 +34,18 @@ export const siteConfig = {
       skills: ["Vue.js", "RDS", "Node.js", "AWS"],
     },
     {
-      name: "Enterprise Data Platform",
+      name: "Full-Stack Enterprise Data Platform",
       description:
         "A full-stack data platform built with Vue 3 and Node.js to manage events, services, and client data. Features role-based access control, interactive data visualizations, and a modular MEVN architecture designed for maintainability and real-world scalability.",
       link: "https://github.com/tlklein/mongodb-data-platform-project",
       skills: ["MongoDB", "Express", "Vue.js", "Node.js"],
+    },
+    {
+      name: "Resume Automation System",
+      description:
+        "Automated generation of my professional resume using Docker, LaTeX, with ATS optimized formatting.",
+      link: "https://github.com/tlklein/mongodb-data-platform-project",
+      skills: ["Docker", "LaTex", "pdflatex"],
     },
     {
       name: "IT Asset Management Database",
