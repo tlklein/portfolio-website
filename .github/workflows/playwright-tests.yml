@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  BASE_URL: https://www.trinityklein.dev/
+  BASE_URL: http://localhost:4321
 
 jobs:
   ##################################################################
@@ -42,16 +42,20 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+      - name: Start Astro preview server
+        run: |
+          npx astro preview &
+          echo $! > astro.pid
 
-      - name: Serve site
-        run: npx astro preview &
-        
-      - name: Wait for server
+      - name: Wait for server to be ready
         run: npx wait-on http://localhost:4321
 
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:4321
         run: npx playwright test
+
+      - name: Stop preview server
+        if: always()
+        run: |
+          kill $(cat astro.pid) || true
