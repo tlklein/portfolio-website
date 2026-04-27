@@ -30,22 +30,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 22.12.0
+          cache: npm
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          npm install
+        run: npm ci
 
       - name: Build Astro site
         run: npm run build
 
       - name: Start Astro preview server
-        run: |
-          npx astro preview &
-          echo $! > astro.pid
+        run: npx serve dist -l 4321 &
 
       - name: Wait for server to be ready
         run: npx wait-on http://localhost:4321
