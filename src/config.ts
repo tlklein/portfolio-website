@@ -20,11 +20,11 @@ export const siteConfig = {
   ],
   projects: [
     {
-      name: "AWS Serverless Cloud Platform",
+      name: "Serverless Portfolio Website",
       description:
         "A fully serverless, end-to-end web application showcasing cloud-native design and automation. Built on AWS using S3, CloudFront, Lambda, and DynamoDB, deployed via Terraform with GitHub Action CI/CD pipelines.",
       link: "https://github.com/tlklein/portfolio-website",
-      skills: ["Infrastructure-as-Code CI/CD", "DevOps", "AWS"],
+      skills: ["Infrastructure-as-Code CI/CD", "DevOps", "AWS", "Terraform"],
     },
     {
       name: "Innov8 Barber Shop Management System",
@@ -41,7 +41,7 @@ export const siteConfig = {
       skills: ["MongoDB", "Express", "Vue.js", "Node.js"],
     },
     {
-      name: "Resume Automation System",
+      name: "Resume Automation Pipeline",
       description:
         "Automated generation of my professional resume using Docker, LaTeX, with ATS optimized formatting.",
       link: "https://github.com/tlklein/resume",
@@ -73,14 +73,21 @@ export const siteConfig = {
     {
       company: "Southeast Hypnosis",
       title: "Automation Engineer (Digital Transformation)",
-      dateRange: "Mar. 2020 - Dec. 2024",
+      dateRange: "Sept. 2021 - Dec. 2024",
       bullets: [
-        "Architected and deployed automated appointment scheduling and reminder workflows using a white-labeled automation/CRM platform with webhook integrations, reducing manual scheduling effort by 50% and lowering client no-shows by 20%.",
-        "Migrated corporate website from SiteGround to optimized WordPress infrastructure with caching, CDN integration, and database tuning, improving page load times by 40% and maintaining high availability.",
-        "Consolidated and normalized 300+ client records into a centralized, secure database; implemented access controls, data validation, and backup procedures to enhance data integrity and operational reporting.",
-        "Integrated AI-driven chatbot and automated lead-nurture workflows to qualify inbound traffic and trigger follow-ups, increasing qualified leads by 25% and improving client retention.",
-        "Authored technical documentation, runbooks, and standard operating procedures; collaborated with executive stakeholders to translate business requirements into maintainable, scalable solutions."
+        "Architected and deployed automated scheduling, intake, and reminder workflows through a white-labeled CRM/automation platform with web-hook integrations, reducing manual administrative workload and lowering client no-show rates.",
+        "Integrated AI-powered chat-bot and lead-nurture sequences to qualify inbound traffic, automate follow-up communication, and improve conversion of prospective clients into booked appointments.",
+        "Migrated corporate website from SiteGrounds to optimized WordPress infrastructure with caching, CDN integration, and database tuning, improving load times, up-time, and user experience."
       ],
+    },
+    {
+      company: "Southeast Hypnosis",
+      title: "Office Manager",
+      dateRange: "Mar. 2020 - Sept. 2021",
+      bullets: [
+        "Managed daily front-office operations including scheduling, client communications, records, documentation, billing, and intake processes, while ensuring confidentiality and operational accuracy.",
+        "Collaborated directly with ownership on business operations, identifying repetitive bottlenecks and improvements to improved lead generation, collection, and response times."
+      ]
     }
   ],
   education: [
