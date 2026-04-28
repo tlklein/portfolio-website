@@ -14,7 +14,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "again": "^0.0.1",
-    "tailwindcss": "^4.2.4"
+    "node": "^24.15.0",
+    "tailwindcss": "^4.2.4",
+    "vite": "^7"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
