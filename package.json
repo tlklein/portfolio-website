@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "astro": "^6.1.9"
+    "astro": "^6.1.10"
   }
 }
