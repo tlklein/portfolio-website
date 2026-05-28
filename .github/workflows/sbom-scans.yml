@@ -36,7 +36,6 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
-          go get github.com/containerd/containerd@v1.7.32
           syft version
           grype version
 
