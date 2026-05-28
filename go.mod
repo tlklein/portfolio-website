@@ -1,0 +1,3 @@
+module github.com/tlklein/portfolio-website
+
+go 1.26.3
