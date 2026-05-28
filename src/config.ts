@@ -71,7 +71,7 @@ export const siteConfig = {
   ],
   experience: [
     {
-      company: "Southeast Hypnosis",
+      company: "Klein Consulting d/b/a Southeast Hypnosis",
       title: "Automation Engineer (Digital Transformation)",
       dateRange: "Sept. 2021 - Dec. 2024",
       bullets: [
@@ -81,7 +81,7 @@ export const siteConfig = {
       ],
     },
     {
-      company: "Southeast Hypnosis",
+      company: "Klein Consulting d/b/a Southeast Hypnosis",
       title: "Office Manager",
       dateRange: "Mar. 2020 - Sept. 2021",
       bullets: [
