@@ -38,7 +38,6 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
           syft version
           grype version
-          go get github.com/containerd/containerd@v1.7.32
 
       - name: Scan SBOM with Grype
         run: |
