@@ -50,6 +50,7 @@ jobs:
             pushd "$dir" >/dev/null || continue
 
             # Inject replacement lines for known vulnerable modules
+            go get github.com/containerd/containerd@v1.7.32
             go mod edit -replace=github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
             go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
 
