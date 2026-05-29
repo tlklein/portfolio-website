@@ -101,38 +101,9 @@ jobs:
       - name: Generate SBOM
         run: |
           set -euo pipefail
+          syft . -o spdx-json=sbom.spdx.json
+          jq empty sbom.spdx.json
 
-          echo "Generating SBOM in Syft JSON format..."
-
-          syft . -o syft-json > sbom.json
-
-          echo "Validating SBOM JSON..."
-
-          jq empty sbom.json
-
-          echo "SBOM successfully generated and validated."
-
-      #################################################################
-      # Clean SBOM
-      #################################################################
       - name: Clean SBOM
         run: |
-          set -euo pipefail
-
-          jq '
-            if .artifacts then
-              .artifacts |= map(
-                select(
-                  .name != null and
-                  .version != null and
-                  .version != "null"
-                )
-              )
-            else
-              .
-            end
-          ' sbom.json > sbom-clean.json
-
-          mv sbom-clean.json sbom.json
-
-          echo "SBOM cleaned successfully."
+          echo "Skip cleaning the scan input; keep sbom.spdx.json untouched."
