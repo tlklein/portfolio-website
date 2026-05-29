@@ -80,23 +80,21 @@ jobs:
 
           GOPATH=$(go env GOPATH)
 
+          # Convert GOPATH to relative pattern if inside workspace (safe fallback)
+          GOPATH_REL="**/go/pkg/mod/**"
+
           syft dir:. \
             --exclude "**/.git/**" \
             --exclude "**/vendor/**" \
             --exclude "**/bin/**" \
             --exclude "**/dist/**" \
             --exclude "**/build/**" \
-            --exclude "$GOPATH/**" \
+            --exclude "$GOPATH_REL" \
             -o spdx-json=sbom.spdx.json
 
           jq empty sbom.spdx.json
 
           echo "SBOM generation complete"
-
-      - name: Clean CI filesystem noise
-        run: |
-          rm -rf ~/.cache/go-build || true
-          rm -rf ~/go/pkg/mod || true
 
       #################################################################
       # Grype scan + SARIF generation
