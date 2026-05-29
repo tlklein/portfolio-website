@@ -1,0 +1,237 @@
+name: "SBOM and Vulnerability Scanning"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 1 * *'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  sbom-and-scan:
+    name: SBOM and Vulnerability Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      #################################################################
+      # Checkout
+      #################################################################
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      #################################################################
+      # Setup Go
+      #################################################################
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Show Go version
+        run: go version
+
+      #################################################################
+      # Install tools
+      #################################################################
+      - name: Install Syft, Grype, and jq
+        run: |
+          set -euo pipefail
+
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+          syft version
+          grype version
+          jq --version
+
+      #################################################################
+      # Patch vulnerable dependencies
+      #################################################################
+      - name: Patch vulnerable Go modules
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Searching for go.mod files..."
+
+          find . -name go.mod -print | while read -r gm; do
+            dir=$(dirname "$gm")
+
+            echo "Processing: $gm"
+
+            pushd "$dir" >/dev/null
+
+            #################################################################
+            # Force secure versions
+            #################################################################
+
+            go get github.com/containerd/containerd@v1.7.32
+            go get github.com/opencontainers/selinux@v1.13.0
+
+            #################################################################
+            # Patch-only dependency updates
+            #################################################################
+
+            go get -u=patch ./...
+
+            #################################################################
+            # Clean modules
+            #################################################################
+
+            go mod tidy
+
+            #################################################################
+            # Verify installed versions
+            #################################################################
+
+            echo "Installed secure module versions:"
+            go list -m all | grep -E 'containerd|selinux'
+
+            #################################################################
+            # HARD FAIL if vulnerable version still exists
+            #################################################################
+
+            if go list -m all | grep 'github.com/containerd/containerd v1.7.29'; then
+              echo "ERROR: Vulnerable containerd version still present"
+              exit 1
+            fi
+
+            popd >/dev/null
+          done
+
+      #################################################################
+      # Generate SPDX SBOM
+      #################################################################
+      - name: Generate SPDX SBOM
+        run: |
+          set -euo pipefail
+
+          syft . -o spdx-json=sbom.spdx.json
+
+          jq empty sbom.spdx.json
+
+          echo "SBOM generated successfully."
+
+      #################################################################
+      # Scan SBOM with Grype
+      #################################################################
+      - name: Scan SBOM with Grype
+        run: |
+          set -euo pipefail
+
+          echo "Running Grype scan..."
+
+          grype sbom:./sbom.spdx.json -o table
+
+          grype sbom:./sbom.spdx.json -o sarif > grype-results.sarif
+
+          CRIT_HIGH_SBOM=$(
+            grype sbom:./sbom.spdx.json -o json |
+            jq '[.matches[] |
+            select(
+              .vulnerability.severity=="Critical" or
+              .vulnerability.severity=="High"
+            )] | length'
+          )
+
+          echo "Critical/High findings: $CRIT_HIGH_SBOM"
+
+          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
+            echo "Critical or High vulnerabilities detected."
+
+            grype sbom:./sbom.spdx.json -o json |
+            jq -r '
+              .matches[] |
+              select(
+                .vulnerability.severity=="Critical" or
+                .vulnerability.severity=="High"
+              ) |
+              "Package: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) (\(.vulnerability.severity))"
+            '
+
+            exit 1
+          fi
+
+      #################################################################
+      # OSV vulnerability scan
+      #################################################################
+      - name: OSV API vulnerability scan
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FOUND=0
+
+          TMP=$(mktemp)
+
+          jq -c '
+            .packages[] |
+            {
+              name: .name,
+              version: (.versionInfo // "")
+            }
+          ' sbom.spdx.json > "$TMP"
+
+          while IFS= read -r pkg; do
+
+            NAME=$(echo "$pkg" | jq -r '.name')
+            VERSION=$(echo "$pkg" | jq -r '.version')
+
+            #################################################################
+            # Skip invalid entries
+            #################################################################
+
+            if [ -z "$NAME" ] ||
+               [ -z "$VERSION" ] ||
+               [ "$VERSION" = "NOASSERTION" ] ||
+               [ "$VERSION" = "UNKNOWN" ]; then
+              continue
+            fi
+
+            RESPONSE=$(curl -s -X POST \
+              "https://api.osv.dev/v1/query" \
+              -H "Content-Type: application/json" \
+              -d "{\"package\":{\"name\":\"$NAME\"},\"version\":\"$VERSION\"}")
+
+            if echo "$RESPONSE" |
+              jq -e '.vulns and (.vulns | length > 0)' >/dev/null; then
+
+              echo "Vulnerabilities found in $NAME@$VERSION"
+
+              echo "$RESPONSE" |
+              jq -r '.vulns[] |
+              "• \(.id): \(.summary // "No summary provided")"'
+
+              FOUND=1
+            fi
+
+          done < "$TMP"
+
+          rm -f "$TMP"
+
+          if [ "$FOUND" = "1" ]; then
+            echo "OSV vulnerabilities detected."
+            exit 1
+          else
+            echo "No OSV vulnerabilities detected."
+          fi
+
+      #################################################################
+      # Upload SARIF to GitHub Security
+      #################################################################
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: grype-results.sarif
