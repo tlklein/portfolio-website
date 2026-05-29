@@ -1,4 +1,4 @@
-name: "SBOM Generation"
+name: "SBOM Generation and Vulnerability Scans"
 
 on:
   push:
@@ -21,7 +21,6 @@ jobs:
   sbom-generation:
     name: SBOM Generation
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v5
 
@@ -71,20 +70,14 @@ jobs:
 
             pushd "$dir" >/dev/null || continue
 
-            # Ensure valid Go version
             go mod edit -go=1.24 || true
 
-            # Patch known vulnerable modules
             go get github.com/opencontainers/selinux@v1.13.0 || true
             go get github.com/containerd/containerd@v1.7.32 || true
 
-            # go mod edit -replace github.com/opencontainers/selinux@v1.13.0
-            go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
+            go mod edit -replace=github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
 
-            # Safer dependency updates (patch versions only)
             go get -u=patch ./... || true
-
-            # Clean module files
             go mod tidy || true
 
             echo "Installed module versions:"
@@ -103,11 +96,9 @@ jobs:
           set -euo pipefail
 
           echo "Generating SBOM in JSON format..."
-
           syft packages . -o json > sbom.json
 
           echo "Validating SBOM JSON..."
-
           jq empty sbom.json
 
           echo "SBOM successfully generated and validated."
@@ -136,3 +127,104 @@ jobs:
           mv sbom-clean.json sbom.json
 
           echo "SBOM cleaned successfully."
+
+      #################################################################
+      # Upload SBOM for the next job
+      #################################################################
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-json
+          path: sbom.json
+          if-no-files-found: error
+
+  #################################################################
+  # Grype + OSV scans of SBOM
+  #################################################################
+  vulnerability-scan:
+    name: Grype + OSV Scanning
+    runs-on: ubuntu-latest
+    needs: sbom-generation
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download SBOM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-json
+
+      - name: Set up latest stable Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Show Go version
+        run: go version
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Install Syft and Grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+          syft version
+          grype version
+
+      - name: Scan SBOM with Grype
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Scanning SBOM with Grype..."
+          grype sbom:./sbom.json -o table || true
+
+          CRIT_HIGH_SBOM=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
+          echo "SBOM Critical/High count: $CRIT_HIGH_SBOM"
+
+          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
+            echo "CRITICAL/HIGH vulnerabilities detected in SBOM ($CRIT_HIGH_SBOM). Failing the job."
+            grype sbom:./sbom.json -o json | jq -r '.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High") | "SBOM: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) \(.vulnerability.severity)"'
+            exit 1
+          else
+            echo "No Critical/High vulnerabilities in SBOM."
+          fi
+
+      - name: OSV API vulnerability check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Running OSV API vulnerability scan..."
+          FOUND=0
+
+          jq -c '.artifacts[] | {name: .name, version: .version}' sbom.json | while read -r pkg; do
+            NAME=$(echo "$pkg" | jq -r '.name')
+            VERSION=$(echo "$pkg" | jq -r '.version')
+
+            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [[ "$NAME" == *"grype"* ]] || [[ "$VERSION" == "UNKNOWN" ]]; then
+              continue
+            fi
+
+            RESPONSE=$(curl -s -X POST "https://api.osv.dev/v1/query" \
+              -H "Content-Type: application/json" \
+              -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
+
+            HAS_VULNS=$(echo "$RESPONSE" | jq -r 'if (.vulns and (.vulns | length > 0)) then "yes" else "no" end')
+
+            if [ "$HAS_VULNS" = "yes" ]; then
+              echo "Vulnerabilities found in $NAME@$VERSION:"
+              echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary // "No summary provided")"'
+              FOUND=1
+            fi
+          done
+
+          if [ "$FOUND" = "1" ]; then
+            echo "OSV API detected one or more vulnerabilities."
+            exit 1
+          else
+            echo "No vulnerabilities detected by OSV."
+          fi
