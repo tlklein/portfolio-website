@@ -99,58 +99,80 @@ jobs:
 
           echo "Dependency verification completed successfully."
 
-            #################################################################
-            # Generate SPDX SBOM
-            #################################################################
-            - name: Generate SPDX SBOM
-              run: |
-                set -euo pipefail
+      #################################################################
+      # Generate SPDX SBOM
+      #################################################################
+      - name: Generate SPDX SBOM
+        run: |
+          set -euo pipefail
 
-                syft . -o spdx-json=sbom.spdx.json
+          syft . -o spdx-json=sbom.spdx.json
 
-                jq empty sbom.spdx.json
+          jq empty sbom.spdx.json
 
-                echo "SBOM generated successfully."
+          echo "SBOM generated successfully."
 
-            #################################################################
-            # Scan SBOM with Grype
-            #################################################################
-            - name: Scan SBOM with Grype
-              run: |
-                set -euo pipefail
+      #################################################################
+      # Run Grype scan
+      #################################################################
+      - name: Run Grype vulnerability scan
+        run: |
+          set -euo pipefail
 
-                echo "Running Grype scan..."
+          echo "Running Grype table scan..."
 
-                grype sbom:./sbom.spdx.json -o table
+          grype sbom:./sbom.spdx.json -o table
 
-                grype sbom:./sbom.spdx.json -o sarif > grype-results.sarif
+          echo "Generating SARIF..."
 
-                CRIT_HIGH_SBOM=$(
-                  grype sbom:./sbom.spdx.json -o json |
-                  jq '[.matches[] |
-                  select(
-                    .vulnerability.severity=="Critical" or
-                    .vulnerability.severity=="High"
-                  )] | length'
-                )
+          grype sbom:./sbom.spdx.json -o sarif > grype-results.sarif
 
-                echo "Critical/High findings: $CRIT_HIGH_SBOM"
+          #################################################################
+          # Validate SARIF
+          #################################################################
 
-                if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
-                  echo "Critical or High vulnerabilities detected."
+          if [ ! -s grype-results.sarif ]; then
+            echo "ERROR: grype-results.sarif is empty"
+            exit 1
+          fi
 
-                  grype sbom:./sbom.spdx.json -o json |
-                  jq -r '
-                    .matches[] |
-                    select(
-                      .vulnerability.severity=="Critical" or
-                      .vulnerability.severity=="High"
-                    ) |
-                    "Package: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) (\(.vulnerability.severity))"
-                  '
+          jq empty grype-results.sarif
 
-                  exit 1
-                fi
+          echo "SARIF validated successfully."
+
+      #################################################################
+      # Fail on High/Critical findings
+      #################################################################
+      - name: Fail on High/Critical vulnerabilities
+        run: |
+          set -euo pipefail
+
+          CRIT_HIGH_SBOM=$(
+            grype sbom:./sbom.spdx.json -o json |
+            jq '[.matches[] |
+            select(
+              .vulnerability.severity=="Critical" or
+              .vulnerability.severity=="High"
+            )] | length'
+          )
+
+          echo "Critical/High findings: $CRIT_HIGH_SBOM"
+
+          if [ "$CRIT_HIGH_SBOM" -gt 0 ]; then
+            echo "Critical or High vulnerabilities detected."
+
+            grype sbom:./sbom.spdx.json -o json |
+            jq -r '
+              .matches[] |
+              select(
+                .vulnerability.severity=="Critical" or
+                .vulnerability.severity=="High"
+              ) |
+              "Package: \(.artifact.name) \(.artifact.version) -> \(.vulnerability.id) (\(.vulnerability.severity))"
+            '
+
+            exit 1
+          fi
 
       #################################################################
       # OSV vulnerability scan
