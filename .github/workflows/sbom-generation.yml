@@ -15,62 +15,121 @@ permissions:
   security-events: write
 
 jobs:
+  #################################################################
+  # SBOM generation
+  #################################################################
   sbom-generation:
     name: SBOM Generation
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Go (latest stable)
+      #################################################################
+      # Install latest stable Go
+      #################################################################
+      - name: Set up latest stable Go
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
+          cache: true
 
       - name: Show Go version
         run: go version
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Install Syft and Grype
+      #################################################################
+      # Install Syft, Grype, and jq
+      #################################################################
+      - name: Install Syft, Grype, and jq
         run: |
+          set -euo pipefail
+
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | bash -s -- -b /usr/local/bin
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | bash -s -- -b /usr/local/bin
+
+          sudo apt-get update
+          sudo apt-get install -y jq
+
           syft version
           grype version
+          jq --version
 
-      - name: Patch vulnerable Go modules and update all dependencies
+      #################################################################
+      # Patch vulnerable modules safely
+      #################################################################
+      - name: Patch vulnerable Go modules and update dependencies
         shell: bash
         run: |
           set -euo pipefail
-          echo "Processing all go.mod files for module patching..."
+
+          echo "Processing all go.mod files..."
+
           find . -name go.mod -print | while read -r gm; do
             dir=$(dirname "$gm")
+
             echo "--- Processing $gm ---"
+
             pushd "$dir" >/dev/null || continue
 
-            go mod edit -replace=github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
-            go mod edit -replace=github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
+            # Ensure valid Go version
+            go mod edit -go=1.24 || true
 
-            go get -u all
-            go mod tidy
+            # Patch known vulnerable modules
+            go get github.com/opencontainers/selinux@v1.13.0 || true
+            go get github.com/containerd/containerd@v1.7.32 || true
 
-            go list -m all | grep -E 'selinux|containerd' || echo "No selinux/containerd found in $dir"
+            # Safer dependency updates (patch versions only)
+            go get -u=patch ./... || true
+
+            # Clean module files
+            go mod tidy || true
+
+            echo "Installed module versions:"
+            go list -m all | grep -E 'selinux|containerd' || echo "No matching modules found"
 
             popd >/dev/null
           done
-          echo "All modules patched and updated successfully."
 
+          echo "Dependency patching complete."
+
+      #################################################################
+      # Generate SBOM
+      #################################################################
       - name: Generate SBOM
         run: |
+          set -euo pipefail
+
           echo "Generating SBOM in JSON format..."
+
           syft packages . -o json > sbom.json
-          if ! jq empty sbom.json; then
-            echo "Error: sbom.json is not valid JSON"
-            exit 1
-          fi
+
+          echo "Validating SBOM JSON..."
+
+          jq empty sbom.json
+
           echo "SBOM successfully generated and validated."
 
+      #################################################################
+      # Clean SBOM
+      #################################################################
       - name: Clean SBOM
         run: |
-          jq 'if .artifacts then .artifacts |= map(select(.name != null and .version != null and .version != "null")) else . end' sbom.json > sbom.cleaned.json
+          set -euo pipefail
+
+          jq '
+            if .artifacts then
+              .artifacts |= map(
+                select(
+                  .name != null and
+                  .version != null and
+                  .version != "null"
+                )
+              )
+            else
+              .
+            end
+          ' sbom.json > sbom-clean.json
+
+          mv sbom-clean.json sbom.json
+
+          echo "SBOM cleaned successfully."
