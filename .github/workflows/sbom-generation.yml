@@ -75,11 +75,8 @@ jobs:
             go mod edit -go=1.26.3 || true
 
             # Patch known vulnerable modules
-            go get github.com/opencontainers/selinux@v1.13.0 || true
-            go get github.com/containerd/containerd@v1.7.32 || true
-
-            # go mod edit -replace github.com/opencontainers/selinux@v1.13.0
-            # go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
+            go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
+            go mod edit -replace github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
 
             # Safer dependency updates (patch versions only)
             go get -u=patch ./... || true
@@ -111,7 +108,7 @@ jobs:
           jq empty sbom.json
 
           echo "SBOM successfully generated and validated."
-
+      
       - name: Clean SBOM
         run: |
           echo "Skip cleaning the scan input; keep sbom.spdx.json untouched."
