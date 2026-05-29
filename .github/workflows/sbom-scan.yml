@@ -82,7 +82,7 @@ jobs:
 
           # Convert GOPATH to relative pattern if inside workspace (safe fallback)
           GOPATH_REL="**/go/pkg/mod/**"
-
+          
           syft dir:. \
             --exclude "**/.git/**" \
             --exclude "**/vendor/**" \
