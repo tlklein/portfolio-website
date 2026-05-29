@@ -72,15 +72,26 @@ jobs:
       #################################################################
       # SBOM generation and clean cache
       #################################################################
-      - name: Generate SBOM (SPDX JSON)
+      - name: Generate SBOM (clean scope)
         run: |
           set -euo pipefail
 
-          echo "Generating SBOM..."
-          syft go-mod-file:. -o spdx-json=sbom.spdx.json
+          echo "Generating SBOM from repository only..."
+
+          GOPATH=$(go env GOPATH)
+
+          syft dir:. \
+            --exclude "**/.git/**" \
+            --exclude "**/vendor/**" \
+            --exclude "**/bin/**" \
+            --exclude "**/dist/**" \
+            --exclude "**/build/**" \
+            --exclude "$GOPATH/**" \
+            -o spdx-json=sbom.spdx.json
 
           jq empty sbom.spdx.json
-          echo "SBOM generated successfully"
+
+          echo "SBOM generation complete"
 
       - name: Clean CI filesystem noise
         run: |
