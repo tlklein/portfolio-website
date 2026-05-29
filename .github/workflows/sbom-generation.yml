@@ -74,14 +74,14 @@ jobs:
             # Ensure valid Go version
             go mod edit -go=1.26.3 || true
 
-            # Patch known vulnerable modules
+            # 1. Force Go to use the patched versions globally via replacement
             go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
             go mod edit -replace github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
 
-            # Safer dependency updates (patch versions only)
+            # 2. Re-verify dependencies with patch-level upgrades
             go get -u=patch ./... || true
 
-            # Clean module files
+            # 3. Clean module files
             go mod tidy || true
 
             echo "Installed module versions:"
