@@ -101,8 +101,16 @@ jobs:
       - name: Generate SBOM
         run: |
           set -euo pipefail
-          syft . -o spdx-json=sbom.spdx.json
-          jq empty sbom.spdx.json
+
+          echo "Generating SBOM in Syft JSON format..."
+
+          syft . -o syft-json > sbom.json
+
+          echo "Validating SBOM JSON..."
+
+          jq empty sbom.json
+
+          echo "SBOM successfully generated and validated."
 
       - name: Clean SBOM
         run: |
