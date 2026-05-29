@@ -53,7 +53,6 @@ jobs:
             go mod edit -replace=github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
 
             go get -u all
-            go mod tidy
 
             go list -m all | grep -E 'selinux|containerd' || echo "No selinux/containerd found in $dir"
 

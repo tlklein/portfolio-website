@@ -15,22 +15,22 @@ permissions:
   security-events: write
 
 jobs:
-  #################################################################
-  # Grype + OSV scans of SBOM
-  #################################################################
   vulnerability-scan:
     name: Grype + OSV Scanning
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up Go 1.24.9
+      - name: Set up Go (latest stable)
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.9'
+          go-version: 'stable'
 
       - name: Show Go version
         run: go version
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Install Syft and Grype
         run: |
@@ -39,10 +39,19 @@ jobs:
           syft version
           grype version
 
-      - name: Scan SBOM with Grype
+      - name: Generate SBOM
         run: |
+          syft . -o json > sbom.json
+          jq empty sbom.json
+
+      - name: Scan SBOM with Grype
+        shell: bash
+        run: |
+          set -euo pipefail
+
           echo "Scanning SBOM with Grype..."
           grype sbom:./sbom.json -o table || true
+
           CRIT_HIGH_SBOM=$(grype sbom:./sbom.json -o json | jq '[.matches[] | select(.vulnerability.severity=="Critical" or .vulnerability.severity=="High")] | length')
           echo "SBOM Critical/High count: $CRIT_HIGH_SBOM"
 
@@ -55,17 +64,17 @@ jobs:
           fi
 
       - name: OSV API vulnerability check
+        shell: bash
         run: |
+          set -euo pipefail
           echo "Running OSV API vulnerability scan..."
           FOUND=0
 
-          # Iterate through all packages in the SBOM
-          cat sbom.json | jq -c '.artifacts[] | {name: .name, version: .version}' | while read -r pkg; do
+          jq -c '.artifacts[] | {name: .name, version: .version}' sbom.json | while read -r pkg; do
             NAME=$(echo "$pkg" | jq -r '.name')
             VERSION=$(echo "$pkg" | jq -r '.version')
 
-            # Skip invalid or tool artifacts
-            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [[ "$NAME" == *"grype"* ]] || [[ "$VERSION" == "UNKNOWN" ]]; then
+            if [ -z "$NAME" ] || [ -z "$VERSION" ] || [ "$VERSION" = "UNKNOWN" ]; then
               continue
             fi
 
@@ -73,9 +82,7 @@ jobs:
               -H "Content-Type: application/json" \
               -d "{\"package\": {\"name\": \"$NAME\"}, \"version\": \"$VERSION\"}")
 
-            HAS_VULNS=$(echo "$RESPONSE" | jq -r 'if (.vulns and (.vulns | length > 0)) then "yes" else "no" end')
-
-            if [ "$HAS_VULNS" = "yes" ]; then
+            if echo "$RESPONSE" | jq -e '.vulns and (.vulns | length > 0)' >/dev/null 2>&1; then
               echo "Vulnerabilities found in $NAME@$VERSION:"
               echo "$RESPONSE" | jq -r '.vulns[] | "• \(.id): \(.summary // "No summary provided")"'
               FOUND=1
@@ -88,4 +95,3 @@ jobs:
           else
             echo "No vulnerabilities detected by OSV."
           fi
-          
