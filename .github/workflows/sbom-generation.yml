@@ -49,10 +49,11 @@ jobs:
             echo "--- Processing $gm ---"
             pushd "$dir" >/dev/null || continue
 
+            go get -u all
+            go mod tidy
+
             go mod edit -replace=github.com/opencontainers/selinux=github.com/opencontainers/selinux@v1.13.0
             go mod edit -replace=github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
-
-            go get -u all
 
             go list -m all | grep -E 'selinux|containerd' || echo "No selinux/containerd found in $dir"
 
