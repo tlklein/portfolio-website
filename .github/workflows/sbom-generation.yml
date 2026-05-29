@@ -102,11 +102,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Generating SBOM in JSON format..."
+          echo "Generating SBOM in Syft JSON format..."
 
-          syft packages . -o json > sbom.json
+          syft . -o syft-json > sbom.json
 
           echo "Validating SBOM JSON..."
+
+          jq empty sbom.json
 
           echo "SBOM successfully generated and validated."
 
