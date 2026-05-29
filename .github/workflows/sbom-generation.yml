@@ -78,6 +78,9 @@ jobs:
             go get github.com/opencontainers/selinux@v1.13.0 || true
             go get github.com/containerd/containerd@v1.7.32 || true
 
+            # go mod edit -replace github.com/opencontainers/selinux@v1.13.0
+            go mod edit -replace github.com/containerd/containerd=github.com/containerd/containerd@v1.7.32
+
             # Safer dependency updates (patch versions only)
             go get -u=patch ./... || true
 
