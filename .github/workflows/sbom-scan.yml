@@ -179,10 +179,14 @@ jobs:
           done
 
           exit $FOUND
-
+      
       #################################################################
       # Upload SARIF (GitHub Security tab)
       #################################################################
+      - name: Validate SARIF structure
+        run: |
+          jq '.version, .runs | length' grype-results.sarif
+
       - name: Upload SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v4
