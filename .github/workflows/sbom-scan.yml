@@ -183,9 +183,20 @@ jobs:
       #################################################################
       # Upload SARIF (GitHub Security tab)
       #################################################################
-      - name: Validate SARIF structure
+      - name: SARIF diagnostics
+        if: always()
         run: |
-          jq '.version, .runs | length' grype-results.sarif
+          echo "SARIF version:"
+          jq '.version' grype-results.sarif
+
+          echo "Runs:"
+          jq '.runs | length' grype-results.sarif
+
+          echo "Results:"
+          jq '.runs[0].results | length' grype-results.sarif
+
+          echo "Tool:"
+          jq '.runs[0].tool.driver.name' grype-results.sarif
 
       - name: Upload SARIF
         if: always()
