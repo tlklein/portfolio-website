@@ -81,7 +81,7 @@ jobs:
           # Convert GOPATH to relative pattern if inside workspace (safe fallback)
           GOPATH_REL="**/go/pkg/mod/**"
           
-          # Maybe add [0000]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal) SBOM generation complete
+          # [0000]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal) SBOM generation complete
           syft dir:. \
             --exclude "**/.git/**" \
             --exclude "**/vendor/**" \
@@ -169,4 +169,13 @@ jobs:
           done
 
           exit $FOUND
-      
+
+      #################################################################
+      # Upload security files to repo
+      #################################################################
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-results
+          path: |
+            sbom.spdx.json
+            grype.json
