@@ -2,15 +2,9 @@ name: "Site Validation"
 
 on:
   push:
-    branches:
-      - main
-      - dev
-      - feature
+    branches: [main]
   pull_request:
-    branches:
-      - main
-      - dev
-      - feature
+    branches: [main]
 
 permissions:
   contents: read

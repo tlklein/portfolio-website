@@ -34,7 +34,7 @@ encrypted storage.
 
 ## Final Product
 
-To view the live website, please [click here](https://www.trinityklein.dev/)
+Please [view the live website here](https://www.trinityklein.dev/)
 
 ## Changelog
 
@@ -363,8 +363,7 @@ Bypass npm using this:
   │       ├── code-signature-check.yml           # Verifies AWS Lambda code signatures before deployment
   │       ├── codeql-analysis.yml                # GitHub CodeQL security/static analysis for the repository
   │       ├── playwright-tests.yml               # End-to-end UI test pipeline using Playwright
-  │       ├── sbom-generation.yml                # Syft-based SBOM generation for the entire stack
-  │       ├── sbom-vulnerability-scan.yml        # Grype + OSV vulnerability scanning of SBOM artifacts
+  │       ├── sbom-scans.yml                     # Syft-based SBOM and Grype + OSV vulnerability scanning
   │       ├── site-validation.yml                # Linting, link checking, accessibility & performance validation for site
   │       └── terraform-plan-apply.txt           # Terraform CI/CD for plan/apply with safety controls
   │
@@ -375,15 +374,22 @@ Bypass npm using this:
   ├── bin/                     
   │   └── grype.exe                               # Locally installed Grype scanner for Windows
   │
+  ├── dist/
+  │   ├── _astro/                                  # Astro UI components used across the site
+  │   │   └── index_@_@astro.qMD_RPC.css.astro  
+  │   ├── favicon.svg                              # Site favicon
+  │   ├── index.html                               # Site compressed index file 
+  │   └── trinity-klein-resume.pdf                 # PDF copy of resume
+  |
   ├── documentation/                     
   │   ├── all-devices-black.png                   # Device mockup used for portfolio visuals
   │   ├── front-end-diagram.png                   # Front-end architecture diagram
   │   ├── back-end-diagram.png                    # Back-end Lambda/API/DynamoDB architecture diagram
   │   ├── high-level-diagram.png                  # System-level infrastructure diagram
   │   └── lifecycle-diagram.png                   # S3 lifecycle & storage-tiering diagram
-  │
+  |
   ├── src/
-  │   ├── components/                             # Astro UI components used across the site
+  │   ├── components/                              # Astro UI components used across the site
   │   │   ├── About.astro                          # About section component
   │   │   ├── Education.astro                      # Education section component
   │   │   ├── Experience.astro                     # Experience/work section
@@ -433,13 +439,14 @@ Bypass npm using this:
   ├── .gitignore                                   # Ignore patterns for node, Terraform, Python, build outputs
   ├── astro.config.mjs                             # Astro configuration entrypoint
   ├── CHANGELOG.md                                 # Versioned release notes
-  ├── grype-results.json                           # Cached vulnerability scan results
+  ├── grype-results.sarif                          # Grype vulnerability scan results
+  ├── go.mod                                       # Go configuration
+  ├── go.sum                                       # Go hashes
   ├── package-lock.json                            # Node package lockfile
   ├── package.json                                 # Dependencies + scripts
   ├── README.md                                    # Project overview, architecture, diagrams, setup instructions
-  ├── sbom-clean.json                              # Cleaned SBOM used for OSV scanning
-  ├── sbom.json                                    # Raw Syft SBOM
-  └── tsconfig.json                                # TypeScript configuration                                                
+  └── tsconfig.json                                # TypeScript configuration 
+
 ```
 
 ## Future Improvements

@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '0 0 1 * *'  # 1st of every month, 00:00 UTC
 
 permissions:
   contents: read
