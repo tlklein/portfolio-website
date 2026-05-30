@@ -105,7 +105,12 @@ jobs:
           grype sbom:./sbom.spdx.json -o table
 
           echo "Generating SARIF..."
-          grype sbom:./sbom.spdx.json -o sarif > grype-results.sarif
+          grype sbom:./sbom.spdx.json \
+          -o sarif \
+          > grype-results.sarif || true
+
+          test -s grype-results.sarif
+          jq empty grype-results.sarif
 
           if [ ! -s grype-results.sarif ]; then
             echo "ERROR: SARIF file is empty"
@@ -183,20 +188,30 @@ jobs:
       #################################################################
       # Upload SARIF (GitHub Security tab)
       #################################################################
-      - name: SARIF diagnostics
+      - name: Deep SARIF diagnostics
         if: always()
         run: |
-          echo "SARIF version:"
-          jq '.version' grype-results.sarif
+          echo "Version:"
+          jq -r '.version' grype-results.sarif
 
           echo "Runs:"
           jq '.runs | length' grype-results.sarif
 
+          echo "Tool:"
+          jq -r '.runs[0].tool.driver.name' grype-results.sarif
+
+          echo "Rules:"
+          jq '.runs[0].tool.driver.rules | length' grype-results.sarif
+
           echo "Results:"
           jq '.runs[0].results | length' grype-results.sarif
 
-          echo "Tool:"
-          jq '.runs[0].tool.driver.name' grype-results.sarif
+          echo "Schema:"
+          jq -r '.$schema // "missing"' grype-results.sarif
+      
+      - name: Show SARIF size
+        run: |
+          ls -lh grype-results.sarif
 
       - name: Upload SARIF
         if: always()
