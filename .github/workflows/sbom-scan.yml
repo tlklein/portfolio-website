@@ -105,9 +105,7 @@ jobs:
           grype sbom:./sbom.spdx.json -o table
 
           echo "Generating SARIF..."
-          grype sbom:./sbom.spdx.json \
-          -o sarif \
-          > grype-results.sarif || true
+          grype sbom:sbom.spdx.json -o json > grype.json
 
           test -s grype-results.sarif
           jq empty grype-results.sarif
@@ -185,36 +183,3 @@ jobs:
 
           exit $FOUND
       
-      #################################################################
-      # Upload SARIF (GitHub Security tab)
-      #################################################################
-      - name: Deep SARIF diagnostics
-        if: always()
-        run: |
-          echo "Version:"
-          jq -r '.version' grype-results.sarif
-
-          echo "Runs:"
-          jq '.runs | length' grype-results.sarif
-
-          echo "Tool:"
-          jq -r '.runs[0].tool.driver.name' grype-results.sarif
-
-          echo "Rules:"
-          jq '.runs[0].tool.driver.rules | length' grype-results.sarif
-
-          echo "Results:"
-          jq '.runs[0].results | length' grype-results.sarif
-
-          echo "Schema:"
-          jq -r '.$schema // "missing"' grype-results.sarif
-      
-      - name: Show SARIF size
-        run: |
-          ls -lh grype-results.sarif
-
-      - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: grype-results.sarif
