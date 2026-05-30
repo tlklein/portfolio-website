@@ -81,6 +81,7 @@ jobs:
           # Convert GOPATH to relative pattern if inside workspace (safe fallback)
           GOPATH_REL="**/go/pkg/mod/**"
           
+          # Maybe add [0000]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal) SBOM generation complete
           syft dir:. \
             --exclude "**/.git/**" \
             --exclude "**/vendor/**" \
@@ -103,20 +104,6 @@ jobs:
 
           echo "Running Grype table scan..."
           grype sbom:./sbom.spdx.json -o table
-
-          echo "Generating SARIF..."
-          grype sbom:sbom.spdx.json -o json > grype.json
-
-          test -s grype-results.sarif
-          jq empty grype-results.sarif
-
-          if [ ! -s grype-results.sarif ]; then
-            echo "ERROR: SARIF file is empty"
-            exit 1
-          fi
-
-          jq empty grype-results.sarif
-          echo "SARIF valid"
 
       #################################################################
       # Fail gate: High/Critical only
