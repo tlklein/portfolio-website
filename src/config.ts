@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Trinity Klein",
-  title: "Cloud & DevOps Engineer",
+  title: "Cloud Engineer",
   description: "Portfolio website of Trinity Klein",
   accentColor: "#0066CC", 
   social: {
@@ -10,13 +10,16 @@ export const siteConfig = {
     email: "trinitylklein@outlook.com"
   },
   aboutMe:
-    "I am a Cloud & DevOps Engineer (B.S., Computer Information Systems - Cum Laude) and AWS Certified Cloud Practitioner who architects, deploys, and automates scalable cloud infrastructure and full-stack systems. My specialties include serverless architectures (Lambda, API Gateway, S3, DynamoDB), Infrastructure as Code (Terraform), CI/CD pipelines (GitHub Actions), and security-focused design. I'm experienced with Python, Node.js, Vue.js, database engineering, and network architecture.",
+    "Cloud engineer with experience that spans AWS, Terraform, Python, Docker, CI/CD, serverless architecture, and full-stack development. Built secure cloud environments, automated deployment pipelines with GitHub Actions, developed REST APIs, and designed scalable applications using modern web technologies.",
   skills: [
+    "AWS",
     "Terraform",
-    "CI/CD ",
+    "GitHub Actions",
     "Python",
+    "Node.js",
+    "Docker",
     "Serverless Architecture",
-    "Full-Stack"
+    "REST APIs"
   ],
   projects: [
     {

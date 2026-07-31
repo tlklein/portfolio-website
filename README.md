@@ -346,14 +346,6 @@ After that, start the Astro dev server:
 npm run dev
 ```
 
-or
-
-Bypass npm using this:
-
-```bash
-.\node_modules\.bin\astro dev
-```
-
 ## File Structure
 
 ```text
@@ -438,7 +430,7 @@ Bypass npm using this:
   │
   ├── .gitignore                                   # Ignore patterns for node, Terraform, Python, build outputs
   ├── astro.config.mjs                             # Astro configuration entrypoint
-  ├── CHANGELOG.md                                 # Versioned release notes
+  ├── CHANGELOG.md                                 # Versioned release notes and commands for debugging
   ├── grype-results.sarif                          # Grype vulnerability scan results
   ├── go.mod                                       # Go configuration
   ├── go.sum                                       # Go hashes
