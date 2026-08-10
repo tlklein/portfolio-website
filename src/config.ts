@@ -10,7 +10,7 @@ export const siteConfig = {
     email: "trinitylklein@outlook.com"
   },
   aboutMe:
-    "Started in operations at Southeast Hypnosis managing intake, billing, and scheduling, where I rebuilt the manual workflow into an automated custom CRM platform in GoHighLevel and transitioned into Automation Engineer. B.S. in Computer Information Systems, Cum Laude from the University of Houston and AWS Certified Cloud Practitioner."
+    "Started in operations at Southeast Hypnosis managing intake, billing, and scheduling, where I rebuilt the manual workflow into an automated custom RevOps/CRM platform in GoHighLevel and transitioned into Automation Engineer. B.S. in Computer Information Systems, Cum Laude from the University of Houston and AWS Certified Cloud Practitioner."
     ,
   skills: [
     "AWS - S3 / CloudFront OAC / Lambda / DynamoDB / IAM",
