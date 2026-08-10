@@ -4,7 +4,7 @@ export const siteConfig = {
   description: "Portfolio website of Trinity Klein",
   accentColor: "#0066CC", 
   social: {
-    resume: "/Trinity_Klein_Resume.pdf",
+    resume: "/trinity-klein-resume.pdf",
     linkedin: "https://linkedin.com/in/trinity-klein",
     github: "https://github.com/tlklein",
     email: "trinitylklein@outlook.com"
