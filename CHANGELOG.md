@@ -11,6 +11,7 @@
 - Updated README.MD to show changes as updated.
 - Certain CI/CD that use cloud infrastructure will be in txt and not always in yml (terraform and build-site).
 - Fix node version mix-up. Different versions on different folders, both being used in application. Deleted the runaway and noted commands below for future reference. Caused npm run build to not work because it was using a runaway version, not the proper version. 
+- 
 
 ## Commands For Reference
 node -p "process.execPath"
